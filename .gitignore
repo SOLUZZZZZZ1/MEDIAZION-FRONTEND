@@ -1,1 +1,8 @@
-.vercel
+node_modules/
+dist/
+.vercel/output/
+.env
+.env.*
+!.env.example
+.vscode/
+Thumbs.db
