@@ -1,11 +1,12 @@
-export default function Inicio(){
+export default function Inicio() {
   return (
-    <main className="sr-container py-12">
-      <section className="sr-card" style={{textAlign:"center", padding:"36px"}}>
-        <h1 className="sr-h1" style={{marginBottom:6}}>MEDIAZION</h1>
-        <p className="sr-p" style={{fontSize:18, marginBottom:8}}>Soluciones profesionales a conflictos</p>
-        <p className="sr-p" style={{opacity:.85}}>Centro de mediación y resolución de conflictos</p>
-      </section>
-    </main>
-  );
-}
+    <main
+      className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] text-center text-white"
+      style={{
+        backgroundImage: "url('/casa-diseno.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="bg-black/50 p-8 rounded-2xl max-w-2xl mx-auto">
+       
