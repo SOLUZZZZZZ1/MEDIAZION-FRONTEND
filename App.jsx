@@ -3,17 +3,17 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 
 
-import Inicio from "./Inicio.jsx";
-import QuienesSomos from "./QuienesSomos.jsx";
-import Servicios from "./Servicios.jsx";
-import Mediadores from "./Mediadores.jsx";
-import Tarifas from "./Tarifas.jsx";
-import Contacto from "./Contacto.jsx";
-import Actualidad from "./Actualidad.jsx";
+import Inicio from "./pages/Inicio.jsx";
+import QuienesSomos from "./pages/QuienesSomos.jsx";
+import Servicios from "./pages/Servicios.jsx";
+import Mediadores from "./pages/Mediadores.jsx";
+import Tarifas from "./pages/Tarifas.jsx";
+import Contacto from "./pages/Contacto.jsx";
+import Actualidad from "./pages/Actualidad
 
-import MediadorAlta from "./MediadorAlta.jsx";
-import Success from "./Success.jsx";
-import Cancel from "./Cancel.jsx";
+import MediadorAlta from "./pages/MediadorAlta.jsx";
+import Success from "./pages/Success.jsx";
+import Cancel from "./pages/Cancel.jsx";
 
 export default function App(){
   return (
