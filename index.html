@@ -3,10 +3,44 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MEDIAZION · Centro Institucional</title>
-    <meta name="description" content="MEDIAZION · Soluciones profesionales, sin conflicto." />
+
+    <title>MEDIAZION · Centro de mediación y resolución de conflictos</title>
+    <meta name="description" content="MEDIAZION · Soluciones profesionales a conflictos. Centro de mediación y resolución de conflictos." />
+
     <link rel="icon" type="image/png" href="/favicon-32.png" />
+
+    <!-- Fuentes modernas -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Tema suave profesional -->
+    <style>
+      :root{
+        --bg:#f9fafb;
+        --ink:#0f172a;
+        --brand:#124f94;
+        --brand-2:#1e88e5;
+        --accent:#15aabf;
+        --border:#e6eef8;
+        --radius:16px;
+        --shadow:0 12px 28px rgba(18,79,148,.12);
+        --font-titles:"Montserrat",system-ui,-apple-system,Segoe UI,sans-serif;
+        --font-text:"Open Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+      }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--font-text);
+        margin:0;
+      }
+      h1,h2,h3 {
+        font-family: var(--font-titles);
+        color: var(--brand);
+      }
+    </style>
   </head>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
