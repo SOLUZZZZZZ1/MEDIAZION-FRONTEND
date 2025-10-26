@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchNews, getNewsApiBase } from "../lib/newsApi.js";  // ✅
+import { fetchNews, getNewsApiBase } from "../lib/newsApi.js";  // 
 
 
 // Claves de guardado local (no usa backend)
