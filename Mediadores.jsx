@@ -1,16 +1,22 @@
-<main className="sr-container py-12">
-  <h1 className="sr-h1 mb-4">Mediadores</h1>
-  <p className="sr-p mb-4">
-    En <strong>MEDIAZION</strong> colaboramos con mediadores profesionales acreditados en distintas áreas:
-    civil, mercantil, familiar, comunitaria y empresarial.
-  </p>
-  <p className="sr-p mb-4">
-    Nuestra red de mediadores cumple con los estándares del Centro de Mediación y cuenta con formación continua,
-    seguimiento de casos y acreditación oficial.
-  </p>
-  <p className="sr-p mb-6">
-    Si eres mediador o mediadora y deseas formar parte de nuestro equipo, puedes darte de alta utilizando el botón
-    anterior.
-  </p>
+export default function Mediadores(){
+  return (
+    <main className="sr-container py-12">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <h1 className="sr-h1">Mediadores</h1>
+        <a href="/mediadores/alta" className="sr-btn-primary whitespace-nowrap">Alta de mediadores</a>
+      </div>
 
-  <a href="/mediadores/
+      <section className="sr-card mt-6">
+        <p className="sr-p">
+          En <strong>MEDIAZION</strong> colaboramos con mediadores profesionales acreditados en distintas áreas:
+          civil, mercantil, familiar, comunitaria y empresarial.
+        </p>
+        <p className="sr-p">
+          Nuestra red de mediadores cumple con los estándares del Centro de Mediación y cuenta con formación continua,
+          seguimiento de casos y acreditación oficial. Si eres mediador o mediadora y deseas formar parte de nuestro equipo,
+          puedes darte de alta utilizando el botón anterior.
+        </p>
+      </section>
+    </main>
+  );
+}
