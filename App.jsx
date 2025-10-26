@@ -1,6 +1,7 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Navbar from "./Navbar.jsx";
+import Navbar from "./components/Navbar.jsx";
+
 
 import Inicio from "./Inicio.jsx";
 import QuienesSomos from "./QuienesSomos.jsx";
