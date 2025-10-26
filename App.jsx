@@ -9,7 +9,7 @@ import Servicios from "./pages/Servicios.jsx";
 import Mediadores from "./pages/Mediadores.jsx";
 import Tarifas from "./pages/Tarifas.jsx";
 import Contacto from "./pages/Contacto.jsx";
-import Actualidad from "./pages/Actualidad
+import Actualidad from "./pages/Actualidad";
 
 import MediadorAlta from "./pages/MediadorAlta.jsx";
 import Success from "./pages/Success.jsx";
