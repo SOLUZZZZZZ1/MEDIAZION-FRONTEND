@@ -1,8 +1,7 @@
-// newsApi.js (en raíz)
 export function getNewsApiBase(){
   const fromEnv = import.meta.env.VITE_NEWS_API;
   if (fromEnv && fromEnv.trim().length) return fromEnv.trim();
-  // Fallback: backend Render
+  // Fallback al backend de Render
   return "https://backend-api-mediazion-1.onrender.com";
 }
 

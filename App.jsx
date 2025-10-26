@@ -9,7 +9,6 @@ import Mediadores from "./pages/Mediadores.jsx";
 import Tarifas from "./pages/Tarifas.jsx";
 import Contacto from "./pages/Contacto.jsx";
 import Actualidad from "./pages/Actualidad.jsx";
-
 import MediadorAlta from "./pages/MediadorAlta.jsx";
 import Success from "./pages/Success.jsx";
 import Cancel from "./pages/Cancel.jsx";
@@ -30,6 +29,11 @@ export default function App(){
         <Route path="/suscripcion/ok" element={<Success />} />
         <Route path="/suscripcion/cancel" element={<Cancel />} />
       </Routes>
+      <footer className="sr-footer">
+        <div className="sr-row sr-container">
+          <span>© {new Date().getFullYear()} MEDIAZION · Centro de mediación y resolución de conflictos</span>
+        </div>
+      </footer>
     </div>
   );
 }

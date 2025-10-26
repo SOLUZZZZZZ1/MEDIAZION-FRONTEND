@@ -1,74 +1,53 @@
 import { useState } from "react";
-import { getApiBase } from "../lib/api";
+const API_BASE = import.meta.env.VITE_API_BASE || "https://backend-api-mediazion-1.onrender.com";
 
 export default function Contacto(){
-  const [form, setForm] = useState({ nombre: "", email: "", asunto: "", mensaje: "" });
-  const [status, setStatus] = useState({ sending: false, ok: null, error: "" });
-
+  const [form, setForm] = useState({ name:"", email:"", subject:"", message:"" });
+  const [status, setStatus] = useState({ sending:false, ok:null, msg:"" });
   const onChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    setStatus({ sending: true, ok: null, error: "" });
-
-    const API = getApiBase();
-    try {
-      const res = await fetch(`${API.replace(/\/$/,'')}/contact`, {
+    setStatus({ sending:true, ok:null, msg:"" });
+    try{
+      const r = await fetch(API_BASE.replace(/\/$/,'') + "/contact", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.nombre,
-          email: form.email,
-          subject: form.asunto,
-          message: form.mensaje,
-        }),
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify(form)
       });
-      if (!res.ok) {
-        const msg = await res.text();
-        throw new Error(msg || "Error al enviar el mensaje");
-      }
-      await res.json();
-      setStatus({ sending: false, ok: true, error: "" });
-      setForm({ nombre: "", email: "", asunto: "", mensaje: "" });
-    } catch (err) {
-      setStatus({ sending: false, ok: false, error: err.message || "Error de red" });
+      const data = await r.json().catch(()=>({}));
+      if(!r.ok) throw new Error(data.detail || "Error al enviar");
+      setStatus({ sending:false, ok:true, msg:"Enviado. Gracias, te contactamos pronto." });
+      setForm({ name:"", email:"", subject:"", message:"" });
+    }catch(err){
+      setStatus({ sending:false, ok:false, msg: err.message || "Error de red" });
     }
   };
 
   return (
     <main className="sr-container py-12">
       <h1 className="sr-h1 mb-4">Contacto</h1>
-      <p className="sr-p">Cuéntanos tu caso. Te responderemos con la máxima confidencialidad.</p>
+      <form onSubmit={onSubmit} className="sr-card" style={{maxWidth:720}}>
+        <label className="sr-p">Nombre</label>
+        <input name="name" className="w-full border rounded-md px-3 py-2" value={form.name} onChange={onChange} required />
 
-      <form onSubmit={onSubmit} className="sr-card mt-6" style={{maxWidth: 720}}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="sr-p block mb-1">Nombre</label>
-            <input required name="nombre" value={form.nombre} onChange={onChange} className="w-full border rounded-md px-3 py-2" placeholder="Tu nombre" />
-          </div>
-          <div>
-            <label className="sr-p block mb-1">Email</label>
-            <input required type="email" name="email" value={form.email} onChange={onChange} className="w-full border rounded-md px-3 py-2" placeholder="tu@email.com" />
-          </div>
-          <div className="md:col-span-2">
-            <label className="sr-p block mb-1">Asunto</label>
-            <input required name="asunto" value={form.asunto} onChange={onChange} className="w-full border rounded-md px-3 py-2" placeholder="Motivo del contacto" />
-          </div>
-          <div className="md:col-span-2">
-            <label className="sr-p block mb-1">Mensaje</label>
-            <textarea required name="mensaje" value={form.mensaje} onChange={onChange} rows="5" className="w-full border rounded-md px-3 py-2" placeholder="Cuéntanos brevemente tu situación" />
-          </div>
-        </div>
+        <label className="sr-p mt-4">Email</label>
+        <input name="email" type="email" className="w-full border rounded-md px-3 py-2" value={form.email} onChange={onChange} required />
 
-        <div className="mt-4 flex items-center gap-3">
+        <label className="sr-p mt-4">Asunto</label>
+        <input name="subject" className="w-full border rounded-md px-3 py-2" value={form.subject} onChange={onChange} />
+
+        <label className="sr-p mt-4">Mensaje</label>
+        <textarea name="message" className="w-full border rounded-md px-3 py-2" rows="5" value={form.message} onChange={onChange} required />
+
+        <div className="mt-4" style={{display:"flex", alignItems:"center", gap:"12px"}}>
           <button className="sr-btn-primary" type="submit" disabled={status.sending}>
             {status.sending ? "Enviando..." : "Enviar"}
           </button>
-          {status.ok === true && <span className="text-green-700">Enviado. Gracias, te contactamos pronto.</span>}
-          {status.ok === false && <span className="text-red-700">Error: {status.error}</span>}
+          {status.ok === true && <span style={{color:"#166534"}}>{status.msg}</span>}
+          {status.ok === false && <span style={{color:"#991b1b"}}>Error: {status.msg}</span>}
         </div>
-
-        <p className="sr-p mt-4"><strong>Backend:</strong> {getApiBase()}</p>
+        <p className="sr-p mt-4"><strong>Backend:</strong> {API_BASE}</p>
       </form>
     </main>
   );
