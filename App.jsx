@@ -1,17 +1,19 @@
+// App.jsx (todo en RAÍZ, sin /pages)
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar.jsx";
+import Navbar from "./Navbar.jsx";
 
-import Inicio from "./pages/Inicio.jsx";
-import QuienesSomos from "./pages/QuienesSomos.jsx";
-import Servicios from "./pages/Servicios.jsx";
-import Mediadores from "./pages/Mediadores.jsx";
-import Tarifas from "./pages/Tarifas.jsx";
-import Contacto from "./pages/Contacto.jsx";
-import Actualidad from "./pages/Actualidad.jsx";
-import MediadorAlta from "./pages/MediadorAlta.jsx";
-import Success from "./pages/Success.jsx";
-import Cancel from "./pages/Cancel.jsx";
+import Inicio from "./Inicio.jsx";
+import QuienesSomos from "./QuienesSomos.jsx";
+import Servicios from "./Servicios.jsx";
+import Mediadores from "./Mediadores.jsx";
+import Tarifas from "./Tarifas.jsx";
+import Contacto from "./Contacto.jsx";
+import Actualidad from "./Actualidad.jsx";
+
+import MediadorAlta from "./MediadorAlta.jsx"; // <-- SOLO UNA VEZ
+import Success from "./Success.jsx";
+import Cancel from "./Cancel.jsx";
 
 export default function App(){
   return (
@@ -29,11 +31,6 @@ export default function App(){
         <Route path="/suscripcion/ok" element={<Success />} />
         <Route path="/suscripcion/cancel" element={<Cancel />} />
       </Routes>
-      <footer className="sr-footer">
-        <div className="sr-row sr-container">
-          <span>© {new Date().getFullYear()} MEDIAZION · Centro de mediación y resolución de conflictos</span>
-        </div>
-      </footer>
     </div>
   );
 }
