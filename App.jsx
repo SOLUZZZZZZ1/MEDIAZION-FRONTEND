@@ -1,43 +1,35 @@
-// src/App.jsx
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Inicio from "./pages/Inicio";
+import Navbar from "./Navbar.jsx";
 
-const Placeholder = ({ title }) => (
-  <main className="sr-container">
-    <h1 className="sr-h1">{title}</h1>
-    <p className="sr-p">Contenido en preparación.</p>
-  </main>
-);
+import Inicio from "./Inicio.jsx";
+import QuienesSomos from "./QuienesSomos.jsx";
+import Servicios from "./Servicios.jsx";
+import Mediadores from "./Mediadores.jsx";
+import Tarifas from "./Tarifas.jsx";
+import Contacto from "./Contacto.jsx";
+import Actualidad from "./Actualidad.jsx";
+
+import MediadorAlta from "./MediadorAlta.jsx";
+import Success from "./Success.jsx";
+import Cancel from "./Cancel.jsx";
 
 export default function App(){
   return (
     <div className="min-h-screen bg-zinc-50 text-zinc-900">
       <Navbar />
       <Routes>
-        {/* Home canónica */}
         <Route path="/" element={<Inicio />} />
-        {/* Alias alternativos de la misma portada */}
-        <Route path="/inicio" element={<Inicio />} />
-        <Route path="/home" element={<Inicio />} />
-
-        {/* Páginas públicas */}
-        <Route path="/quienes-somos" element={<Placeholder title="Quiénes somos" />} />
-        <Route path="/servicios" element={<Placeholder title="Servicios" />} />
-        <Route path="/mediadores" element={<Placeholder title="Mediadores" />} />
-        <Route path="/tarifas" element={<Placeholder title="Tarifas" />} />
-        <Route path="/contacto" element={<Placeholder title="Contacto" />} />
+        <Route path="/quienes-somos" element={<QuienesSomos />} />
+        <Route path="/servicios" element={<Servicios />} />
+        <Route path="/mediadores" element={<Mediadores />} />
+        <Route path="/mediadores/alta" element={<MediadorAlta />} />
+        <Route path="/tarifas" element={<Tarifas />} />
+        <Route path="/contacto" element={<Contacto />} />
+        <Route path="/actualidad" element={<Actualidad />} />
+        <Route path="/suscripcion/ok" element={<Success />} />
+        <Route path="/suscripcion/cancel" element={<Cancel />} />
       </Routes>
-      <footer className="sr-footer">
-        <div className="sr-row">
-          <p>© MEDIAZION · Centro Institucional de Mediación y Resolución de Conflictos</p>
-          <nav className="sr-footer-links">
-            <a href="/legal">Aviso legal</a>
-            <a href="/rgpd">RGPD</a>
-          </nav>
-        </div>
-      </footer>
     </div>
   );
 }
