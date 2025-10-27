@@ -1,8 +1,5 @@
-// src/App.jsx
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-
-// ✅ componentes y páginas en sus carpetas reales
 import Navbar from "./components/Navbar.jsx";
 
 import Inicio from "./pages/Inicio.jsx";
@@ -12,12 +9,11 @@ import Mediadores from "./pages/Mediadores.jsx";
 import Tarifas from "./pages/Tarifas.jsx";
 import Contacto from "./pages/Contacto.jsx";
 import Actualidad from "./pages/Actualidad.jsx";
-
 import MediadorAlta from "./pages/MediadorAlta.jsx";
 import Success from "./pages/Success.jsx";
 import Cancel from "./pages/Cancel.jsx";
 
-export default function App(){
+export default function App() {
   return (
     <div className="min-h-screen bg-zinc-50 text-zinc-900">
       <Navbar />
