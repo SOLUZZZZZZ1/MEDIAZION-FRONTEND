@@ -1,3 +1,4 @@
+// src/App.jsx
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
@@ -9,7 +10,6 @@ import Mediadores from "./pages/Mediadores.jsx";
 import Tarifas from "./pages/Tarifas.jsx";
 import Contacto from "./pages/Contacto.jsx";
 import Actualidad from "./pages/Actualidad.jsx";
-import Mediador from "./pages/Mediadores.jsx"; // si tienes una página de listado de mediadores
 import MediadorAlta from "./pages/MediadorAlta.jsx";
 import Success from "./pages/Success.jsx";
 import Cancel from "./pages/Cancel.jsx";
@@ -32,7 +32,7 @@ export default function App() {
         <Route path="/quienes-somos" element={<QuienesSomos />} />
         <Route path="/servicios" element={<Servicios />} />
         <Route path="/mediadores" element={<Mediadores />} />
-        <Route path="/mediadores/alta" element={< MediadorAlta />} />
+        <Route path="/mediadores/alta" element={<MediadorAlta />} />
         <Route path="/tarifas" element={<Tarifas />} />
         <Route path="/contacto" element={<Contacto />} />
         <Route path="/actualidad" element={<Actualidad />} />
