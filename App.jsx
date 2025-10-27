@@ -9,6 +9,7 @@ import Mediadores from "./pages/Mediadores.jsx";
 import Tarifas from "./pages/Tarifas.jsx";
 import Contacto from "./pages/Contacto.jsx";
 import Actualidad from "./pages/Actualidad.jsx";
+import Mediador from "./pages/Mediadores.jsx"; // si tienes una página de listado de mediadores
 import MediadorAlta from "./pages/MediadorAlta.jsx";
 import Success from "./pages/Success.jsx";
 import Cancel from "./pages/Cancel.jsx";
@@ -22,6 +23,7 @@ export default function App() {
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
         backgroundAttachment: "fixed",
+        backgroundPosition: "center center",
       }}
     >
       <Navbar />
@@ -30,4 +32,13 @@ export default function App() {
         <Route path="/quienes-somos" element={<QuienesSomos />} />
         <Route path="/servicios" element={<Servicios />} />
         <Route path="/mediadores" element={<Mediadores />} />
-        <Route path="/mediadores/alta" element={<MediadorAlta
+        <Route path="/mediadores/alta" element={< MediadorAlta />} />
+        <Route path="/tarifas" element={<Tarifas />} />
+        <Route path="/contacto" element={<Contacto />} />
+        <Route path="/actualidad" element={<Actualidad />} />
+        <Route path="/suscripcion/ok" element={<Success />} />
+        <Route path="/suscripcion/cancel" element={<Cancel />} />
+      </Routes>
+    </div>
+  );
+}
