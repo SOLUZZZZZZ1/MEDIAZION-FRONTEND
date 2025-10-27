@@ -18,22 +18,12 @@ const WEBINARS = {
       "Acuerdos empresa–proveedor",
       "Cláusulas post-contrato"
     ]
-  },
-  "adr-compliance": {
-    title: "ADR & Compliance",
-    duration: "45 minutos · en directo",
-    agenda: [
-      "Mediación en el mapa de riesgos",
-      "Protocolos internos y evidencias",
-      "KPIs de eficacia"
-    ]
   }
 };
 
 export default function WebinarDetail(){
   const { slug } = useParams();
   const wb = WEBINARS[slug];
-
   if (!wb){
     return (
       <main className="sr-container py-12">
@@ -42,19 +32,16 @@ export default function WebinarDetail(){
       </main>
     );
   }
-
   return (
     <main className="sr-container py-12">
       <h1 className="sr-h1">{wb.title}</h1>
       <p className="sr-p">{wb.duration}</p>
-
       <div className="sr-card mt-6">
         <h3 className="sr-h3">Agenda</h3>
         <ul className="sr-p" style={{marginLeft:"16px", listStyle:"disc"}}>
           {wb.agenda.map((s,i)=>(<li key={i}>{s}</li>))}
         </ul>
       </div>
-
       <a className="sr-btn-primary mt-6 inline-block" href="/contacto">Quiero asistir</a>
     </main>
   );
