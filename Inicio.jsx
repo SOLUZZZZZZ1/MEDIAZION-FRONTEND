@@ -10,97 +10,95 @@ export default function Inicio() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Franja horizontal clara y translúcida */}
+      {/* Bloque horizontal, centrado, claro y legible */}
       <div
         style={{
-          display: "flex",
-          flexDirection: "row",       // fuerza horizontal
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "48px",
-          width: "90%",
-          maxWidth: "1100px",
-          padding: "28px 56px",
-          borderRadius: "22px",
-          backgroundColor: "rgba(255,255,255,0.18)", // más claro y translúcido
+          backgroundColor: "rgba(255,255,255,0.82)", // claro para poder usar texto negro
+          border: "1px solid rgba(0,0,0,0.06)",
+          borderRadius: "24px",
           boxShadow: "0 10px 28px rgba(0,0,0,0.18)",
-          border: "1px solid rgba(255,255,255,0.35)",
+          padding: "36px 56px",          // horizontal (más ancho que alto)
+          width: "92%",
+          maxWidth: "900px",             // no se hace “eterno”
+          textAlign: "center",
         }}
       >
-        {/* LOGO a la izquierda */}
-        <div style={{ flex: "0 0 auto", display: "flex", alignItems: "center" }}>
-          <img
-            src="/logo.png"
-            alt="MEDIAZION"
-            style={{ width: 220, height: "auto", display: "block" }}
-          />
-        </div>
+        {/* Logo centrado y un poco más grande */}
+        <img
+          src="/logo.png"
+          alt="MEDIAZION"
+          style={{
+            width: 300,                   // más grande
+            height: "auto",
+            display: "block",
+            margin: "0 auto 14px auto",  // centrado
+          }}
+        />
 
-        {/* Textos a la derecha - SIEMPRE HORIZONTAL */}
-        <div style={{ flex: 1, minWidth: 0, color: "#fff", textAlign: "left" }}>
-          <h1
+        {/* Textos debajo del logo en NEGRO */}
+        <h1
+          style={{
+            margin: 0,
+            color: "#0f172a",
+            fontWeight: 800,
+            fontSize: "32px",
+            letterSpacing: ".4px",
+            lineHeight: 1.15,
+          }}
+        >
+          MEDIAZION
+        </h1>
+
+        <p
+          style={{
+            margin: "10px 0 6px 0",
+            color: "#111111",             // negro
+            fontSize: "20px",
+            fontWeight: 700,
+          }}
+        >
+          Soluciones profesionales, sin conflicto.
+        </p>
+
+        <p
+          style={{
+            margin: 0,
+            color: "#111111",             // negro
+            fontSize: "16px",
+          }}
+        >
+          <strong>Centro de Mediación y Resolución de Conflictos</strong>
+        </p>
+
+        {/* Botones (si los quieres aquí, centrados) */}
+        <div style={{ marginTop: 18, display: "flex", gap: 12, justifyContent: "center" }}>
+          <a
+            href="/servicios"
             style={{
-              margin: 0,
-              fontSize: "34px",
-              fontWeight: 800,
-              letterSpacing: ".5px",
-              color: "#FFFFFF",
-              lineHeight: 1.15,
-            }}
-          >
-            MEDIAZION
-          </h1>
-          <p
-            style={{
-              margin: "10px 0 4px 0",
-              fontSize: "20px",
+              background: "#1e88e5",
+              color: "#fff",
+              borderRadius: 9999,
+              padding: "10px 16px",
+              textDecoration: "none",
               fontWeight: 700,
-              color: "#FFFFFF", // texto blanco
             }}
           >
-            Soluciones profesionales, sin conflicto.
-          </p>
-          <p
+            Ver servicios
+          </a>
+          <a
+            href="/contacto"
             style={{
-              margin: 0,
-              fontSize: "16px",
-              color: "#FFFFFF", // texto blanco
-              opacity: 1,
+              background: "#eef2ff",
+              color: "#0f172a",
+              border: "1px solid rgba(15,23,42,.15)",
+              borderRadius: 9999,
+              padding: "10px 16px",
+              textDecoration: "none",
+              fontWeight: 700,
             }}
           >
-            <strong>Centro de Mediación y Resolución de Conflictos</strong>
-          </p>
-
-          {/* Botones a la derecha del logo */}
-          <div style={{ marginTop: 18, display: "flex", gap: 12 }}>
-            <a
-              href="/servicios"
-              style={{
-                background: "#1e88e5",
-                color: "#fff",
-                borderRadius: 9999,
-                padding: "10px 16px",
-                textDecoration: "none",
-                fontWeight: 700,
-              }}
-            >
-              Ver servicios
-            </a>
-            <a
-              href="/contacto"
-              style={{
-                background: "rgba(255,255,255,0.9)",
-                color: "#0f172a",
-                border: "1px solid rgba(15,23,42,.15)",
-                borderRadius: 9999,
-                padding: "10px 16px",
-                textDecoration: "none",
-                fontWeight: 700,
-              }}
-            >
-              Contacto
-            </a>
-          </div>
+            Contacto
+          </a>
         </div>
       </div>
     </main>
