@@ -54,7 +54,7 @@ export default function Mediadores() {
       </section>
 
       <div className="text-sm text-zinc-600">
-        <p className="sr-p">© MEDIAZION · Centro Institucional de Mediación y Resolución de Conflictos</p>
+        <p className="sr-p">© MEDIAZION · Centro de Mediación y Resolución de Conflictos</p>
         <div className="sr-p" style={{ display: "flex", gap: 12, marginTop: 4 }}>
           <a href="/aviso-legal" className="text-blue-700 hover:underline">Aviso legal</a>
           <a href="/rgpd" className="text-blue-700 hover:underline">RGPD</a>
