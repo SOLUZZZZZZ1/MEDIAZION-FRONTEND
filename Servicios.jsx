@@ -117,7 +117,7 @@ export default function Servicios() {
               display: "inline-block",
             }}
           >
-            <div>© 2025 <strong>MEDIAZION</strong> · Centro Institucional de Mediación y Resolución de Conflictos</div>
+            <div>© 2025 <strong>MEDIAZION</strong> · Centro de Mediación y Resolución de Conflictos</div>
             <a href="/legal" style={{ color: "#fff", marginLeft: 8, textDecoration: "underline" }}>
               Aviso legal
             </a>
