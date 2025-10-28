@@ -1,4 +1,5 @@
-import { useState } from "react";
+// src/pages/Contacto.jsx
+import React, { useState } from "react";
 const API_BASE = import.meta.env.VITE_API_BASE || "https://backend-api-mediazion-1.onrender.com";
 
 export default function Contacto(){
@@ -47,7 +48,6 @@ export default function Contacto(){
           {status.ok === true && <span style={{color:"#166534"}}>{status.msg}</span>}
           {status.ok === false && <span style={{color:"#991b1b"}}>Error: {status.msg}</span>}
         </div>
-        <p className="sr-p mt-4"><strong>Backend:</strong> {API_BASE}</p>
       </form>
     </main>
   );
