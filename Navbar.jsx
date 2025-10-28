@@ -1,27 +1,27 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import logo from "/logo.png";
+import { Link, NavLink } from "react-router-dom";
 
 export default function Navbar() {
+  const tab = ({ isActive }) => "sr-tab" + (isActive ? " active" : "");
+
   return (
-    <nav className="bg-blue-900 text-white shadow-md">
-      <div className="container mx-auto flex justify-between items-center px-4 py-3">
-        <div className="flex items-center gap-3">
-          <img src={logo} alt="MEDIAZION" className="h-10 w-auto" />
-          <Link to="/" className="text-xl font-semibold tracking-wide">
-            MEDIAZION
-          </Link>
-        </div>
-        <div className="space-x-6 text-sm font-medium">
-          <Link to="/" className="hover:text-blue-200">Inicio</Link>
-          <Link to="/quienes-somos" className="hover:text-blue-200">Quiénes somos</Link>
-          <Link to="/servicios" className="hover:text-blue-200">Servicios</Link>
-          <Link to="/mediadores" className="hover:text-blue-200">Mediadores</Link>
-          <Link to="/tarifas" className="hover:text-blue-200">Tarifas</Link>
-          <Link to="/contacto" className="hover:text-blue-200">Contacto</Link>
-          <Link to="/actualidad" className="hover:text-blue-200">Actualidad</Link>
-        </div>
+    <header className="sr-navbar">
+      <div className="sr-row">
+        <Link to="/" aria-label="MEDIAZION" className="sr-brand">
+          <span className="sr-brand-title">MEDIAZION</span>
+        </Link>
+        <nav className="sr-tabs" aria-label="Navegación principal">
+          <NavLink to="/" end className={tab}>Inicio</NavLink>
+          <NavLink to="/quienes-somos" className={tab}>Quiénes somos</NavLink>
+          <NavLink to="/servicios" className={tab}>Servicios</NavLink>
+          <NavLink to="/mediadores" className={tab}>Mediadores</NavLink>
+          <NavLink to="/tarifas" className={tab}>Tarifas</NavLink>
+          <NavLink to="/contacto" className={tab}>Contacto</NavLink>
+          <NavLink to="/actualidad" className={tab}>Actualidad</NavLink>
+          <NavLink to="/mediadores/directorio" className={tab}>Directorio</NavLink>
+
+        </nav>
       </div>
-    </nav>
+      <div className="sr-navbar-underline" />
+    </header>
   );
 }
