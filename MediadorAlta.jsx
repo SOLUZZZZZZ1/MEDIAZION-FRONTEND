@@ -3,12 +3,13 @@ import React, { useState } from "react";
 
 const API_BASE =
   import.meta.env.VITE_API_BASE || "https://backend-api-mediazion-1.onrender.com";
-const PRICE_ID = import.meta.env.VITE_STRIPE_ID || import.meta.env.VITE_STRIPE_PRICE_ID; // admite cualquiera
+const PRICE_ID =
+  import.meta.env.VITE_STRIPE_PRICE_ID || import.meta.env.VITE_STRIPE_ID || "";
 
 export default function MediadorAlta() {
   const [form, setForm] = useState({ nombre: "", email: "" });
   const [status, setStatus] = useState({ sending: false, ok: null, msg: "" });
-  const [subLoading, setSubLoading] = use_state(false);
+  const [subLoading, setSubLoading] = useState(false); // ✅ corregido aquí
 
   const onChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -20,20 +21,19 @@ export default function MediadorAlta() {
       const r = await fetch(`${API_BASE.replace(/\/$/, "")}/mediadores/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: form.nombre.trim(), email: form.email.trim() }),
+        body: JSON.stringify({
+          name: (form.nombre || "").trim(),
+          email: (form.email || "").trim(),
+        }),
       });
-
       const data = await r.json().catch(() => ({}));
-      if (!r.ok) {
-        throw new Error(data?.detail || "No se pudo registrar el mediador.");
-      }
-
+      if (!r.ok) throw new Error(data?.detail || "No se pudo registrar el mediador.");
       setStatus({
         sending: false,
         ok: true,
         msg:
           data?.message ||
-          "Alta realizada. Te hemos enviado un correo con tu acceso temporal.",
+          "¡Listo! Te hemos dado de alta. Revisa tu correo para obtener tu contraseña temporal.",
       });
     } catch (err) {
       setStatus({
@@ -46,8 +46,8 @@ export default function MediadorAlta() {
 
   const onSubscribe = async () => {
     try {
-      if (!form.email?.trim()) {
-        alert("Añade tu email antes de suscribirte.");
+      if (!(form.email || "").trim()) {
+        alert("Introduce tu email antes de suscribirte.");
         return;
       }
       if (!PRICE_ID) {
@@ -59,7 +59,7 @@ export default function MediadorAlta() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: form.email.trim(),
+          email: (form.email || "").trim(),
           priceId: PRICE_ID,
         }),
       });
@@ -68,7 +68,7 @@ export default function MediadorAlta() {
         throw new Error(txt || "No se pudo iniciar la suscripción.");
       }
       const data = await res.json();
-      if (!data?.[ "url" ]) throw new Error("No se recibió la URL de Stripe.");
+      if (!data?.url) throw new Error("No se recibió la URL de pago de Stripe.");
       window.location.href = data.url;
     } catch (e) {
       alert(e.message || "Error iniciando suscripción");
@@ -80,15 +80,13 @@ export default function MediadorAlta() {
     <main className="sr-container py-12">
       <h1 className="sr-h1 mb-2">Alta de Mediadores</h1>
       <p className="sr-p">
-        Registra tus datos y activa tu <strong>suscripción mensual</strong> para
-        formar parte del equipo de <strong>MEDIAZION</strong>.
+        Registra tus datos y activa tu <strong>suscripción mensual</strong> para formar parte del
+        equipo de <strong>MEDIAZION</strong>. Recibirás una <strong>contraseña temporal</strong> por
+        correo y podrás gestionarla en tu área de mediador.
       </p>
 
       <form onSubmit={onSubmit} className="sr-card mt-6" style={{ maxWidth: 820 }}>
-        <div
-          className="grid grid-cols-1 md:grid-cols-2 gap-4"
-          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="sr-p block mb-1">Nombre</label>
             <input
@@ -114,47 +112,32 @@ export default function MediadorAlta() {
           </div>
         </div>
 
-        <div className="mt-4" style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+        <div className="mt-4 flex items-center gap-3">
           <button className="sr-btn-primary" type="submit" disabled={status.sending}>
             {status.sending ? "Registrando..." : "Dar de alta"}
           </button>
-          {status.ok === true && (
-            <span style={{ color: "#166534" }}>{status.msg}</span>
-          )}
-          {status.ok === false && (
-            <span style={{ color: "#991b1b" }}>Error: {status.msg}</span>
-          )}
+          {status.ok === true && <span style={{ color: "#166534" }}>{status.msg}</span>}
+          {status.ok === false && <span style={{ color: "#991b1b" }}>Error: {status.msg}</span>}
         </div>
 
         <div className="mt-10">
-          <h2 className="line-clamp-1 sr-h2">Activar suscripción (49,90 € / mes)</h2>
-          <div className="sr-p">
-            <ul className="list-disc pl-6">
-              <li>Ficha profesional en el portal de <strong>MEDIAZION</strong> (nombre, especialidad, contacto, zona).</li>
-              <li>Recepción de casos mediante <strong>derivación controlada</strong> (asignación equitativa y con trazabilidad).</li>
-              <li>Acceso al <strong>Área Profesional</strong>: modelos de actas, plantillas, agenda y seguimiento.</li>
-              <li><strong>Webinars mensuales</strong> incluidos y <strong>30 % de descuento</strong> en cursos de actualización.</li>
-              <li>Soporte del equipo <strong>MEDIAZION</strong> y difusión de tu perfil en campañas y redes.</li>
-            </ul>
-          </div>
+          <h2 className="sr-h2">Activar suscripción (49,90 € / mes)</h2>
+          <ul className="list-disc pl-6 sr-p">
+            <li>Ficha profesional en el portal de MEDIAZION (nombre, especialidad, zona).</li>
+            <li>Acceso al Área Profesional: plantillas, modelos y seguimiento de mediaciones.</li>
+            <li>Supervisión y acompañamiento institucional.</li>
+            <li>Webinars mensuales incluidos y 30% de descuento en cursos de formación.</li>
+            <li>Difusión institucional y participación en campañas.</li>
+          </ul>
 
-          <div className="mt-3">
-            <button
-              type="button"
-              className="sr-btn-secondary"
-              onClick={onSubscribe}
-              disabled={subLoading || !form.email || !PRICE_ID}
-              title={!PRICE_ID ? "Configura STRIPE_PRICE_ID en Vercel" : undefined}
-            >
-              {subLoading ? "Redirigiendo a Stripe…" : "Suscribirse ahora (49,90 € / mes)"}
-            </button>
-          </div>
-
-          {!PRICE_ID && (
-            <p className="sr-p" style={{ color: "#b91c1c", marginTop: 8 }}>
-              ⚠️ Falta configurar <code>STRIPE_PRICE_ID</code> en Vercel.
-            </p>
-          )}
+          <button
+            type="button"
+            className="sr-btn-secondary mt-3"
+            onClick={onSubscribe}
+            disabled={subLoading || !(form.email || "").trim() || !PRICE_ID}
+          >
+            {subLoading ? "Redirigiendo a Stripe..." : "Suscribirse ahora (49,90 € / mes)"}
+          </button>
         </div>
 
         <p className="sr-p mt-6">
