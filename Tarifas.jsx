@@ -59,7 +59,7 @@ export default function Tarifas(){
           </section>
 
           <div className="text-sm text-zinc-700" style={{ marginTop: 16 }}>
-            <p className="sr-p">© MEDIAZION · Centro Institucional de Mediación y Resolución de Conflictos</p>
+            <p className="sr-p">© MEDIAZION · Centro de Mediación y Resolución de Conflictos</p>
           </div>
         </div>
       </div>
