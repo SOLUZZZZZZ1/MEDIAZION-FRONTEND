@@ -9,10 +9,12 @@ const PRICE_ID =
 export default function MediadorAlta() {
   const [form, setForm] = useState({ nombre: "", email: "" });
   const [status, setStatus] = useState({ sending: false, ok: null, msg: "" });
-  const [subLoading, setSubLoading] = useState(false); // ✅ corregido aquí
+  const [subLoading, setSubLoading] = useState(false);
 
-  const onChange = (e) =>
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const onChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -26,7 +28,8 @@ export default function MediadorAlta() {
           email: (form.email || "").trim(),
         }),
       });
-      const data = await r.json().catch(() => ({}));
+      let data = {};
+      try { data = await r.json(); } catch {}
       if (!r.ok) throw new Error(data?.detail || "No se pudo registrar el mediador.");
       setStatus({
         sending: false,
@@ -46,7 +49,8 @@ export default function MediadorAlta() {
 
   const onSubscribe = async () => {
     try {
-      if (!(form.email || "").trim()) {
+      const email = (form.email || "").trim();
+      if (!email) {
         alert("Introduce tu email antes de suscribirte.");
         return;
       }
@@ -58,17 +62,14 @@ export default function MediadorAlta() {
       const res = await fetch(`${API_BASE.replace(/\/$/, "")}/subscribe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: (form.email || "").trim(),
-          priceId: PRICE_ID,
-        }),
+        body: JSON.stringify({ email, priceId: PRICE_ID }),
       });
       if (!res.ok) {
         const txt = await res.text();
         throw new Error(txt || "No se pudo iniciar la suscripción.");
       }
       const data = await res.json();
-      if (!data?.url) throw new Error("No se recibió la URL de pago de Stripe.");
+      if (!data || !data.url) throw new Error("No se recibió la URL de pago de Stripe.");
       window.location.href = data.url;
     } catch (e) {
       alert(e.message || "Error iniciando suscripción");
@@ -86,7 +87,7 @@ export default function MediadorAlta() {
       </p>
 
       <form onSubmit={onSubmit} className="sr-card mt-6" style={{ maxWidth: 820 }}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
           <div>
             <label className="sr-p block mb-1">Nombre</label>
             <input
@@ -112,7 +113,7 @@ export default function MediadorAlta() {
           </div>
         </div>
 
-        <div className="mt-4 flex items-center gap-3">
+        <div className="mt-4" style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <button className="sr-btn-primary" type="submit" disabled={status.sending}>
             {status.sending ? "Registrando..." : "Dar de alta"}
           </button>
