@@ -1,20 +1,15 @@
 // src/pages/MediadorAlta.jsx
 import React, { useState } from "react";
 
-const API_BASE =
-  import.meta.env.VITE_API_BASE || "https://backend-api-mediazion-1.onrender.com";
-const PRICE_ID =
-  import.meta.env.VITE_STRIPE_PRICE_ID || import.meta.env.VITE_STRIPE_ID || "";
+const API_BASE = import.meta.env.VITE_API_BASE || "https://backend-api-mediazion-1.onrender.com";
+const PRICE_ID = import.meta.env.VITE_STRIPE_PRICE_ID || import.meta.env.VITE_STRIPE_ID || "";
 
 export default function MediadorAlta() {
   const [form, setForm] = useState({ nombre: "", email: "" });
   const [status, setStatus] = useState({ sending: false, ok: null, msg: "" });
   const [subLoading, setSubLoading] = useState(false);
 
-  const onChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  const onChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -28,48 +23,27 @@ export default function MediadorAlta() {
           email: (form.email || "").trim(),
         }),
       });
-      let data = {};
-      try { data = await r.json(); } catch {}
+      const data = await r.json().catch(()=>({}));
       if (!r.ok) throw new Error(data?.detail || "No se pudo registrar el mediador.");
-      setStatus({
-        sending: false,
-        ok: true,
-        msg:
-          data?.message ||
-          "¡Listo! Te hemos dado de alta. Revisa tu correo para obtener tu contraseña temporal.",
-      });
+      setStatus({ sending: false, ok: true, msg: "Alta realizada. Revisa tu correo para tu acceso temporal." });
     } catch (err) {
-      setStatus({
-        sending: false,
-        ok: false,
-        msg: err?.message || "Ha ocurrido un error. Inténtalo de nuevo.",
-      });
+      setStatus({ sending: false, ok: false, msg: err?.message || "Ha ocurrido un error. Inténtalo de nuevo." });
     }
   };
 
   const onSubscribe = async () => {
     try {
-      const email = (form.email || "").trim();
-      if (!email) {
-        alert("Introduce tu email antes de suscribirte.");
-        return;
-      }
-      if (!PRICE_ID) {
-        alert("Falta configurar STRIPE_PRICE_ID en Vercel.");
-        return;
-      }
+      if (!(form.email || "").trim()) { alert("Introduce tu email antes de suscribirte."); return; }
+      if (!PRICE_ID) { alert("Falta configurar STRIPE_PRICE_ID en Vercel."); return; }
       setSubLoading(true);
       const res = await fetch(`${API_BASE.replace(/\/$/, "")}/subscribe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, priceId: PRICE_ID }),
+        body: JSON.stringify({ email: (form.email || "").trim(), priceId: PRICE_ID }),
       });
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(txt || "No se pudo iniciar la suscripción.");
-      }
+      if (!res.ok) { const txt = await res.text(); throw new Error(txt || "No se pudo iniciar la suscripción."); }
       const data = await res.json();
-      if (!data || !data.url) throw new Error("No se recibió la URL de pago de Stripe.");
+      if (!data?.url) throw new Error("No se recibió la URL de pago de Stripe.");
       window.location.href = data.url;
     } catch (e) {
       alert(e.message || "Error iniciando suscripción");
@@ -80,43 +54,22 @@ export default function MediadorAlta() {
   return (
     <main className="sr-container py-12">
       <h1 className="sr-h1 mb-2">Alta de Mediadores</h1>
-      <p className="sr-p">
-        Registra tus datos y activa tu <strong>suscripción mensual</strong> para formar parte del
-        equipo de <strong>MEDIAZION</strong>. Recibirás una <strong>contraseña temporal</strong> por
-        correo y podrás gestionarla en tu área de mediador.
-      </p>
+      <p className="sr-p">Registra tus datos y activa tu <strong>suscripción mensual</strong> para formar parte del equipo de <strong>MEDIAZION</strong>.</p>
 
       <form onSubmit={onSubmit} className="sr-card mt-6" style={{ maxWidth: 820 }}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
           <div>
             <label className="sr-p block mb-1">Nombre</label>
-            <input
-              required
-              name="nombre"
-              value={form.nombre}
-              onChange={onChange}
-              className="w-full border rounded-md px-3 py-2"
-              placeholder="Nombre y apellidos"
-            />
+            <input required name="nombre" value={form.nombre} onChange={onChange} className="w-full border rounded-md px-3 py-2" placeholder="Nombre y apellidos" />
           </div>
           <div>
             <label className="sr-p block mb-1">Email</label>
-            <input
-              required
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={onChange}
-              className="w-full border rounded-md px-3 py-2"
-              placeholder="tu@email.com"
-            />
+            <input required type="email" name="email" value={form.email} onChange={onChange} className="w-full border rounded-md px-3 py-2" placeholder="tu@email.com" />
           </div>
         </div>
 
-        <div className="mt-4" style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <button className="sr-btn-primary" type="submit" disabled={status.sending}>
-            {status.sending ? "Registrando..." : "Dar de alta"}
-          </button>
+        <div className="mt-4 flex items-center gap-3">
+          <button className="sr-btn-primary" type="submit" disabled={status.sending}>{status.sending ? "Registrando..." : "Dar de alta"}</button>
           {status.ok === true && <span style={{ color: "#166534" }}>{status.msg}</span>}
           {status.ok === false && <span style={{ color: "#991b1b" }}>Error: {status.msg}</span>}
         </div>
@@ -124,26 +77,17 @@ export default function MediadorAlta() {
         <div className="mt-10">
           <h2 className="sr-h2">Activar suscripción (49,90 € / mes)</h2>
           <ul className="list-disc pl-6 sr-p">
-            <li>Ficha profesional en el portal de MEDIAZION (nombre, especialidad, zona).</li>
-            <li>Acceso al Área Profesional: plantillas, modelos y seguimiento de mediaciones.</li>
+            <li>Ficha profesional en el portal de MEDIAZION (especialidad y zona).</li>
+            <li>Acceso al Área Profesional: plantillas, modelos y seguimiento.</li>
             <li>Supervisión y acompañamiento institucional.</li>
-            <li>Webinars mensuales incluidos y 30% de descuento en cursos de formación.</li>
+            <li>Webinars mensuales incluidos y 30% de descuento en cursos.</li>
             <li>Difusión institucional y participación en campañas.</li>
           </ul>
 
-          <button
-            type="button"
-            className="sr-btn-secondary mt-3"
-            onClick={onSubscribe}
-            disabled={subLoading || !(form.email || "").trim() || !PRICE_ID}
-          >
+          <button type="button" className="sr-btn-secondary mt-3" onClick={onSubscribe} disabled={subLoading || !(form.email || "").trim() || !PRICE_ID}>
             {subLoading ? "Redirigiendo a Stripe..." : "Suscribirse ahora (49,90 € / mes)"}
           </button>
         </div>
-
-        <p className="sr-p mt-6">
-          <strong>Backend:</strong> {API_BASE}
-        </p>
       </form>
     </main>
   );
