@@ -33,7 +33,7 @@ export default function QuienesSomos() {
 
         <section className="sr-card mb-6" style={{ background: "rgba(255,255,255,0.95)" }}>
           <p className="sr-p">
-            <strong>MEDIAZION</strong> es un Centro Institucional de Mediación y Resolución de Conflictos.
+            <strong>MEDIAZION</strong> es un Centro de Mediación y Resolución de Conflictos.
             Unimos rigor jurídico y empatía profesional para alcanzar acuerdos sostenibles, documentados y verificables.
           </p>
         </section>
