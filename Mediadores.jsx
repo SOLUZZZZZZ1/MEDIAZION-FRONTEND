@@ -1,6 +1,5 @@
 // src/pages/Mediadores.jsx
 import React from "react";
-import { Link } from "react-router-dom";
 
 export default function Mediadores() {
   return (
@@ -8,18 +7,14 @@ export default function Mediadores() {
       <h1 className="sr-h1 mb-2">Mediadores</h1>
       <p className="sr-p mb-6">Alta de mediadores</p>
 
-      <p className="sr-p mb-6">
-        En <strong>MEDIAZION</strong> colaboramos con mediadores profesionales acreditados en distintas áreas:
-        civil, mercantil, familiar, comunitaria y empresarial.
+      <p className="sr-p mb-8">
+        En MEDIAZION colaboramos con mediadores profesionales acreditados en distintas áreas: civil, mercantil, familiar, comunitaria y empresarial.
       </p>
 
       <p className="sr-p mb-10">
-        Nuestra red de mediadores cumple con los estándares del Centro Institucional de Mediación y cuenta con
-        formación continua, seguimiento de casos y acreditación oficial. Si eres mediador o mediadora y deseas
-        formar parte de nuestro equipo, puedes darte de alta utilizando el botón anterior.
+        Nuestra red de mediadores cumple con los estándares del Centro Institucional de Mediación y cuenta con formación continua, seguimiento de casos y acreditación oficial. Si eres mediador o mediadora y deseas formar parte de nuestro equipo, puedes darte de alta utilizando el botón anterior.
       </p>
 
-      {/* Compromiso profesional */}
       <section className="sr-card mb-8" style={{ background: "rgba(255,255,255,.9)" }}>
         <h2 className="sr-h2 mb-2">Compromiso profesional</h2>
         <ul className="sr-p" style={{ marginLeft: 18, listStyle: "disc" }}>
@@ -30,7 +25,6 @@ export default function Mediadores() {
         </ul>
       </section>
 
-      {/* Ámbitos de actuación */}
       <section className="sr-card mb-8" style={{ background: "rgba(255,255,255,.9)" }}>
         <h2 className="sr-h2 mb-2">Ámbitos de actuación</h2>
 
@@ -39,12 +33,10 @@ export default function Mediadores() {
             <h3 className="sr-h3">Civil y familiar</h3>
             <p className="sr-p">Conflictos vecinales, herencias, custodia, alimentos y arrendamientos.</p>
           </div>
-
           <div>
             <h3 className="sr-h3">Mercantil y societario</h3>
             <p className="sr-p">Disputas entre socios, contratos, proveedores y responsabilidad empresarial.</p>
           </div>
-
           <div>
             <h3 className="sr-h3">Laboral y organizacional</h3>
             <p className="sr-p">Conflictos internos, clima laboral, liderazgo y cultura de empresa.</p>
@@ -52,19 +44,15 @@ export default function Mediadores() {
         </div>
       </section>
 
-      {/* Acceso interno */}
       <section className="sr-card mb-10" style={{ background: "rgba(255,255,255,.9)" }}>
         <h2 className="sr-h2 mb-3">Contacto interno</h2>
         <p className="sr-p mb-4">
           Si ya formas parte del equipo, puedes acceder al área privada de mediadores utilizando tus credenciales enviadas por correo.
         </p>
-        <Link to="/mediadores/alta" className="sr-btn-primary inline-block">Alta de mediadores</Link>
-        <a href="/panel" className="sr-btn-secondary inline-block" style={{ marginLeft: 12 }}>
-          Acceder al área privada
-        </a>
+        <a href="/mediadores/alta" className="sr-btn-primary">Alta de mediadores</a>
+        <a href="/panel" className="sr-btn-secondary" style={{ marginLeft: 12 }}>Acceder al área privada</a>
       </section>
 
-      {/* Pie institucional (si no hay footer global) */}
       <div className="text-sm text-zinc-600">
         <p className="sr-p">© MEDIAZION · Centro Institucional de Mediación y Resolución de Conflictos</p>
         <div className="sr-p" style={{ display: "flex", gap: 12, marginTop: 4 }}>
