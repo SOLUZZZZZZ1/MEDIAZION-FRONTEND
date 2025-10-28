@@ -13,6 +13,9 @@ import Actualidad from "./pages/Actualidad.jsx";
 import MediadorAlta from "./pages/MediadorAlta.jsx";
 import Success from "./pages/Success.jsx";
 import Cancel from "./pages/Cancel.jsx";
+import AdminLogin from "./pages/admin/Login.jsx";
+import AdminDashboard from "./pages/admin/Dashboard.jsx";
+
 
 export default function App() {
   return (
@@ -38,6 +41,9 @@ export default function App() {
         <Route path="/actualidad" element={<Actualidad />} />
         <Route path="/suscripcion/ok" element={<Success />} />
         <Route path="/suscripcion/cancel" element={<Cancel />} />
+        <Route path="/admin" element={<AdminLogin />} />
+        <Route path="/admin/panel" element={<AdminDashboard />} />
+
       </Routes>
     </div>
   );
