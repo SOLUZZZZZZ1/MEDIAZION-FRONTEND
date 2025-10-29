@@ -58,8 +58,10 @@ export default function Mediadores() {
             Si ya formas parte del equipo, puedes acceder al área privada de mediadores utilizando tus credenciales enviadas por correo.
           </p>
           <a href="/mediadores/alta" className="sr-btn-primary">Alta de mediadores</a>
-          <a href="/panel" className="sr-btn-secondary" style={{ marginLeft: 12 }}>Acceder al área privada</a>
-        </section>
+          <a href="/panel-mediador" className="sr-btn-secondary" style={{ marginLeft: 12 }}>
+  Acceder al área privada
+</a>
+
 
         <div className="text-sm text-zinc-600">
           <p className="sr-p">© MEDIAZION · Centro de Mediación y Resolución de Conflictos</p>
