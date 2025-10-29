@@ -33,6 +33,8 @@ export default function Footer() {
           <h4 style={{ margin: 0, marginBottom: 8, fontSize: 16, fontWeight: 800 }}>Mediadores</h4>
           <ul style={{ margin: 0, padding: 0, listStyle: "none", lineHeight: 1.9 }}>
             <li><a href="/mediadores/alta" style={{ color: "#e5e7eb", textDecoration: "none" }}>Alta de mediadores</a></li>
+            <li><a href="/mediadores/directorio" style={{ color: "#e5e7eb", textDecoration: "none" }}>Directorio</a></li>
+
             <li><a href="/panel-mediador" style={{ color: "#e5e7eb", textDecoration: "none" }}>Área privada</a></li>
           </ul>
         </div>
