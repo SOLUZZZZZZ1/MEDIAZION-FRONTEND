@@ -44,10 +44,10 @@ export default function QuienesSomos() {
           }}
         />
 
-        {/* Contenido */}
         <div className="sr-container" style={{ position: "relative", zIndex: 1 }}>
           <h1 className="sr-h1 mb-6">Quiénes somos</h1>
 
+          {/* Intro */}
           <section className="sr-card mb-6" style={{ background: "rgba(255,255,255,0.95)" }}>
             <p className="sr-p">
               <strong>MEDIAZION</strong> es un Centro de Mediación y Resolución de Conflictos.
@@ -56,6 +56,28 @@ export default function QuienesSomos() {
             </p>
           </section>
 
+          {/* Manifiesto de Patricia Esteban */}
+          <section
+            className="sr-card mb-6"
+            style={{
+              background: "rgba(255,255,255,0.95)",
+              borderLeft: "6px solid #1e88e5",
+            }}
+          >
+            <blockquote className="sr-p" style={{ fontSize: "18px", margin: 0 }}>
+              <em>
+                “Mediazion nace de la convicción de que los conflictos no son un problema, sino un
+                activo estratégico cuando se gestionan con inteligencia. Transformamos tensiones en
+                acuerdos, desacuerdos en decisiones y complejidad en oportunidad.”
+              </em>
+            </blockquote>
+            <p className="sr-p" style={{ marginTop: 8, opacity: 0.9 }}>
+              — <strong>Patricia Esteban</strong>. Estas frases son suyas, demuestran su
+              implicación y su ilusión con la web, como compañera de MEDIAZION.
+            </p>
+          </section>
+
+          {/* Misión */}
           <section className="sr-card mb-6" style={{ background: "rgba(255,255,255,0.95)" }}>
             <h2 className="sr-h2">Misión</h2>
             <p className="sr-p">
@@ -65,6 +87,7 @@ export default function QuienesSomos() {
             </p>
           </section>
 
+          {/* Valores (breve) */}
           <section className="sr-card mb-6" style={{ background: "rgba(255,255,255,0.95)" }}>
             <h2 className="sr-h2">Valores</h2>
             <p className="sr-p">
@@ -73,7 +96,7 @@ export default function QuienesSomos() {
             </p>
           </section>
 
-          {/* Acróstico con texto alineado a la base y letras más contenidas */}
+          {/* Acróstico */}
           <section className="sr-card mb-6" style={{ background: "rgba(255,255,255,0.97)" }}>
             <h2 className="sr-h2">Nuestros valores</h2>
             <p className="sr-p">MEDIAZION es mucho más que un nombre: es una forma de entender la mediación.</p>
@@ -86,7 +109,7 @@ export default function QuienesSomos() {
                     display: "grid",
                     gridTemplateColumns: "56px 1fr",
                     columnGap: "12px",
-                    alignItems: "end", // alinea texto a la base de la letra
+                    alignItems: "end",
                     padding: "10px 0",
                     borderBottom: i < filas.length - 1 ? "1px solid #e5e7eb" : "none",
                   }}
@@ -111,6 +134,7 @@ export default function QuienesSomos() {
             </div>
           </section>
 
+          {/* Metodología */}
           <section className="sr-card mb-10" style={{ background: "rgba(255,255,255,0.95)" }}>
             <h2 className="sr-h2">Metodología</h2>
             <p className="sr-p">
