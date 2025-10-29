@@ -17,6 +17,7 @@ import AdminLogin from "./pages/admin/Login.jsx";
 import AdminDashboard from "./pages/admin/Dashboard.jsx";
 import MediadoresDirectorio from "./pages/MediadoresDirectorio.jsx";
 import PanelMediador from "./pages/PanelMediador.jsx";
+import Footer from "./components/Footer.jsx";
 
 
 export default function App() {
@@ -47,6 +48,17 @@ export default function App() {
         <Route path="/admin/panel" element={<AdminDashboard />} />
         <Route path="/mediadores/directorio" element={<MediadoresDirectorio />} />
         <Route path="/panel-mediador" element={<PanelMediador />} />
+// ...
+return (
+  <div className="min-h-screen">
+    <Navbar />
+    <Routes>
+      {/* tus rutas */}
+    </Routes>
+    <Footer />
+  </div>
+);
+
 
       </Routes>
     </div>
