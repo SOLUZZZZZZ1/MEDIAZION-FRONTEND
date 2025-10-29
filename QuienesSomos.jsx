@@ -72,8 +72,7 @@ export default function QuienesSomos() {
               </em>
             </blockquote>
             <p className="sr-p" style={{ marginTop: 8, opacity: 0.9 }}>
-              — <strong>Patricia Esteban</strong>. Estas frases son suyas, demuestran su
-              implicación y su ilusión con la web, como compañera de MEDIAZION.
+              — <strong>Patricia Esteban</strong>. 
             </p>
           </section>
 
