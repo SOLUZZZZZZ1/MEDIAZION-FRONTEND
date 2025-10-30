@@ -75,7 +75,7 @@ export default function Mediadores() {
               <p className="sr-p">Contratos, proveedores, juntas, socios, cumplimiento.</p>
             </div>
             <div>
-              <h3 className="sr-h3">Laboral y organizacional</hakes>
+              <h3 className="sr-h3">Laboral y organizacional</h3>
               <p className="sr-p">Conflictos internos, clima laboral, relaciones laborales.</p>
             </div>
           </div>
