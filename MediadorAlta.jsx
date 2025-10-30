@@ -1,5 +1,4 @@
-// src/pages/MediadorAlta.jsx <button onClick={()=>setShowModal(true)} className="sr-btn
-
+// src/pages/MediadorAlta.jsx
 import React, { useState } from "react";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "https://backend-api-mediazion-1.onrender.com";
@@ -11,44 +10,50 @@ export default function MediadorAlta(){
     provincia: "", especialidad: "", web: "", linkedin: ""
   });
   const [agree, setAgree] = useState(false);
-  const [status, setStatus] = useState({ step: 1, loading: false, msg: "" });
+  const [step, setStep] = useState(1);
+  const [msg, setMsg] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const onChange = (e) => setValue(e.target.name, e.target.value);
-  const setValue = (k,v) => setReturn({ ...form, [k]: v });
+  const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   async function handleRegister(e){
     e.preventDefault();
-    if (!form.name || !form.email) return setStatus({ step: 1, loading: false, msg: "Rellena nombre y email" });
-    setStatus({ step: 1, loading: true, msg: "" });
+    if (!form.name || !form.email) { setMsg("Rellena nombre y email"); return; }
+    if (!agree) { setMsg("Debes aceptar la política de privacidad"); return; }
+    setLoading(true); setMsg("");
     try {
       const res = await fetch(`${API_BASE}/mediadores/register`, {
         method: "POST",
         headers: {"Content-Type":"application/json"},
         body: JSON.stringify(form)
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.detail || "No se pudo registrar.");
-      setStatus({ step: 2, loading: false, msg: "✔️ Alta correcta. Te enviamos un email con la confirmación. Ahora puedes activar tu suscripción (7 días gratis)." });
-    } catch (e) {
-      setStatus({ step: 1, loading: false, msg: e.message || "Error de red" });
+      const data = await res.json().catch(()=> ({}));
+      if (!res.ok) throw new Error(data?.detail || "No se pudo registrar");
+      setStep(2);
+      setMsg("✔️ Alta registrada. Revisa tu email. Ahora puedes activar tu prueba gratuita.");
+    } catch (e){
+      setMsg(e.message || "Error de red");
+    } finally {
+      setLoading(false);
     }
   }
 
   async function handleSubscribe(){
-    if (!form.email) { alert("Falta el email"); return; }
-    if (!PRICE_KEY) { alert("Falta VITE_STRIPE_PRICE_ID en .env"); return; }
+    if (!form.email) { setMsg("Falta el email"); return; }
+    if (!PRICE_ID) { setMsg("Falta VITE_STRIPE_PRICE_ID en tu .env"); return; }
+    setLoading(true); setMsg("");
     try {
-      setStatus(s=>({...s, loading:true}));
       const res = await fetch(`${API_BASE}/subscribe`, {
         method: "POST",
         headers: {"Content-Type":"application/json"},
         body: JSON.stringify({ email: form.email, priceId: PRICE_ID })
       });
-      const data = await res.json();
+      const data = await res.json().catch(()=> ({}));
       if (!res.ok) throw new Error(data?.detail || "Error iniciando suscripción");
-      window.location.href = data.url; // redirige a Stripe Checkout
+      window.location.href = data.url; // Stripe Checkout
     } catch (e){
-      setStatus(s=>({...s, loading:false, msg: e.message || "Error"}));
+      setMsg(e.message || "Error");
+      setLoading(false);
     }
   }
 
@@ -60,83 +65,115 @@ export default function MediadorAlta(){
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
-        padding: "40px 20px"
+        padding: "40px 20px",
       }}
     >
-      <div style={{ maxWidth: 900, margin: "0 auto", background:"rgba(255,255,255,0.95)", borderRadius:16, padding:24 }}>
-        <h1 className="sr-h1">Alta de mediadores</h1>
-        <p className="sr-p">
-          Completa tus datos. Tras validarlos, podrás activar tu suscripción con <strong>7 días de prueba</strong> (49,90 €/mes).
-        </p>
-
-        {status.step === 1 && (
-          <form onSubmit={handleRegister} className="sr-card" style={{ background:"rgba(255,255,255,0.98)" }}>
-            <div style={{display:"grid", gridTemplateColumns:"repeat(2,minmax(0,1fr))", gap:12}}>
-              <div>
-                <label className="sr-p">Nombre y apellidos</label>
-                <input className="w-full border rounded-md px-3 py-2" name="name" value={form.name} onChange={onChange} />
-              </div>
-              <div>
-                <label className="sr-p">Email</label>
-                <input className="w-full border rounded-md px-3 py-2" name="email" type="email" value={form.email} onChange={onChange} />
-              </div>
-              <div>
-                <label className="sr-p">Teléfono</label>
-                <input className="w-full border rounded-md px-3 py-2" name="telefono" value={form.telefono} onChange={onChange} />
-              </div>
-              <div>
-                <label className="sr-p">Provincia</label>
-                <input className="w-full border rounded-md px-3 py-2" name="provincia" value={form.provincia} onChange={onChange} />
-              </div>
-            </div>
-
-            <div style={{display:"grid", gridTemplateColumns:"repeat(2,minmax(0,1fr))", gap:12, marginTop:12}}>
-              <div>
-                <label className="sr-p">Especialidad</label>
-                <input className="w-full border rounded-md px-3 py-2" name="especialidad" value={form.especialidad} onChange={onChange} placeholder="civil, mercantil, familiar…" />
-              </div>
-              <div>
-                <label className="sr-p">Web (opcional)</label>
-                <input className="w-full border rounded-md px-3 py-2" name="web" value={form.web} onChange={onChange} />
-              </div>
-            </div>
-
-            <div style={{marginTop:12}}>
-              <label className="sr-p">Breve bio</label>
-              <textarea className="w-full border rounded-md px-3 py-2" name="bio" rows={3} value={form.bio} onChange={onChange} />
-            </div>
-
-            <div style={{marginTop:12}}>
-              <label className="sr-p">Perfil de LinkedIn (opcional)</label>
-              <input className="w-full border rounded-md px-3 py-2" name="linkedin" value={form.linkedin} onChange={onChange} />
-            </div>
-
-            <label className="sr-p flex items-center gap-2 mt-4">
-              <input type="checkbox" checked={agree} onChange={(e)=>setAgree(e.target.checked)} />
-              Acepto la <a href="/rgpd" className="text-blue-700 underline">Política de Privacidad</a> y el tratamiento de mis datos.
-            </label>
-
-            <div className="flex gap-12 items-center mt-4">
-              <button className="sr-btn-primary" type="submit" disabled={status.loading || !form.name || !form.email || !agree }>
-                {status.loading ? "Enviando…" : "Enviar solicitud de alta"}
-              </button>
-              {status.msg && <span className="sr-p">{status.msg}</span>}
-            </div>
-          </form>
-        )}
-
-        {status.step === 2 && (
-          <div className="sr-card" style={{ background:"rgba(255,255,255,0.98)" }}>
-            <h2 className="sr-h2">¡Solicitud recibida!</h2>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <div className="grid md:grid-cols-2 gap-16">
+          {/* Columna izquierda: formulario / paso 1 o 2 */}
+          <div style={{ background:"rgba(255,255,255,0.95)", borderRadius:16, padding:24, boxShadow:"0 8px 24px rgba(0,0,0,0.1)" }}>
+            <h1 className="sr-h1 mb-2">Alta de mediadores</h1>
             <p className="sr-p">
-              Hemos enviado una confirmación a <strong>{form.email}</strong>.  
-              Puedes <strong>activar ahora tu suscripción con 7 días gratis</strong> para empezar a recibir casos en cuanto validemos tu perfil.
+              Completa tu alta para aparecer en el directorio de MEDIAZION. Después podrás activar tu
+              <strong> prueba de 7 días gratis</strong> del Plan PRO (49,90 €/mes, cancela cuando quieras).
             </p>
-            <button className="sr-btn-secondary" onClick={handleSubscribe} disabled={status.loading || !form.email}>
-              {status.loading ? "Abriendo Stripe…" : "Activar 7 días gratis (49,90 €/mes)"} 
-            </button>
+
+            {step === 1 && (
+              <form onSubmit={handleRegister}>
+                <div className="grid md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="sr-p">Nombre y apellidos</label>
+                    <input className="w-full border rounded-md px-3 py-2" name="name" value={form.name} onChange={onChange} />
+                  </div>
+                  <div>
+                    <label className="sr-p">Email</label>
+                    <input className="w-full border rounded-md px-3 py-2" name="email" type="email" value={form.email} onChange={onChange} />
+                  </div>
+                  <div>
+                    <label className="sr-p">Teléfono</label>
+                    <input className="w-full border rounded-md px-3 py-2" name="phone" value={form.telefono} onChange={onChange} />
+                  </div>
+                  <div>
+                    <label className="sr-p">Provincia</label>
+                    <input className="w-full border rounded-md px-3 py-2" name="provincia" value={form.provincia} onChange={onChange} />
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-3 mt-3">
+                  <div>
+                    <label className="sr-p">Especialidad</label>
+                    <input className="w-full border rounded-md px-3 py-2" name="especialidad" value={form.especialidad} onChange={onChange} placeholder="civil, mercantil, familiar…" />
+                  </div>
+                  <div>
+                    <label className="sr-p">Web (opcional)</label>
+                    <input className="w-full border rounded-md px-3 py-2" name="web" value={form.web} onChange={onChange} />
+                  </div>
+                </div>
+
+                <div className="mt-3">
+                  <label className="sr-p">Breve bio</label>
+                  <textarea className="w-full border rounded-md px-3 py-2" name="bio" rows={3} value={form.bio} onChange={onChange} />
+                </div>
+                <div className="mt-3">
+                  <label className="sr-p">LinkedIn (opcional)</label>
+                  <input className="w-full border rounded-md px-3 py-2" name="linkedin" value={form.linkedin} onChange={onChange} />
+                </div>
+
+                <label className="sr-p flex items-center gap-2 mt-4">
+                  <input type="checkbox" checked={agree} onChange={(e)=>setAgree(e.target.checked)} />
+                  Acepto la <a href="/rgpd" className="text-blue-700 underline">Política de Privacidad</a>.
+                </label>
+
+                <div className="flex items-center gap-12 mt-4">
+                  <button className="sr-btn-primary" type="submit" disabled={loading || !form.name || !form.email || !agree}>
+                    {loading ? "Enviando…" : "Registrar alta"}
+                  </button>
+                  {msg && <span className="sr-p">{msg}</span>}
+                </div>
+              </form>
+            )}
+
+            {step === 2 && (
+              <div>
+                <h3 className="sr-h2">✔️ Alta registrada</h3>
+                <p className="sr-p">Hemos recibido tu solicitud. Te enviaremos un email de confirmación.</p>
+                <p className="sr-p">Ahora puedes activar tu <strong>prueba de 7 días gratis</strong> del Plan PRO:</p>
+                <button className="sr-btn-secondary" onClick={handleSubscribe} disabled={loading || !form.email}>
+                  {loading ? "Abriendo Stripe…" : "Activar 7 días gratis (49,90 €/mes)"}
+                </button>
+                {msg && <p className="sr-p mt-3">{msg}</p>}
+              </div>
+            )}
           </div>
-        )}
+
+          {/* Columna derecha: info del plan PRO */}
+          <aside
+            style={{
+              background: "rgba(237,248,255,0.95)",
+              border: "1px solid #b6e0ff",
+              borderRadius: 16,
+              padding: 24,
+              height: "fit-content",
+              alignSelf: "start",
+            }}
+          >
+            <h3 style={{ marginTop: 0, fontWeight: 800, fontSize: 20 }}>Plan Profesional · 7 días gratis</h3>
+            <p className="sr-p">
+              Diseñado para profesionales de la mediación que quieren digitalizar su práctica y recibir casos de forma ágil.
+            </p>
+            <ul className="sr-p" style={{ listStyle: "disc", marginLeft: 18 }}>
+              <li>Panel de expedientes con estados y trazabilidad.</li>
+              <li>Asistente de IA para actas, resúmenes y comunicaciones.</li>
+              <li>Subida de documentos (PDF/DOCX/TXT) para análisis.</li>
+              <li>Directorio público (visibilidad y captación).</li>
+              <li>Notificaciones de casos asignados (email).</li>
+            </ul>
+            <p className="sr-p">
+              <strong>Precio:</strong> 49,90 €/mes (IVA incl.). Cancela cuando quieras.  
+              El periodo de prueba se activa en el checkout y no se te cobra nada hasta que termine.
+            </p>
+          </aside>
+        </div>
       </div>
     </main>
   );
