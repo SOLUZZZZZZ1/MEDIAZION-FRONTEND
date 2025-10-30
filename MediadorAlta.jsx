@@ -1,4 +1,5 @@
-// src/pages/MediadorAlta.jsx
+// src/pages/MediadorAlta.jsx <button onClick={()=>setShowModal(true)} className="sr-btn
+
 import React, { useState } from "react";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "https://backend-api-mediazion-1.onrender.com";
