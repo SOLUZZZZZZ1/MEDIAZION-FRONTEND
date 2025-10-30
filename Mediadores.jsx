@@ -75,7 +75,7 @@ export default function Mediadores() {
               <p className="sr-p">Contratos, proveedores, juntas, socios, cumplimiento.</p>
             </div>
             <div>
-              <h3 className="sr-h3">Laboral y organizacional</h3>
+              <h3 className="sr-h3">Laboral y organizacional</hakes>
               <p className="sr-p">Conflictos internos, clima laboral, relaciones laborales.</p>
             </div>
           </div>
@@ -88,7 +88,7 @@ export default function Mediadores() {
             Consulta el listado público de profesionales validados por MEDIAZION.
           </p>
           <div>
-            <a className="sr-btn-secondary" href="/directorio">Ver directorio</a>
+            <a className="sr-btn-secondary" href="/mediadores/directorio">Ver directorio</a>
           </div>
         </section>
       </div>
