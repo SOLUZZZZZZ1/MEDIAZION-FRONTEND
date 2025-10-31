@@ -1,174 +1,86 @@
 // src/pages/admin/Dashboard.jsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Seo from "../../components/Seo.jsx";
 
-const API_BASE =
-  import.meta.env.VITE_API_BASE || "https://backend-api-mediazion-1.onrender.com";
+const API_BASE = import.meta.env.VITE_API_BASE || "https://backend-api-mediazion-1.onrender.com";
 
-export default function AdminDashboard() {
-  const [token] = useState(localStorage.getItem("ADMIN_TOKEN") || "");
-  const [status, setStatus] = useState("pending"); // pending | approved | rejected | (vacío = todos)
-  const [items, setItems] = useState([]);
+export default function AdminDashboard(){
+  const nav = useNavigate();
+  const [token, setToken] = useState(localStorage.getItem("admin_token") || "");
+  const [tab, setTab] = useState("pending"); // pending | approved | rejected
+  const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState("");
+  useEffect(()=>{ if(!token) nav("/admin"); else load(); }, [tab, token]);
 
-  useEffect(() => {
-    if (!token) {
-      window.location.href = "/admin";
-      return;
-    }
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status]);
-
-  const authHeaders = {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
-
-  async function load() {
+  async function load(){
+    setLoading(true);
     try {
-      setLoading(true);
-      setMsg("");
-      const qs = status ? `?status=${encodeURIComponent(status)}` : "";
-      const r = await fetch(
-        `${API_BASE.replace(/\/$/, "")}/admin/mediadores${qs}`,
-        { headers: authHeaders }
-      );
-      if (!r.ok) throw new Error(await r.text());
-      const data = await r.json();
-      setItems(data);
-    } catch (e) {
-      setMsg(e.message || "Error cargando mediadores");
-      setItems([]);
-    } finally {
-      setLoading(false);
-    }
+      const res = await fetch(`${API_BASE.replace(/\\/$/,"")}/admin/mediadores?status=${tab}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if(res.status === 401){ nav("/admin"); return; }
+      const data = await res.json();
+      setRows(data);
+    } catch(e){ console.error(e); }
+    finally { setLoading(false); }
   }
 
-  async function approve(id) {
+  async function doAction(id, action){
     try {
-      setMsg("");
-      const r = await fetch(
-        `${API_BASE.replace(/\/$/, "")}/admin/mediadores/${id}/approve`,
-        { method: "POST", headers: authHeaders }
-      );
-      if (!r.ok) throw new Error(await r.text());
-      await load();
-      setMsg("Mediador aprobado.");
-    } catch (e) {
-      setMsg(e.message || "Error aprobando mediador");
-    }
-  }
-
-  async function reject(id) {
-    try {
-      setMsg("");
-      const r = await fetch(
-        `${API_BASE.replace(/\/$/, "")}/admin/mediadores/${id}/reject`,
-        { method: "POST", headers: authHeaders }
-      );
-      if (!r.ok) throw new Error(await r.text());
-      await load();
-      setMsg("Mediador rechazado.");
-    } catch (e) {
-      setMsg(e.message || "Error rechazando mediador");
-    }
-  }
-
-  async function setSubscriber(id, value) {
-    try {
-      setMsg("");
-      const r = await fetch(
-        `${API_BASE.replace(/\/$/, "")}/admin/mediadores/${id}/subscriber`,
-        {
-          method: "POST",
-          headers: authHeaders,
-          body: JSON.stringify({ value: !!value }),
-        }
-      );
-      if (!r.ok) throw new Error(await r.text());
-      await load();
-      setMsg(value ? "Marcado como suscriptor." : "Marcado como no suscriptor.");
-    } catch (e) {
-      setMsg(e.message || "Error actualizando suscriptor");
-    }
-  }
-
-  function logout() {
-    localStorage.removeItem("ADMIN_TOKEN");
-    window.location.href = "/admin";
+      const res = await fetch(`${API_BASE.replace(/\\/$/,"")}/admin/mediadores/${id}/${action}`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if(res.ok){
+        await load();
+      } else {
+        alert("No se pudo completar la operación");
+      }
+    } catch(e){ console.error(e); }
   }
 
   return (
-    <main
-      className="sr-container py-12"
-      style={{
-        backgroundImage: "url('/marmol.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <div className="sr-row" style={{ justifyContent: "space-between" }}>
-        <h1 className="sr-h1">Administración</h1>
-        <div style={{ display: "flex", gap: 8 }}>
-          <select
-            className="border rounded-md px-3 py-2"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            title="Filtrar por estado"
-          >
-            <option value="pending">Pendientes</option>
-            <option value="approved">Aprobados</option>
-            <option value="rejected">Rechazados</option>
-            <option value="">Todos</option>
-          </select>
-          <button className="sr-btn-secondary" onClick={load}>Refrescar</button>
-          <button className="sr-btn-primary" onClick={logout}>Salir</button>
+    <main className="sr-container py-12" style={{backgroundImage:"url('/marmol.jpg')",backgroundSize:"cover"}}>
+      <Seo title="Panel Admin · MEDIAZION" />
+      <h1 className="sr-h1">Panel de Administración</h1>
+
+      <div className="sr-card" style={{marginBottom:16}}>
+        <div style={{display:"flex", gap:8}}>
+          {["pending","approved","rejected"].map(s => (
+            <button key={s} className={`sr-btn-${tab===s?"primary":"secondary"}`} onClick={()=>setTab(s)}>
+              {s === "pending" ? "Pendientes" : s==="approved" ? "Aprobados" : "Rechazados"}
+            </button>
+          ))}
+          <div style={{marginLeft:"auto"}}>
+            <button className="sr-btn-secondary" onClick={() => {localStorage.removeItem("admin_token"); nav("/admin");}}>
+              Cerrar sesión
+            </button>
+          </div>
         </div>
       </div>
 
-      {msg && <p className="sr-p mt-3" style={{ color: "#166534" }}>{msg}</p>}
-      {loading && <p className="sr-p mt-3">Cargando…</p>}
+      {loading && <div className="sr-p">Cargando…</div>}
 
-      <section className="sr-card mt-6" style={{ overflowX: "auto" }}>
-        <table className="w-full" style={{ borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ textAlign: "left", borderBottom: "1px solid #e5e7eb" }}>
-              <th className="sr-p">ID</th>
-              <th className="sr-p">Nombre</th>
-              <th className="sr-p">Email</th>
-              <th className="sr-p">Estado</th>
-              <th className="sr-p">Suscriptor</th>
-              <th className="sr-p">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.length === 0 && !loading && (
-              <tr>
-                <td colSpan={6} className="sr-p" style={{ padding: "10px 0" }}>
-                  No hay resultados.
-                </td>
-              </tr>
+      <div className="sr-grid-3">
+        {rows.map(r => (
+          <div key={r.id} className="sr-card">
+            <h3 className="sr-h3">{r.name}</h3>
+            <p className="sr-p" style={{margin:0}}>{r.email}</p>
+            <p className="sr-p" style={{margin:0}}><strong>Provincia:</strong> {r.provincia || "—"}</p>
+            <p className="sr-p" style={{margin:0}}><strong>Especialidad:</strong> {r.especialidad || "—"}</p>
+            <p className="sr-p" style={{marginTop:8}}><strong>Estado:</strong> {r.status}</p>
+
+            {tab === "pending" && (
+              <div style={{display:"flex", gap:8, marginTop:8}}>
+                <button className="sr-btn-primary" onClick={()=>doAction(r.id, "aprobar")}>Aprobar</button>
+                <button className="sr-btn-secondary" onClick={()=>doAction(r.id, "rechazar")}>Rechazar</button>
+              </div>
             )}
-            {items.map((it) => (
-              <tr key={it.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                <td className="sr-p">{it.id}</td>
-                <td className="sr-p">{it.name || "—"}</td>
-                <td className="sr-p">{it.email}</td>
-                <td className="sr-p">{it.status}</td>
-                <td className="sr-p">{it.is_franquiciado ? "Sí" : "No"}</td>
-                <td className="sr-p" style={{ display: "flex", gap: 8, flexWrap: "wrap", padding: "8px 0" }}>
-                  <button className="sr-btn-primary" onClick={() => approve(it.id)}>Aprobar</button>
-                  <button className="sr-btn-secondary" onClick={() => reject(it.id)}>Rechazar</button>
-                  {it.is_franquiciado
-                    ? <button className="sr-btn-secondary" onClick={() => setSubscriber(it.id, false)}>Quitar suscriptor</button>
-                    : <button className="sr-btn-secondary" onClick={() => setSubscriber(it.id, true)}>Marcar suscriptor</button>}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+          </div>
+        ))}
+        {(!loading && rows.length === 0) && <div className="sr-card">No hay registros.</div>}
+      </div>
     </main>
   );
 }
