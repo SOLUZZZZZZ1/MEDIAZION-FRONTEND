@@ -11,7 +11,7 @@ import MediadoresDirectorio from "./pages/Mediadores.jsx"; // o "./pages/Mediado
 import Tarifas from "./pages/Tarifas.jsx";
 import Contacto from "./pages/Contacto.jsx";
 import Actualidad from "./pages/Actualidad.jsx";
-import MediadorAlta from "./pages/MediadorALa.jsx";
+import MediadorAlta from "./pages/MediadorAlta.jsx";
 import Success from "./pages/Success.jsx";
 import Cancel from "./pages/Cancel.jsx";
 import AdminLogin from "./pages/admin/Login.jsx";
