@@ -11,12 +11,12 @@ export default function Contacto(){
     e.preventDefault();
     setStatus({ sending:true, ok:null, msg:"" });
     try{
-      const res = await fetch(`${API_BASE.replace(/\/$/,'')}/contact`, {
+      const res = await fetch(API_BASE.replace(/\/$/,'') + "/contact", {
         method: "POST",
         headers: { "Content-Type":"application/json" },
         body: JSON.stringify(form)
       });
-      const data = await res.json().catch(()=> ({}));
+      const data = await res.json().catch(()=>({}));
       if(!res.ok) throw new Error(data.detail || "Error al enviar");
       setStatus({ sending:false, ok:true, msg:"Enviado. Gracias, te contactamos pronto." });
       setForm({ name:"", email:"", subject:"", message:"" });
@@ -31,16 +31,12 @@ export default function Contacto(){
       <form onSubmit={onSubmit} className="sr-card" style={{maxWidth:720}}>
         <label className="sr-p">Nombre</label>
         <input name="name" className="w-full border rounded-md px-3 py-2" value={form.name} onChange={onChange} required />
-
         <label className="sr-p mt-4">Email</label>
         <input name="email" type="email" className="w-full border rounded-md px-3 py-2" value={form.email} onChange={onChange} required />
-
         <label className="sr-p mt-4">Asunto</label>
         <input name="subject" className="w-full border rounded-md px-3 py-2" value={form.subject} onChange={onChange} />
-
         <label className="sr-p mt-4">Mensaje</label>
         <textarea name="message" className="w-full border rounded-md px-3 py-2" rows="5" value={form.message} onChange={onChange} required />
-
         <div className="mt-4" style={{display:"flex", alignItems:"center", gap:"12px"}}>
           <button className="sr-btn-primary" type="submit" disabled={status.sending}>
             {status.sending ? "Enviando..." : "Enviar"}
