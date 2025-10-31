@@ -1,86 +1,95 @@
 // src/pages/admin/Dashboard.jsx
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Seo from "../../components/Seo.jsx";
+import React, { useEffect, useState } from "react";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "https://backend-api-mediazion-1.onrender.com";
 
-export default function AdminDashboard(){
-  const nav = useNavigate();
-  const [token, setToken] = useState(localStorage.getItem("admin_token") || "");
-  const [tab, setTab] = useState("pending"); // pending | approved | rejected
-  const [rows, setRows] = useState([]);
+export default function AdminDashboard() {
+  const [tab, setTab] = useState("pending"); // pending | approved | rejected | all
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
-  useEffect(()=>{ if(!token) nav("/admin"); else load(); }, [tab, token]);
+  const token = localStorage.getItem("ADMIN_TOKEN") || ""; // guarda tu token en /admin/login
 
-  async function load(){
+  async function load() {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE.replace(/\\/$/,"")}/admin/mediadores?status=${tab}`, {
-        headers: { "Authorization": `Bearer ${token}` }
+      const u = new URL(API_BASE.replace(/\/$/,"") + "/admin/mediadores");
+      if (tab && tab !== "all") u.searchParams.set("status", tab);
+
+      const res = await fetch(u.toString(), {
+        headers: { "Authorization": "Bearer " + token }
       });
-      if(res.status === 401){ nav("/admin"); return; }
+      if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
-      setRows(data);
-    } catch(e){ console.error(e); }
-    finally { setLoading(false); }
+      setItems(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error(e);
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  async function doAction(id, action){
+  useEffect(() => { load(); /* eslint-disable-line */ }, [tab]);
+
+  async function act(id, action) {
     try {
-      const res = await fetch(`${API_BASE.replace(/\\/$/,"")}/admin/mediadores/${id}/${action}`, {
+      const res = await fetch(API_BASE.replace(/\/$/,"") + `/admin/mediadores/${id}/${action}`, {
         method: "POST",
-        headers: { "Authorization": `Bearer ${token}` }
+        headers: { "Authorization": "Bearer " + token }
       });
-      if(res.ok){
-        await load();
-      } else {
-        alert("No se pudo completar la operación");
-      }
-    } catch(e){ console.error(e); }
+      if (!res.ok) throw new Error(await res.text());
+      await load();
+    } catch (e) {
+      alert(e.message || "Error");
+    }
   }
 
   return (
-    <main className="sr-container py-12" style={{backgroundImage:"url('/marmol.jpg')",backgroundSize:"cover"}}>
-      <Seo title="Panel Admin · MEDIAZION" />
-      <h1 className="sr-h1">Panel de Administración</h1>
+    <main className="sr-container py-12">
+      <h1 className="sr-h1 mb-2">Panel de administración</h1>
 
-      <div className="sr-card" style={{marginBottom:16}}>
-        <div style={{display:"flex", gap:8}}>
-          {["pending","approved","rejected"].map(s => (
-            <button key={s} className={`sr-btn-${tab===s?"primary":"secondary"}`} onClick={()=>setTab(s)}>
-              {s === "pending" ? "Pendientes" : s==="approved" ? "Aprobados" : "Rechazados"}
+      <div className="sr-card" style={{marginBottom: 12}}>
+        <div style={{display:"flex", gap:8, flexWrap:"wrap"}}>
+          {["pending","approved","rejected","all"].map(t => (
+            <button
+              key={t}
+              className={t===tab ? "sr-btn-primary" : "sr-btn-secondary"}
+              onClick={() => setTab(t)}
+            >
+              {t === "pending" ? "Pendientes" :
+               t === "approved" ? "Aprobados" :
+               t === "rejected" ? "Rechazados" : "Todos"}
             </button>
           ))}
-          <div style={{marginLeft:"auto"}}>
-            <button className="sr-btn-secondary" onClick={() => {localStorage.removeItem("admin_token"); nav("/admin");}}>
-              Cerrar sesión
-            </button>
-          </div>
+          <button className="sr-btn-secondary" onClick={load} disabled={loading}>
+            {loading ? "Cargando..." : "Refrescar"}
+          </button>
         </div>
       </div>
 
-      {loading && <div className="sr-p">Cargando…</div>}
+      <section className="sr-grid-3">
+        {items.length === 0 && (
+          <div className="sr-card">Sin resultados</div>
+        )}
+        {items.map(m => (
+          <article key={m.id} className="sr-card">
+            <h3 className="sr-h3" style={{margin:0}}>{m.name || m.nombre || "—"}</h3>
+            <p className="sr-p" style={{margin:"4px 0"}}>{m.email}</p>
+            <p className="sr-p" style={{margin:"4px 0"}}>
+              {m.provincia || "—"} · {m.especialidad || "—"}
+            </p>
+            <p className="sr-p" style={{margin:"4px 0"}}>Estado: <strong>{m.status || "—"}</strong></p>
 
-      <div className="sr-grid-3">
-        {rows.map(r => (
-          <div key={r.id} className="sr-card">
-            <h3 className="sr-h3">{r.name}</h3>
-            <p className="sr-p" style={{margin:0}}>{r.email}</p>
-            <p className="sr-p" style={{margin:0}}><strong>Provincia:</strong> {r.provincia || "—"}</p>
-            <p className="sr-p" style={{margin:0}}><strong>Especialidad:</strong> {r.especialidad || "—"}</p>
-            <p className="sr-p" style={{marginTop:8}}><strong>Estado:</strong> {r.status}</p>
-
-            {tab === "pending" && (
-              <div style={{display:"flex", gap:8, marginTop:8}}>
-                <button className="sr-btn-primary" onClick={()=>doAction(r.id, "aprobar")}>Aprobar</button>
-                <button className="sr-btn-secondary" onClick={()=>doAction(r.id, "rechazar")}>Rechazar</button>
-              </div>
-            )}
-          </div>
+            <div style={{display:"flex", gap:8, marginTop:8}}>
+              <button className="sr-btn-primary" onClick={() => act(m.id, "approve")}>Aprobar</button>
+              <button className="sr-btn-secondary" onClick={() => act(m.id, "reject")}>Rechazar</button>
+              <button className="sr-btn-secondary" onClick={() => act(m.id, "toggle-subscriber")}>
+                {m.is_subscriber ? "Quitar PRO" : "Marcar PRO"}
+              </button>
+            </div>
+          </article>
         ))}
-        {(!loading && rows.length === 0) && <div className="sr-card">No hay registros.</div>}
-      </div>
+      </section>
     </main>
   );
 }
