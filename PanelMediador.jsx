@@ -1,12 +1,12 @@
-// src/pages/PanelMediador.jsx — Panel Mediador con IA y modo demo
+// src/pages/PanelMediador.jsx — Panel Mediador con IA y modo demo (# rutas SPA ok con HashRouter)
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Seo from "../components/Seo.jsx";
 
-const API =
+const API_BASE =
   (import.meta.env.VITE_API_BASE && import.meta.env.VITE_API_BASE.trim())
     ? import.meta.env.VITE_API_BASE.trim().replace(/\/$/,"")
-    : ""; // si está vacío, usaremos el proxy /api
+    : ""; // si está vacío, usamos el proxy /api
 
 function useQuery() {
   const { search } = useLocation();
@@ -25,7 +25,6 @@ export default function PanelMediador() {
   const demo = q.get("demo") === "1";
   const [token, setToken] = useAuthToken();
 
-  // estado
   const [view, setView] = useState(demo ? "dashboard" : (token ? "loading" : "login"));
   const [me, setMe] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -37,10 +36,9 @@ export default function PanelMediador() {
   const [aiBusy, setAiBusy] = useState(false);
   const [aiReply, setAiReply] = useState("");
 
-  // endpoints (proxy si no hay API base)
-  const url = (path) => (API ? `${API}${path}` : `/api${path}`);
+  const url = (path) => (API_BASE ? `${API_BASE}${path}` : `/api${path}`);
 
-  // demo: datos simulados
+  // Datos demo
   const demoMe = { email: "demo@mediazion.eu", role: "mediador", status: "active", must_change_password: false };
   const demoProfile = {
     user: { status: "active" },
@@ -57,18 +55,16 @@ export default function PanelMediador() {
     }
   };
 
-  // bootstrap real (si hay token y no demo)
+  // Bootstrap real (si no es demo)
   useEffect(() => {
     if (demo) return;
     const boot = async () => {
       if (!token) { setView("login"); return; }
       try {
-        // /me
         const r = await fetch(url("/me"), { headers: { Authorization: `Bearer ${token}` } });
         if (!r.ok) throw new Error("Sesión no válida");
         const data = await r.json();
         setMe(data);
-        // /panel/profile
         const r2 = await fetch(url("/panel/profile"), { headers: { Authorization: `Bearer ${token}` } });
         setProfile(r2.ok ? await r2.json() : null);
         setView("dashboard");
@@ -81,7 +77,7 @@ export default function PanelMediador() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  // login fake (cliente) para pruebas (en real, cambia a tu /users/login)
+  // Login de prueba (cliente). En real, cambia a tu /users/login
   const handleLogin = async (e) => {
     e.preventDefault();
     setBusy(true); setMsg("");
@@ -89,7 +85,7 @@ export default function PanelMediador() {
       const email = e.target.email.value.trim();
       const password = e.target.password.value;
       if (!email || !password) throw new Error("Completa usuario y contraseña");
-      // DEMO: simula login correcto y token
+      // DEMO: simula login correcto
       setToken("DEMO-TOKEN"); setMe({ email, role: "mediador", status: "active", must_change_password: false });
       setProfile(demoProfile);
       setView("dashboard");
@@ -99,6 +95,30 @@ export default function PanelMediador() {
   };
 
   const handleLogout = () => { setToken(""); setMe(null); setProfile(null); setView("login"); };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (demo) { alert("Cambio de contraseña (demo)"); return; }
+    const current_password = e.target.current_password.value;
+    const new_password = e.target.new_password.value;
+    const confirm_password = e.target.confirm_password.value;
+    if (!current_password || !new_password) return alert("Rellena contraseñas");
+    if (new_password !== confirm_password) return alert("No coincide la confirmación");
+    try {
+      setBusy(true);
+      const r = await fetch(url("/users/change_password"), {
+        method:"POST",
+        headers:{"Content-Type":"application/json", Authorization: `Bearer ${token}`},
+        body: JSON.stringify({ current_password, new_password })
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data?.detail || "No se pudo actualizar la contraseña");
+      alert("Contraseña actualizada");
+      setMe(m => ({...m, must_change_password:false}));
+    } catch (e2) {
+      alert(e2.message || "Error al cambiar contraseña");
+    } finally { setBusy(false); }
+  };
 
   const handleProfileSave = async (e) => {
     e.preventDefault();
@@ -112,14 +132,12 @@ export default function PanelMediador() {
         web: p.web || "", linkedin: p.linkedin || ""
       };
       const r = await fetch(url("/panel/profile"), {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify(payload),
+        method:"PUT", headers:{"Content-Type":"application/json", Authorization:`Bearer ${token}`},
+        body: JSON.stringify(payload)
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data?.detail || "No se pudo guardar el perfil");
       setMsg("Perfil actualizado correctamente.");
-      // recarga
       const r2 = await fetch(url("/panel/profile"), { headers: { Authorization: `Bearer ${token}` } });
       setProfile(r2.ok ? await r2.json() : null);
     } catch (e2) { setMsg(e2.message || "Error al guardar perfil"); }
@@ -132,7 +150,7 @@ export default function PanelMediador() {
     setBusy(true);
     try {
       const r = await fetch(url(`/upload/file?kind=${encodeURIComponent(kind)}`), {
-        method: "POST", headers:{ Authorization:`Bearer ${token}`}, body: fd
+        method:"POST", headers:{ Authorization:`Bearer ${token}`}, body: fd
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data?.detail || "Error al subir archivo");
@@ -143,7 +161,7 @@ export default function PanelMediador() {
     finally { setBusy(false); }
   };
 
-  // IA: consulta al backend (proxy /api)
+  // IA
   const askAI = async () => {
     setAiBusy(true); setAiReply(""); setMsg("");
     try {
@@ -164,7 +182,7 @@ export default function PanelMediador() {
     finally { setAiBusy(false); }
   };
 
-  // VISTA LOGIN
+  // LOGIN
   if (view === "login") {
     return (
       <>
@@ -172,7 +190,7 @@ export default function PanelMediador() {
         <main className="sr-container py-12">
           <div className="sr-card" style={{ maxWidth: 520 }}>
             <h1 className="sr-h1 mb-4">Área de Mediadores</h1>
-            {msg && <div className="sr-p" style={{ color:"#f87171" }}>{msg}</div>}
+            {msg && <div className="sr-p" style={{ color: "#f87171" }}>{msg}</div>}
             <form onSubmit={handleLogin}>
               <label className="sr-p block mb-1">Email</label>
               <input name="email" type="email" className="w-full border rounded-md px-3 py-2" required />
@@ -193,7 +211,7 @@ export default function PanelMediador() {
     );
   }
 
-  // VISTA DASHBOARD (demo o real)
+  // DASHBOARD
   const p = demo ? demoProfile : (profile || demoProfile);
   const m = p?.mediador || {};
 
