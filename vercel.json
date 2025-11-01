@@ -1,17 +1,22 @@
 {
-  "cleanUrls": true,
-  "trailingSlash": false,
   "redirects": [
-    { "source": "https://www.mediazion.eu/(.*)", "destination": "https://mediazion.eu/$1", "statusCode": 301 }
+    {
+      "source": "/(.*)",
+      "has": [
+        { "type": "host", "value": "www.mediazion.eu" }
+      ],
+      "destination": "https://mediazion.eu/:1",
+      "permanent": true
+    }
   ],
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/" }
   ],
   "headers": [
     {
-      "source": "/index.html",
+      "source": "/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "no-cache" }
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000" }
       ]
     }
   ]
