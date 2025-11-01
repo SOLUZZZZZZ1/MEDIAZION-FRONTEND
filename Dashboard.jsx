@@ -1,60 +1,40 @@
-// src/pages/admin/Dashboard.jsx
-import React, { useEffect, useState } from "react";
-const API_BASE = import.meta.env.VITE_API_BASE || "https://backend-api-mediazion-1.onrender.com";
+// src/pages/admin/Dashboard.jsx — Dashboard de administración (SPA)
+import React from "react";
+import Seo from "../../components/Seo.jsx";
+import { Link } from "react-router-dom";
 
-export default function AdminDashboard(){
-  const [tab, setTab] = useState("pending");
-  const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const token = localStorage.getItem("admin_token") || "";
-
-  async function load(){
-    setLoading(true);
-    try {
-      const url = `${API_BASE.replace(/\/$/,"")}/admin/mediadores?status=${encodeURIComponent(tab)}`;
-      const res = await fetch(url, { headers: { "Authorization": `Bearer ${token}` }});
-      const data = await res.json();
-      setRows(Array.isArray(data) ? data : []);
-    } catch {
-      setRows([]);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(()=>{ load(); /* on mount */ }, [tab]);
-
-  async function act(mid, path){
-    const url = `${API_BASE.replace(/\/$/,"")}/admin/mediadores/${mid}/${path}`;
-    await fetch(url, { method:"POST", headers:{ "Authorization": `Bearer ${token}` }});
-    load();
-  }
-
+export default function Dashboard() {
   return (
-    <main className="sr-container py-12">
-      <h1 className="sr-h1">Panel administración</h1>
-      <div className="sr-card" style={{marginBottom:16}}>
-        <button className={`sr-btn-secondary ${tab==="pending"?"!bg-blue-100":""}`} onClick={()=>setTab("pending")}>Pendientes</button>
-        <button className={`sr-btn-secondary ${tab==="approved"?"!bg-blue-100":""}`} onClick={()=>setTab("approved")} style={{marginLeft:8}}>Aprobados</button>
-        <button className={`sr-btn-secondary ${tab==="rejected"?"!bg-blue-100":""}`} onClick={()=>setTab("rejected")} style={{marginLeft:8}}>Rechazados</button>
-      </div>
+    <>
+      <Seo title="Admin · Dashboard" description="Administración MEDIAZION" canonical="https://mediazion.eu/admin/dashboard" />
+      <main className="sr-container py-12">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="sr-h1">Dashboard Admin</h1>
+          <Link to="/admin" className="sr-btn-secondary">Salir</Link>
+        </div>
 
-      {loading && <p className="sr-p">Cargando…</p>}
-
-      <section className="sr-grid-3">
-        {rows.map(r=>(
-          <article key={r.id} className="sr-card">
-            <h3 className="sr-h3" style={{margin:0}}>{r.name}</h3>
-            <p className="sr-p" style={{margin:0}}>{r.email}</p>
-            <p className="sr-p" style={{margin:0}}>Estado: <strong>{r.status}</strong></p>
-            <div style={{display:"flex", gap:8, marginTop:8}}>
-              <button className="sr-btn-primary" onClick={()=>act(r.id, "approve")}>Aprobar</button>
-              <button className="sr-btn-secondary" onClick={()=>act(r.id, "reject")}>Rechazar</button>
-              <button className="sr-btn-secondary" onClick={()=>act(r.id, "toggle-subscriber")}>Toggle Suscriptor</button>
-            </div>
+        <section className="sr-grid-3">
+          <article className="sr-card">
+            <h3 className="sr-h3">Salud del backend</h3>
+            <p className="sr-p">Comprueba el estado de <code>/admin/health</code> con tu token.</p>
+            <a className="sr-btn-secondary" href="https://backend-api-mediazion-1.onrender.com/admin/health" target="_blank" rel="noopener noreferrer">
+              Abrir /admin/health
+            </a>
           </article>
-        ))}
-      </section>
-    </main>
+
+          <article className="sr-card">
+            <h3 className="sr-h3">Mediadores</h3>
+            <p className="sr-p">Revisar y aprobar altas.</p>
+            <Link className="sr-btn-secondary" to="/mediadores/directorio">Ir al directorio</Link>
+          </article>
+
+          <article className="sr-card">
+            <h3 className="sr-h3">Actualidad</h3>
+            <p className="sr-p">Ver noticias cargadas por el backend.</p>
+            <Link className="sr-btn-secondary" to="/actualidad">Ir a Actualidad</Link>
+          </article>
+        </section>
+      </main>
+    </>
   );
 }
