@@ -9,8 +9,7 @@
     }
   ],
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/:path*" },
-    { "source": "/((?!api/).*)(?<!\\.[a-zA-Z0-9]{2,5})", "destination": "/index.html" }
+    { "source": "/:path*", "destination": "/index.html" }
   ],
   "cleanUrls": true,
   "trailingSlash": false
