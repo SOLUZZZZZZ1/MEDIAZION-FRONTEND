@@ -1,4 +1,4 @@
-// src/pages/WebinarDetail.jsx
+// src/pages/WebinarDetail.jsx — SPA con <Link>
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 import Seo from "../components/Seo.jsx";
@@ -43,7 +43,7 @@ export default function WebinarDetail(){
   }
 
   const title = `${wb.title} · Webinar de mediación · MEDIAZION`;
-  const desc  = `${wb.title}. ${wb.duration}. Sesión práctica con agenda: ${wb.agenda.join(", ")}.`;
+  const desc  = `${wb.title}. ${wb.duration}. Sesión práctica.`;
 
   return (
     <>
@@ -61,9 +61,7 @@ export default function WebinarDetail(){
             {wb.agenda.map((s,i)=>(<li key={i}>{s}</li>))}
           </ul>
         </div>
-        <Link className="sr-btn-primary mt-6 inline-block" to="/contacto">
-          Quiero asistir
-        </Link>
+        <Link className="sr-btn-primary mt-6 inline-block" to="/contacto">Quiero asistir</Link>
       </main>
     </>
   );
