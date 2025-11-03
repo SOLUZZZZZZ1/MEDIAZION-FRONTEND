@@ -1,4 +1,4 @@
-// src/components/Footer.jsx — limpio y 100% válido
+// src/components/Footer.jsx — Versión corregida
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -36,7 +36,7 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Mediadores */}
+        {/* MEDIADORES */}
         <div>
           <h4 style={{ margin: 0, marginBottom: 8, fontSize: 16, fontWeight: 800 }}>
             Mediadores
@@ -48,7 +48,7 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Legal */}
+        {/* LEGAL */}
         <div>
           <h4 style={{ margin: 0, marginBottom: 8, fontSize: 16, fontWeight: 800 }}>
             Legal
