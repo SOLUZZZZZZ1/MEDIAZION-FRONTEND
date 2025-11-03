@@ -1,6 +1,6 @@
 // src/pages/WebinarDetail.jsx
 import React from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Seo from "../components/Seo.jsx";
 
 const WEBINARS = {
@@ -32,7 +32,12 @@ export default function WebinarDetail(){
     return (
       <main className="sr-container py-12">
         <h1 className="sr-h1">Webinar no encontrado</h1>
-        <p className="sr-p">Vuelve a <a className="sr-btn-secondary inline-block" href="/servicios">Servicios</a>.</p>
+        <p className="sr-p">
+          Vuelve a{" "}
+          <Link className="sr-btn-secondary inline-block" to="/servicios">
+            Servicios
+          </Link>.
+        </p>
       </main>
     );
   }
@@ -56,7 +61,9 @@ export default function WebinarDetail(){
             {wb.agenda.map((s,i)=>(<li key={i}>{s}</li>))}
           </ul>
         </div>
-        <a className="sr-btn-primary mt-6 inline-block" href="/contacto">Quiero asistir</a>
+        <Link className="sr-btn-primary mt-6 inline-block" to="/contacto">
+          Quiero asistir
+        </Link>
       </main>
     </>
   );

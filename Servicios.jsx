@@ -1,5 +1,6 @@
-// src/pages/Servicios.jsx
+// src/pages/Servicios.jsx — con Prólogo + enlaces SPA
 import React from "react";
+import { Link } from "react-router-dom";
 import Seo from "../components/Seo.jsx";
 
 export default function Servicios() {
@@ -32,6 +33,25 @@ export default function Servicios() {
             color: "#0f172a",
           }}
         >
+          {/* PRÓLOGO */}
+          <section className="sr-card" style={{ background: "rgba(255,255,255,0.95)", marginBottom: 16 }}>
+            <h2 className="sr-h2">Prólogo · Manual de Mediación y MASC</h2>
+            <p className="sr-p">
+              <strong>MEDIAZION</strong> es un Centro de Mediación y Resolución de Conflictos.
+              Unimos rigor jurídico y empatía profesional para alcanzar acuerdos sostenibles, documentados y verificables.
+            </p>
+            <p className="sr-p">
+              “<em>
+                Mediazion nace de la convicción de que los conflictos no son un problema, sino un
+                activo estratégico cuando se gestionan con inteligencia. Transformamos tensiones en
+                acuerdos, desacuerdos en decisiones y complejidad en oportunidad.
+              </em>”
+            </p>
+            <p className="sr-p" style={{ marginTop: 8 }}>
+              — <strong>Mario Rondán Braida</strong><br/>Director de <strong>MEDIAZION</strong>
+            </p>
+          </section>
+
           <h1 style={{ margin: 0, fontSize: "28px", fontWeight: 800 }}>Servicios</h1>
           <p style={{ marginTop: "10px", fontSize: "18px" }}>
             Intervenimos en ámbitos civiles y mercantiles, tanto preventivos como de resolución.
@@ -51,72 +71,18 @@ export default function Servicios() {
             </p>
           </div>
 
-          <div style={{ marginTop: "18px" }}>
-            <h2 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "6px" }}>Formación y prevención</h2>
-            <p style={{ marginTop: 0 }}>
-              <strong>Cultura del acuerdo, negociación y resolución temprana de conflictos.</strong>
-            </p>
-          </div>
-
+          {/* CURSOS */}
           <div style={{ marginTop: "24px" }}>
             <h2 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "6px" }}>Cursos de formación</h2>
 
-            <h3 style={{ margin: "12px 0 6px 0", fontSize: "18px", fontWeight: 700 }}>Mediación aplicada (20h)</h3>
+            <h3 style={{ margin: "12px 0 6px 0", fontSize: "18px", fontWeight: 700 }}>
+              Mediación aplicada (20h)
+            </h3>
             <p style={{ marginTop: 0 }}>
               <strong>Técnicas de escucha, gestión emocional y redacción de acuerdos. Modalidad online.</strong>
             </p>
-            <a href="/servicios/curso/mediacion-aplicada-20h" style={{ color: "#1e88e5", textDecoration: "none", fontWeight: 700 }}>
+            <Link to="/servicios/curso/mediacion-aplicada-20h" style={{ color: "#1e88e5", textDecoration: "none", fontWeight: 700 }}>
               Ver detalle
-            </a>
+            </Link>
 
-            <h3 style={{ margin: "18px 0 6px 0", fontSize: "18px", fontWeight: 700 }}>Negociación estratégica (12h)</h3>
-            <p style={{ marginTop: 0 }}>
-              <strong>Herramientas prácticas para contextos reales: preparación, comunicación, objeciones y cierre.</strong>
-            </p>
-            <a href="/servicios/curso/negociacion-estrategica-12h" style={{ color: "#1e88e5", textDecoration: "none", fontWeight: 700 }}>
-              Ver detalle
-            </a>
-
-            <h3 style={{ margin: "18px 0 6px 0", fontSize: "18px", fontWeight: 700 }}>
-              Compliance y resolución temprana (8h)
-            </h3>
-            <p style={{ marginTop: 0 }}>
-              <strong>Integrar la gestión de conflictos en los programas de cumplimiento. Enfoque práctico.</strong>
-            </p>
-            <a href="/servicios/curso/compliance-resolucion-temporana" style={{ color: "#1e88e5", textDecoration: "none", fontWeight: 700 }}>
-              Ver detalle
-            </a>
-          </div>
-
-          <div style={{ marginTop: "24px" }}>
-            <h2 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "6px" }}>Webinars</h2>
-
-            <h3 style={{ margin: "12px 0 6px 0", fontSize: "18px", fontWeight: 700 }}>Clínica de casos civiles</h3>
-            <p style={{ marginTop: 0 }}>
-              <strong>Buenas prácticas en mediación vecinal y familiar. Duración: 60 minutos.</strong>
-            </p>
-            <a href="/servicios/webinar/clinica-de-casos-civiles" style={{ color: "#1e88e5", textDecoration: "none", fontWeight: 700 }}>
-              Ver detalle
-            </a>
-
-            <h3 style={{ margin: "18px 0 6px 0", fontSize: "18px", fontWeight: 700 }}>Mediación mercantil hoy</h3>
-            <p style={{ marginTop: 0 }}>
-              <strong>Tendencias en la gestión de conflictos entre empresas y en la contratación. 45 minutos.</strong>
-            </p>
-            <a href="/servicios/webinar/mediacion-mercantil-hoy" style={{ color: "#1e88e5", textDecoration: "none", fontWeight: 700 }}>
-              Ver detalle
-            </a>
-
-            <h3 style={{ margin: "18px 0 6px 0", fontSize: "18px", fontWeight: 700 }}>ADR &amp; Compliance</h3>
-            <p style={{ marginTop: 0 }}>
-              <strong>Mediación en el mapa de riesgos y en los protocolos de cumplimiento normativo. 45 minutos.</strong>
-            </p>
-            <a href="/servicios/webinar/adr-y-compliance" style={{ color: "#1e88e5", textDecoration: "none", fontWeight: 700 }}>
-              Ver detalle
-            </a>
-          </div>
-        </div>
-      </main>
-    </>
-  );
-}
+            <h3 style={{ margin: "18px 0 6px 0", fontSize: "18px", font
