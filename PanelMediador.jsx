@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Seo from "../components/Seo.jsx";
-import { getApiBase } from "../api.js";
+import { getApiBase } from "../lib/api.js";
 
 const API = getApiBase();
 const url = (path) => `${API}${path}`;
