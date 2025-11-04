@@ -1,8 +1,9 @@
 {
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://backend-api-mediazion-1.onrender.com/:path*" },
+    { "source": "/api/:path*",          "destination": "https://backend-api-mediazion-1.onrender.com/:path*" },
     { "source": "/(admin|panel|mediadores)(:path*)", "destination": "/index.html" },
-    { "source": "/:path*", "destination": "/index.html" }
+    { "source": "/suscripcion/:path*",  "destination": "/index.html" },
+    { "source": "/:path*",              "destination": "/index.html" }
   ],
   "cleanUrls": true,
   "trailingSlash": false
