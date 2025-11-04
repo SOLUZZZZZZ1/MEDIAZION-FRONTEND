@@ -1,8 +1,9 @@
 // src/pages/MediadoresDirectorio.jsx
 import React, { useEffect, useState } from "react";
 import Seo from "../components/Seo.jsx";
+import { getApiBase } from "../api";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "https://backend-api-mediazion-1.onrender.com";
+const API = getApiBase();
 
 export default function MediadoresDirectorio() {
   const [items, setItems] = useState([]);
@@ -10,11 +11,14 @@ export default function MediadoresDirectorio() {
 
   async function load() {
     try {
-      const url = new URL(API_BASE.replace(/\/$/,"") + "/mediadores/public");
-      if (prov) url.searchParams.set("provincia", prov);
-      if (esp)  url.searchParams.set("especialidad", esp);
-      if (q)    url.searchParams.set("q", q);
-      const r = await fetch(url.toString());
+      const params = new URLSearchParams();
+      if (prov) params.set("provincia", prov);
+      if (esp)  params.set("especialidad", esp);
+      if (q)    params.set("q", q);
+      const url = params.toString()
+        ? `${API}/mediadores/public?${params.toString()}`
+        : `${API}/mediadores/public`;
+      const r = await fetch(url);
       const data = await r.json();
       setItems(Array.isArray(data) ? data : []);
     } catch {
