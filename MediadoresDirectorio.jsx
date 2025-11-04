@@ -1,7 +1,7 @@
 // src/pages/MediadoresDirectorio.jsx
 import React, { useEffect, useState } from "react";
 import Seo from "../components/Seo.jsx";
-import { getApiBase } from "../api";
+import { getApiBase } from "../api.js";
 
 const API = getApiBase();
 
