@@ -1,11 +1,8 @@
-// src/pages/MediadorAlta.jsx — alta con más datos + consentimiento + errores legibles + gating Stripe
+// src/pages/MediadorAlta.jsx — Alta de Mediadores completa (DNI/CIF + tipo + gating Stripe)
 import { useState } from "react";
 
 function extractError(detail) {
-  // Convierte errores de FastAPI (array/object/string) a texto entendible
-  if (Array.isArray(detail)) {
-    return detail.map(d => d?.msg || JSON.stringify(d)).join("; ");
-  }
+  if (Array.isArray(detail)) return detail.map(d => d?.msg || JSON.stringify(d)).join("; ");
   if (typeof detail === "string") return detail;
   if (detail && typeof detail === "object") return detail.msg || JSON.stringify(detail);
   return "No se pudo registrar";
@@ -18,11 +15,13 @@ export default function MediadorAlta() {
     telefono: "",
     provincia: "",
     especialidad: "",
+    dni_cif: "",
+    tipo: "",
     accept: false,
   });
   const [status, setStatus] = useState({ sending: false, ok: null, msg: "" });
   const [busy, setBusy] = useState(false);
-  const [altaOk, setAltaOk] = useState(false); // habilita Stripe solo si alta fue correcta
+  const [altaOk, setAltaOk] = useState(false);
 
   const onChange = (e) => {
     const { name, type, checked, value } = e.target;
@@ -33,16 +32,15 @@ export default function MediadorAlta() {
     e.preventDefault();
     setStatus({ sending: true, ok: null, msg: "" });
 
-    // Validación mínima en cliente
-    if (!form.nombre.trim() || !form.email.trim() || !form.telefono.trim() ||
-        !form.provincia.trim() || !form.especialidad.trim()) {
-      setStatus({ sending: false, ok: false, msg: "Completa todos los campos." });
-      setAltaOk(false);
+    // Validación rápida en cliente
+    const required = ["nombre","email","telefono","provincia","especialidad","dni_cif","tipo"];
+    const missing = required.filter(f => !form[f].trim());
+    if (missing.length) {
+      setStatus({ sending: false, ok: false, msg: "Completa todos los campos obligatorios." });
       return;
     }
     if (!form.accept) {
       setStatus({ sending: false, ok: false, msg: "Debes aceptar la política de privacidad." });
-      setAltaOk(false);
       return;
     }
 
@@ -56,20 +54,19 @@ export default function MediadorAlta() {
           phone: form.telefono,
           provincia: form.provincia,
           especialidad: form.especialidad,
+          dni_cif: form.dni_cif,
+          tipo: form.tipo,
           accept: !!form.accept,
         }),
       });
-
       const raw = await res.text();
       let data = {};
       try { data = raw ? JSON.parse(raw) : {}; } catch {}
-
       if (!res.ok) {
-        const msg = extractError(data?.detail) || data?.message || (raw || "No se pudo registrar");
+        const msg = extractError(data?.detail) || data?.message || raw || "No se pudo registrar";
         throw new Error(msg);
       }
-
-      setStatus({ sending: false, ok: true, msg: data?.message || "Alta realizada. Revisa tu correo." });
+      setStatus({ sending: false, ok: true, msg: data?.message || "Alta realizada. Revisa tu correo con la contraseña temporal." });
       setAltaOk(true);
     } catch (err) {
       setStatus({ sending: false, ok: false, msg: err.message || "Error de red" });
@@ -81,14 +78,12 @@ export default function MediadorAlta() {
     try {
       if (!form.email) throw new Error("Indica tu email antes de suscribirte");
       if (!altaOk)     throw new Error("Completa y confirma el alta antes de suscribirte");
-
       setBusy(true);
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email }),
       });
-
       const text = await res.text();
       if (!res.ok) {
         let msg = "No se pudo iniciar la suscripción";
@@ -98,7 +93,6 @@ export default function MediadorAlta() {
         } catch {}
         throw new Error(msg);
       }
-
       const data = JSON.parse(text);
       if (!data?.url) throw new Error("No se pudo obtener la URL de Stripe");
       window.location.href = data.url;
@@ -117,7 +111,7 @@ export default function MediadorAlta() {
         <form onSubmit={onSubmit} className="sr-card" style={{ maxWidth: 720 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12 }}>
             <div>
-              <label className="sr-p block mb-1">Nombre</label>
+              <label className="sr-p block mb-1">Nombre completo</label>
               <input name="nombre" value={form.nombre} onChange={onChange} className="w-full border rounded-md px-3 py-2" required />
             </div>
             <div>
@@ -135,6 +129,18 @@ export default function MediadorAlta() {
             <div>
               <label className="sr-p block mb-1">Especialidad</label>
               <input name="especialidad" value={form.especialidad} onChange={onChange} className="w-full border rounded-md px-3 py-2" required />
+            </div>
+            <div>
+              <label className="sr-p block mb-1">DNI o CIF</label>
+              <input name="dni_cif" value={form.dni_cif} onChange={onChange} className="w-full border rounded-md px-3 py-2" required />
+            </div>
+            <div>
+              <label className="sr-p block mb-1">Tipo</label>
+              <select name="tipo" value={form.tipo} onChange={onChange} className="w-full border rounded-md px-3 py-2" required>
+                <option value="">Seleccionar...</option>
+                <option value="física">Persona física</option>
+                <option value="empresa">Empresa</option>
+              </select>
             </div>
             <label className="sr-p flex items-center gap-2 mt-1">
               <input type="checkbox" name="accept" checked={form.accept} onChange={onChange} required />
