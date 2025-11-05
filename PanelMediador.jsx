@@ -1,4 +1,4 @@
-// src/pages/PanelMediador.jsx — demo visible + scroll + login simple opcional
+// src/pages/PanelMediador.jsx — Panel Mediador con scroll y cambio de contraseña
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Seo from "../components/Seo.jsx";
@@ -7,6 +7,7 @@ function useQuery() {
   const { search } = useLocation();
   return useMemo(() => new URLSearchParams(search), [search]);
 }
+
 const LS_TOKEN = "mediador_token";
 
 export default function PanelMediador() {
@@ -18,7 +19,7 @@ export default function PanelMediador() {
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
 
-  // Si ya tenías un token guardado previamente, mostramos dashboard
+  // Si ya hay token, pasamos al dashboard
   useEffect(() => {
     const t = localStorage.getItem(LS_TOKEN);
     if (!demo && t) setView("dashboard");
@@ -28,10 +29,6 @@ export default function PanelMediador() {
     e.preventDefault();
     setBusy(true); setMsg("");
     try {
-      // Si aún no tienes /api/auth/login implementado, forzamos demo:
-      // descomenta la siguiente línea para entrar sin backend:
-      // return setView("dashboard"), setBusy(false);
-
       const r = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -39,7 +36,7 @@ export default function PanelMediador() {
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok || !data?.ok) throw new Error(data?.detail || "Credenciales no válidas");
-      localStorage.setItem(LS_TOKEN, "ok"); // placeholder hasta tener token real
+      localStorage.setItem(LS_TOKEN, "ok");
       setView("dashboard");
     } catch (e) {
       setMsg(e.message || "No se pudo iniciar sesión");
@@ -55,12 +52,15 @@ export default function PanelMediador() {
 
   return (
     <>
-      <Seo title="Panel del Mediador · MEDIAZION" description="Área privada del mediador de MEDIAZION." canonical="https://mediazion.eu/panel-mediador" />
-      {/* Contenedor con altura y scroll propio */}
+      <Seo
+        title="Panel del Mediador · MEDIAZION"
+        description="Área privada del mediador de MEDIAZION."
+        canonical="https://mediazion.eu/panel-mediador"
+      />
       <main
         className="sr-container py-8"
         style={{
-          minHeight: "calc(100vh - 160px)", // evita que footer tape el contenido
+          minHeight: "calc(100vh - 160px)",
           overflowY: "auto",
           background: "rgba(255,255,255,0.85)",
           borderRadius: "16px",
@@ -68,6 +68,7 @@ export default function PanelMediador() {
           marginBottom: "24px",
         }}
       >
+        {/* LOGIN */}
         {view === "login" && (
           <section className="sr-card" style={{ maxWidth: 520, margin: "0 auto" }}>
             <h1 className="sr-h1 mb-2">Acceso al Panel</h1>
@@ -94,6 +95,7 @@ export default function PanelMediador() {
           </section>
         )}
 
+        {/* DASHBOARD */}
         {view === "dashboard" && (
           <section className="sr-card" style={{ maxWidth: 1024, margin: "0 auto" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:12 }}>
@@ -101,7 +103,7 @@ export default function PanelMediador() {
               <button className="sr-btn-secondary" onClick={onLogout}>Salir</button>
             </div>
 
-            {/* Tarjetas demo para asegurar que hay scroll */}
+            {/* Tarjetas demo (contenido base) */}
             <div className="mt-4" style={{ display:"grid", gridTemplateColumns:"repeat(3,minmax(0,1fr))", gap:12 }}>
               {Array.from({length: 12}).map((_,i)=>(
                 <div key={i} className="sr-card" style={{ background:"white" }}>
@@ -111,12 +113,44 @@ export default function PanelMediador() {
               ))}
             </div>
 
+            {/* Cambio de contraseña */}
+            <div className="sr-card mt-8" style={{ background:"white" }}>
+              <h3 className="sr-h3 mb-2">Cambiar contraseña</h3>
+              <p className="sr-p mb-4">Actualiza tu contraseña temporal por una nueva segura.</p>
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const email = prompt("Confirma tu email:");
+                  const current = prompt("Contraseña actual:");
+                  const nueva = prompt("Nueva contraseña:");
+                  if (!email || !current || !nueva) return;
+                  try {
+                    const r = await fetch("/api/auth/change_password", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ email, current_password: current, new_password: nueva }),
+                    });
+                    const data = await r.json().catch(()=>({}));
+                    if (!r.ok) throw new Error(data?.detail || data?.message || "No se pudo cambiar la contraseña");
+                    alert("Contraseña actualizada correctamente.");
+                  } catch (err) {
+                    alert(err.message || "Error al cambiar la contraseña");
+                  }
+                }}
+              >
+                <button type="submit" className="sr-btn-secondary">
+                  Cambiar contraseña
+                </button>
+              </form>
+            </div>
+
+            {/* Próximas funciones */}
             <div className="mt-6">
               <h2 className="sr-h2">Próximas funciones</h2>
               <ul className="sr-p" style={{ listStyle:"disc", paddingLeft: "1.25rem" }}>
                 <li>Subir documentación y ver estado de casos.</li>
-                <li>Cambiar contraseña y datos de perfil.</li>
-                <li>Ver estado de suscripción y facturas (Stripe).</li>
+                <li>Actualizar perfil y datos fiscales.</li>
+                <li>Ver facturas y estado de suscripción (Stripe).</li>
               </ul>
             </div>
           </section>
