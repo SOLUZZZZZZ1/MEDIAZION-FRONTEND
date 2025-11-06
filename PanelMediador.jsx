@@ -70,7 +70,6 @@ export default function PanelMediador() {
   body: JSON.stringify({ email: who })
 });
 
-      });
       const data = await r.json().catch(() => ({}));
       if (!r.ok || !data?.ok) throw new Error(data?.detail || "Usuario o contraseña incorrectos");
       // sesión válida
