@@ -1,4 +1,4 @@
-// src/pages/PanelMediador.jsx — Panel Mediador con login real + estado PRO/BÁSICO desde backend + cambio de contraseña
+// src/pages/PanelMediador.jsx — Panel con login real + estado PRO/BÁSICO + activar PRO + cambio de contraseña
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Seo from "../components/Seo.jsx";
@@ -14,7 +14,7 @@ function useQuery() {
 export default function PanelMediador() {
   const q = useQuery();
 
-  // si añades ?logout=1, limpia sesión y redirige
+  // permite forzar logout con ?logout=1
   useEffect(() => {
     if (q.get("logout") === "1") {
       localStorage.removeItem(LS_TOKEN);
@@ -30,37 +30,39 @@ export default function PanelMediador() {
   const [busy, setBusy] = useState(false);
 
   const [who, setWho] = useState(localStorage.getItem(LS_EMAIL) || "");
-  const [subStatus, setSubStatus] = useState("none");    // none | trialing | active | expired
-  const [trialLeft, setTrialLeft] = useState(null);      // días restantes de trial
+  const [subStatus, setSubStatus] = useState("none"); // none | trialing | active | expired
+  const [trialLeft, setTrialLeft] = useState(null);   // días restantes (o null)
 
-  // Si existe sesión previa (guardada), pasar a dashboard
+  // Si hay sesión previa, pasar a dashboard
   useEffect(() => {
     const t = localStorage.getItem(LS_TOKEN);
     const e = localStorage.getItem(LS_EMAIL);
     if (t && e) {
-      setView("dashboard");
       setWho(e);
+      setView("dashboard");
     } else {
       setView("login");
     }
   }, []);
 
-  // Cargar estado de suscripción desde backend cuando tengamos email (who)
+  // Cargar estado de suscripción cuando tengamos email
   useEffect(() => {
     async function loadStatus() {
       if (!who) return;
       try {
         const r = await fetch(`/api/mediadores/status?email=${encodeURIComponent(who)}`);
-        const s = await r.json();
-        if (s && s.exists) {
-          setSubStatus(s.subscription_status || "none");
-          setTrialLeft(s.trial_days_left ?? null);
-        } else {
+        if (!r.ok) {
           setSubStatus("none");
           setTrialLeft(null);
+          return;
         }
+        const s = await r.json();
+        setSubStatus(s.subscription_status || "none");
+        // soporta tanto trial_days_left como ausencia (backends distintos)
+        setTrialLeft(typeof s.trial_days_left === "number" ? s.trial_days_left : null);
       } catch {
-        // ignorar
+        setSubStatus("none");
+        setTrialLeft(null);
       }
     }
     loadStatus();
@@ -74,14 +76,13 @@ export default function PanelMediador() {
       const r = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password: rtrim(email) ? pass : "" }),
+        body: JSON.stringify({ email, password: pass }),
       });
       const data = await r.json().catch(() => ({}));
-      if (!r.ok || !data?.[ "ok" ] !== undefined && !data?.ok) {
+      if (!r.ok || !data?.ok) {
         throw new Error(data?.detail || "Usuario o contraseña incorrectos");
       }
-      // Sesión válida: guardamos email y token (placeholder)
-      localStorage.setItem(LS_TOKEN, "ok");
+      localStorage.setItem(LS_TOKEN, "ok"); // placeholder hasta JWT
       localStorage.setItem(LS_EMAIL, email);
       setWho(email);
       setView("dashboard");
@@ -90,10 +91,6 @@ export default function PanelMediador() {
     } finally {
       setBusy(false);
     }
-  }
-
-  function rtrim(v) {
-    return (v || "").trim();
   }
 
   function onLogout() {
@@ -115,10 +112,9 @@ export default function PanelMediador() {
       if (!r.ok || !data?.url) {
         throw new Error(data?.detail || data?.message || "No se pudo iniciar la suscripción");
       }
-      // redirigimos al Checkout de Stripe
-      window.location.href = data.url;
-    } catch (e) {
-      alert(e.message || "No se pudo iniciar la suscripción");
+      window.location.href = data.url; // Checkout de Stripe
+    } catch (err) {
+      alert(err.message || "No se pudo iniciar la suscripción");
     }
   }
 
@@ -127,7 +123,6 @@ export default function PanelMediador() {
       <Seo
         title="Panel del Mediador · MEDIAZION"
         description="Área privada del mediador de MEDIAZION."
-        soaF={false}
         canonical="https://mediazion.eu/panel-mediador"
       />
       <main
@@ -142,17 +137,14 @@ export default function PanelMediador() {
         }}
       >
         {/* LOGIN */}
-        {view === "schmagin" && ( // intentionally unreachable state to avoid accidental autologin
-          <div />
-        )}
         {view === "login" && (
-          <section className="s r-card" style={{ maxWidth: 520, margin: "0 auto" }}>
+          <section className="sr-card" style={{ maxWidth: 520, margin: "0 auto" }}>
             <h1 className="sr-h1 mb-2">Acceso al Panel</h1>
             <p className="sr-p mb-4">
               Introduce tu email y la contraseña temporal (la tienes en el correo de alta).
               Luego podrás cambiarla.
             </p>
-            <form onSubmit={onL ogin} style={{ display: "grid", gap: 12 }}>
+            <form onSubmit={onLogin} style={{ display: "grid", gap: 12 }}>
               <input
                 className="border rounded-md px-3 py-2"
                 type="email"
@@ -186,23 +178,27 @@ export default function PanelMediador() {
           <section className="sr-card" style={{ maxWidth: 1024, margin: "0 auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
               <h1 className="sr-h1">Panel del Mediador</h1>
-              <button className="sr-btn-secondary" onClick={onLogout}>Salir</button>
+              <button className="sr-btn-secondary" onClick={onLogout}>
+                Salir
+              </button>
             </div>
 
-            {/* Bloques según estado de suscripción */}
+            {/* Estado de suscripción */}
             {subStatus === "trialing" && (
               <div className="sr-card mt-4">
                 <p className="sr-p">
-                  Estás en <b>PRO</b>. Te quedan {trialLeft ?? "—"} días de prueba.
+                  Estás en <b>PRO</b>. {trialLeft !== null ? `Te quedan ${trialLeft} días de prueba.` : ""}
                 </p>
                 <button className="sr-btn-primary" onClick={onSubscribe}>
                   Activar suscripción definitiva
                 </button>
-              </div>
+            </div>
             )}
             {(subStatus === "none" || subStatus === "expired") && (
               <div className="sr-card mt-4">
-                <p className="sr-p">Tu plan actual es <b>BÁSICO</b>. Puedes activar el plan PRO cuando quieras.</p>
+                <p className="sr-p">
+                  Tu plan actual es <b>BÁSICO</b>. Puedes activar el plan PRO cuando quieras.
+                </p>
                 <button className="sr-btn-secondary" onClick={onSubscribe}>
                   Activar plan PRO
                 </button>
@@ -210,20 +206,22 @@ export default function PanelMediador() {
             )}
             {subStatus === "active" && (
               <div className="sr-card mt-4">
-                <p className="sr-p">Tu suscripción está <b>ACTIVA</b>. ¡Gracias por confiar en MEDIAZION!</p>
+                <p className="sr-p">
+                  Tu suscripción está <b>ACTIVA</b>. ¡Gracias por confiar en MEDIAZION!
+                </p>
               </div>
             )}
 
-            {/* Contenido demo para comprobar scroll */}
+            {/* Contenido demo para scroll */}
             <div className="mt-4" style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-                {Array.from({ length: 9 }).map((_, i) => (
-                  <div key={i} className="sr-card" style={{ flex: "1 1 30%", minWidth: 260 }}>
-                    <h3 className="sr-h3" style={{ marginBottom: 8 }}>
-                      Ficha #{i + 1}
-                    </h3>
-                    <p className="sr-p">Contenido de ejemplo.</p>
-                  </div>
-                ))}
+              {Array.from({ length: 9 }).map((_, i) => (
+                <div key={i} className="sr-card" style={{ flex: "1 1 30%", minWidth: 260 }}>
+                  <h3 className="sr-h3" style={{ marginBottom: 8 }}>
+                    Ficha #{i + 1}
+                  </h3>
+                  <p className="sr-p">Contenido de ejemplo.</p>
+                </div>
+              ))}
             </div>
 
             {/* Cambio de contraseña */}
@@ -240,7 +238,7 @@ export default function PanelMediador() {
                     const r = await fetch("/api/auth/change-password", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ email: who, old_password: current, new_password: nu eva }),
+                      body: JSON.stringify({ email: who, old_password: current, new_password: nueva }),
                     });
                     const data = await r.json().catch(() => ({}));
                     if (!r.ok) throw new Error(data?.detail || data?.message || "No se pudo cambiar la contraseña");
@@ -250,7 +248,9 @@ export default function PanelMediador() {
                   }
                 }}
               >
-                <button type="submit" className="sr-btn-secondary">Cambiar contraseña</button>
+                <button type="submit" className="sr-btn-secondary">
+                  Cambiar contraseña
+                </button>
               </form>
             </div>
           </section>
