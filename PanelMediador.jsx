@@ -145,6 +145,7 @@ export default function PanelMediador() {
               Luego podrás cambiarla.
             </p>
             <form onSubmit={onLogin} style={{ display: "grid", gap: 12 }}>
+
               <input
                 className="border rounded-md px-3 py-2"
                 type="email"
