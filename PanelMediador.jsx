@@ -65,10 +65,10 @@ export default function PanelMediador() {
     setBusy(true); setMsg("");
     try {
       const r = await fetch("/api/stripe/subscribe", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ email: who })
-});
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: who })
+   });
 
       const data = await r.json().catch(() => ({}));
       if (!r.ok || !data?.ok) throw new Error(data?.detail || "Usuario o contraseña incorrectos");
@@ -94,11 +94,11 @@ export default function PanelMediador() {
   async function onSubscribe() {
     try {
       if (!who) throw new Error("Primero entra en el panel");
-      const r = await fetch("/api/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: who })
-      });
+      const r = await fetch("/api/stripe/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: who })
+   });
       const data = await r.json().catch(() => ({}));
       if (!r.ok || !data?.url) throw new Error(data?.detail || "No se pudo iniciar la suscripción");
       window.location.href = data.url;
