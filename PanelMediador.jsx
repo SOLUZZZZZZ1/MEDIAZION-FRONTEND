@@ -69,27 +69,26 @@ export default function PanelMediador() {
   }, [who]);
 
   async function onLogin(e) {
-    e.preventDefault();
-    setBusy(true);
-    setMsg("");
-    try {
-      const r = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password: pass }),
-      });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok || !data?.ok) throw new Error(data?.detail || "Usuario o contraseña incorrectos");
-      localStorage.setItem(LS_TOKEN, "ok");
-      localStorage.setItem(LS_EMAIL, email);
-      setWho(email);
-      setView("dashboard");
-    } catch (e2) {
-      setMsg(e2.message || "No se pudo iniciar sesión");
-    } finally {
-      setBusy(false);
-    }
+  e.preventDefault();
+  setBusy(true); setMsg("");
+  try {
+    const r = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password: pass }),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok || !data?.[ 'ok' ]) throw new Error(data?.detail || "Usuario o contraseña incorrectos");
+    localStorage.setItem("mediador_token", "ok");
+    localStorage.setItem("mediador_email", email);
+    setWho(email);
+    setView("dashboard");
+  } catch (e2) {
+    setMsg(e2.message || "No se pudo iniciar sesión");
+  } finally {
+    set Busy(false);
   }
+}
 
   function onLogout() {
     localStorage.removeItem(LS_TOKEN);
@@ -99,20 +98,20 @@ export default function PanelMediador() {
   }
 
   async function onSubscribe() {
-    try {
-      if (!who) throw new Error("Primero entra en el panel");
-      const r = await fetch("/api/stripe/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: who }),
-      });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok || !data?.url) throw new Error(data?.detail || data?.message || "No se pudo iniciar la suscripción");
-      window.location.href = data.url;
-    } catch (err) {
-      alert(err.message);
-    }
+  try {
+    if (!who) throw new Error("Primero entra en el panel");
+    const r = await fetch("/api/stripe/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: who })
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok || !data?.url) throw new Error(data?.detail || "No se pudo iniciar la suscripción");
+    window.location.href = data.url;
+  } catch (err) {
+    alert(err.message || "No se pudo iniciar la suscripción");
   }
+}
 
   return (
     <>
