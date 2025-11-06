@@ -64,10 +64,12 @@ export default function PanelMediador() {
     e.preventDefault();
     setBusy(true); setMsg("");
     try {
-      const r = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password: pass }),
+      const r = await fetch("/api/stripe/subscribe", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email: who })
+});
+
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok || !data?.ok) throw new Error(data?.detail || "Usuario o contraseña incorrectos");
