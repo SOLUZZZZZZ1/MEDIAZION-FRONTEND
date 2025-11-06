@@ -1,4 +1,3 @@
-// src/pages/PanelMediador.jsx — versión limpia y funcional
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Seo from "../components/Seo.jsx";
@@ -50,12 +49,21 @@ export default function PanelMediador() {
         const r = await fetch(`/api/mediadores/status?email=${encodeURIComponent(who)}`);
         if (r.ok) {
           const s = await r.json();
-          if (s?.exists) {
+          if (s?.subscription_status) {
             setSubStatus(s.subscription_status || "none");
-            setTrialLeft(s.trial_days_left ?? null);
+            setTrialLeft(typeof s.trial_days_left === "number" ? s.trial_days_left : null);
+          } else {
+            setSubStatus("none");
+            setTrialLeft(null);
           }
+        } else {
+          setSubStatus("none");
+          setTrialLeft(null);
         }
-      } catch {}
+      } catch {
+        setSubStatus("none");
+        setTrialLeft(null);
+      }
     }
     loadStatus();
   }, [who]);
@@ -76,8 +84,8 @@ export default function PanelMediador() {
       localStorage.setItem(LS_EMAIL, email);
       setWho(email);
       setView("dashboard");
-    } catch (e) {
-      setMsg(e.message || "No se pudo iniciar sesión");
+    } catch (e2) {
+      setMsg(e2.message || "No se pudo iniciar sesión");
     } finally {
       setBusy(false);
     }
@@ -99,7 +107,7 @@ export default function PanelMediador() {
         body: JSON.stringify({ email: who }),
       });
       const data = await r.json().catch(() => ({}));
-      if (!r.ok || !data?.url) throw new Error(data?.detail || "No se pudo iniciar la suscripción");
+      if (!r.ok || !data?.url) throw new Error(data?.detail || data?.message || "No se pudo iniciar la suscripción");
       window.location.href = data.url;
     } catch (err) {
       alert(err.message);
@@ -124,7 +132,6 @@ export default function PanelMediador() {
           marginBottom: "24px",
         }}
       >
-        {/* LOGIN */}
         {view === "login" && (
           <section className="sr-card" style={{ maxWidth: 520, margin: "0 auto" }}>
             <h1 className="sr-h1 mb-2">Acceso al Panel</h1>
@@ -160,7 +167,6 @@ export default function PanelMediador() {
           </section>
         )}
 
-        {/* DASHBOARD */}
         {view === "dashboard" && (
           <section className="sr-card" style={{ maxWidth: 1024, margin: "0 auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
@@ -170,17 +176,17 @@ export default function PanelMediador() {
               </button>
             </div>
 
-            {/* Bloques PRO/BÁSICO */}
             {subStatus === "trialing" && (
               <div className="sr-card mt-4">
                 <p className="sr-p">
-                  Estás en <b>PRO</b>. Te quedan {trialLeft ?? "—"} días de prueba.
+                  Estás en <b>PRO</b>. {trialLeft !== null ? `Te quedan ${trialLeft} días de prueba.` : ""}
                 </p>
                 <button className="sr-btn-primary" onClick={onSubscribe}>
                   Activar suscripción definitiva
                 </button>
               </div>
             )}
+
             {(subStatus === "none" || subStatus === "expired") && (
               <div className="sr-card mt-4">
                 <p className="sr-p">
@@ -191,15 +197,13 @@ export default function PanelMediador() {
                 </button>
               </div>
             )}
+
             {subStatus === "active" && (
               <div className="sr-card mt-4">
-                <p className="sr-p">
-                  Tu suscripción está <b>ACTIVA</b>. ¡Gracias!
-                </p>
+                <p className="sr-p">Tu suscripción está <b>ACTIVA</b>. ¡Gracias!</p>
               </div>
             )}
 
-            {/* Contenido demo */}
             <div className="mt-4" style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 12 }}>
               {Array.from({ length: 9 }).map((_, i) => (
                 <div key={i} className="sr-card" style={{ background: "white" }}>
@@ -211,7 +215,6 @@ export default function PanelMediador() {
               ))}
             </div>
 
-            {/* Cambio de contraseña */}
             <div className="sr-card mt-8" style={{ background: "white" }}>
               <h3 className="sr-h3 mb-2">Cambiar contraseña</h3>
               <p className="sr-p mb-4">Actualiza tu contraseña temporal por una nueva segura.</p>

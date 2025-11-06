@@ -1,8 +1,11 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
-    { "source": "/api/:path*",          "destination": "https://backend-api-mediazion-1.onrender.com/:path*" },
-    { "source": "/suscripcion/:path*",  "destination": "/index.html" },
+    { "source": "/api/:path*", "destination": "https://backend-api-mediazion-1.onrender.com/:path*" },
+    { "source": "/suscripcion/:path*", "destination": "/index.html" },
     { "source": "/(admin|panel|mediadores)(:path*)", "destination": "/index.html" },
-    { "source": "/:path*",              "destination": "/index.html" }
-  ]
+    { "source": "/:path*", "destination": "/index.html" }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
 }
