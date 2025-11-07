@@ -17,6 +17,9 @@ import Actualidad from "./pages/Actualidad.jsx";
 import MediadorAlta from "./pages/MediadorAlta.jsx";
 import Success from "./pages/Success.jsx";
 import Cancel from "./pages/Cancel.jsx";
+import VocesLista from "./pages/VocesLista.jsx";
+import VocesDetalle from "./pages/VocesDetalle.jsx";
+import VocesNuevo from "./pages/VocesNuevo.jsx";
 
 import AdminLogin from "./pages/admin/Login.jsx";
 import AdminDashboard from "./pages/admin/Dashboard.jsx";
@@ -50,6 +53,9 @@ export default function App() {
         <Route path="/actualidad" element={<Actualidad />} />
         <Route path="/panel-mediador/casos" element={<Casos />} />
         <Route path="/panel-mediador/agenda" element={<Agenda />} />
+        <Route path="/voces" element={<VocesLista />} />
+        <Route path="/voces/:slug" element={<VocesDetalle />} />
+        <Route path="/panel-mediador/voces/nuevo" element={<VocesNuevo />} />
 
         {/* Mediadores */}
         <Route path="/mediadores" element={<Mediadores />} />
