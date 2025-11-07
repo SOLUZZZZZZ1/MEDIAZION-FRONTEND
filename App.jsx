@@ -20,6 +20,7 @@ import Cancel from "./pages/Cancel.jsx";
 import VocesLista from "./pages/VocesLista.jsx";
 import VocesDetalle from "./pages/VocesDetalle.jsx";
 import VocesNuevo from "./pages/VocesNuevo.jsx";
+import AiPanel from "./pages/AiPanel.jsx";
 
 import AdminLogin from "./pages/admin/Login.jsx";
 import AdminDashboard from "./pages/admin/Dashboard.jsx";
@@ -56,6 +57,7 @@ export default function App() {
         <Route path="/voces" element={<VocesLista />} />
         <Route path="/voces/:slug" element={<VocesDetalle />} />
         <Route path="/panel-mediador/voces/nuevo" element={<VocesNuevo />} />
+        <Route path="/panel-mediador/ai" element={<AiPanel />} />
 
         {/* Mediadores */}
         <Route path="/mediadores" element={<Mediadores />} />
