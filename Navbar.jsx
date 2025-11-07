@@ -19,6 +19,7 @@ export default function Navbar() {
           <NavLink to="/actualidad" className={tab}>Actualidad</NavLink>
           <NavLink to="/mediadores/directorio" className={tab}>Directorio</NavLink>
           <NavLink to="/panel-mediador" className={tab}>Panel</NavLink>
+          <NavLink to="/voces" className={tab}>Voces</NavLink>
 
         </nav>
       </div>
