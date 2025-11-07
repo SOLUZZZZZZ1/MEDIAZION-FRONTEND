@@ -10,6 +10,8 @@ import QuienesSomos from "./pages/QuienesSomos.jsx";
 import Servicios from "./pages/Servicios.jsx";
 import Mediadores from "./pages/Mediadores.jsx";
 import Tarifas from "./pages/Tarifas.jsx";
+import Casos from "./pages/Casos.jsx";
+import Agenda from "./pages/Agenda.jsx";
 import Contacto from "./pages/Contacto.jsx";
 import Actualidad from "./pages/Actualidad.jsx";
 import MediadorAlta from "./pages/MediadorAlta.jsx";
@@ -46,6 +48,8 @@ export default function App() {
         <Route path="/tarifas" element={<Tarifas />} />
         <Route path="/contacto" element={<Contacto />} />
         <Route path="/actualidad" element={<Actualidad />} />
+        <Route path="/panel-mediador/casos" element={<Casos />} />
+        <Route path="/panel-mediador/agenda" element={<Agenda />} />
 
         {/* Mediadores */}
         <Route path="/mediadores" element={<Mediadores />} />
