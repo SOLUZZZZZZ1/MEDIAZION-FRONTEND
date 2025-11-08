@@ -54,7 +54,7 @@ export default function Plantillas() {
       <Seo
         title="Recetas IA · MEDIAZION"
         description="Plantillas rápidas para redactar actas, correos y resúmenes con IA."
-        canonical="https://mediazion.eu/#/panel-mediador/plantillas"
+        canonical="https://mediazion.eu/#/panel-mediador/Plantillas"
       />
       <main
         className="sr-container py-8"
