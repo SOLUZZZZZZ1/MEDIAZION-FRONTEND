@@ -1,4 +1,4 @@
-// src/pages/PanelMediador.jsx — Panel PRO completo (trial 7 días, PRO, BÁSICO) + IA/Plantillas/Pagos
+// src/pages/PanelMediador.jsx — Panel PRO completo (trial 7 días, PRO, BÁSICO) + IA/Plantillas/Pagos/Actas
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
 import Seo from "../components/Seo.jsx";
@@ -111,9 +111,6 @@ export default function PanelMediador() {
     }
   }
 
-  // (Opcional) cambio de contraseña simple si ya tienes endpoint /api/auth/change_password
-  // async function onChangePassword() { ... }
-
   // Bloque informativo según estado
   function BlockStatus() {
     if (subStatus === "active") {
@@ -171,14 +168,14 @@ export default function PanelMediador() {
         </div>
 
         <div className="sr-card mt-4">
-  <h2 className="sr-h2">Plantillas y Documentos</h2>
-  <p className="sr-p">Actas, acuerdos y correos. Exporta a PDF/Word.</p>
-  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-    <Link className="sr-btn-secondary" to="/panel-mediador/plantillas">Ver plantillas</Link>
-    <Link className="sr-btn-secondary" to="/panel-mediador/acta">Nueva acta</Link>
-  </div>
-</div>
-
+          <h2 className="sr-h2">Plantillas y Documentos</h2>
+          <p className="sr-p">Actas, acuerdos y correos. Exporta a PDF/Word. (MVP: desde Recetas IA)</p>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <Link className="sr-btn-secondary" to="/panel-mediador/plantillas">Ver plantillas</Link>
+            {/* NUEVO: acceso directo al generador de actas */}
+            <Link className="sr-btn-secondary" to="/panel-mediador/acta">Nueva acta</Link>
+          </div>
+        </div>
 
         <div className="sr-card mt-4">
           <h2 className="sr-h2">Cobros</h2>
@@ -231,7 +228,8 @@ export default function PanelMediador() {
         description="Área privada del mediador de MEDIAZION. Prueba PRO 7 días gratis."
         canonical="https://mediazion.eu/panel-mediador"
       />
-      <main className="sr-container py-8"
+      <main
+        className="sr-container py-8"
         style={{
           minHeight: "calc(100vh - 160px)",
           overflowY: "auto",
@@ -239,7 +237,8 @@ export default function PanelMediador() {
           borderRadius: "16px",
           marginTop: "24px",
           marginBottom: "24px"
-        }}>
+        }}
+      >
         {/* LOGIN */}
         {view === "login" && (
           <section className="sr-card" style={{ maxWidth: 520, margin: "0 auto" }}>
@@ -248,14 +247,30 @@ export default function PanelMediador() {
               Introduce tu email y la <b>contraseña temporal</b> (la recibiste en el correo de alta). Después podrás cambiarla.
             </p>
             <form onSubmit={onLogin} style={{ display: "grid", gap: 12 }}>
-              <input className="border rounded-md px-3 py-2" type="email" placeholder="Email"
-                     value={email} onChange={(e) => setEmail(e.target.value)} required />
-              <input className="border rounded-md px-3 py-2" type="password" placeholder="Contraseña"
-                     value={pass} onChange={(e) => setPass(e.target.value)} required />
+              <input
+                className="border rounded-md px-3 py-2"
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <input
+                className="border rounded-md px-3 py-2"
+                type="password"
+                placeholder="Contraseña"
+                value={pass}
+                onChange={(e) => setPass(e.target.value)}
+                required
+              />
               <button className="sr-btn-primary" type="submit" disabled={busy}>
                 {busy ? "Entrando..." : "Entrar"}
               </button>
-              {msg && <p className="sr-p" style={{ color: "#991b1b" }}>Error: {msg}</p>}
+              {msg && (
+                <p className="sr-p" style={{ color: "#991b1b" }}>
+                  Error: {msg}
+                </p>
+              )}
             </form>
           </section>
         )}
@@ -266,7 +281,9 @@ export default function PanelMediador() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
               <h1 className="sr-h1">Panel del Mediador</h1>
               <div style={{ display: "flex", gap: 8 }}>
-                <button className="sr-btn-secondary" onClick={onLogout}>Salir</button>
+                <button className="sr-btn-secondary" onClick={onLogout}>
+                  Salir
+                </button>
               </div>
             </div>
 
