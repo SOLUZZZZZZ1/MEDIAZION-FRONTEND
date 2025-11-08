@@ -16,7 +16,6 @@ import Contacto from "./pages/Contacto.jsx";
 import Actualidad from "./pages/Actualidad.jsx";
 import MediadorAlamat from "./pages/MediadorAlta.jsx";
 import MediadoresDirectorio from "./pages/Mediadores.jsx"; // o "./pages/Mediadores.jsx" según tu estructura
-import VocesLista from "./pages/Voces.jsx"; // si tu archivo se llama distinto, ajusta el import
 import CourseDetail from "./pages/CourseDetail.jsx";
 import WebinarDetail from "./pages/WebinarDetail.jsx";
 
@@ -31,8 +30,9 @@ import PerfilMediador from "./pages/PerfilMediador.jsx";
 import ActaNueva from "./pages/ActaNueva.jsx";
 
 // Rutas Voces (si ya pegaste los archivos)
-import VocesList from "./pages/Voces.jsx";           // o "./pages/VocesLista.jsx"
-import VocesDetail from "./pages/VocesDetalle.jsx";  // si usas detalle
+
+import VocesDetalle from "./pages/VocesDetalle.jsx";  // si usas detalle
+import VocesLista from "./pages/Voces.jsx"; // si tu archivo se llama distinto, ajusta el import
 
 // Suscripción
 import Success from "./pages/Success.jsx";
@@ -57,6 +57,10 @@ export default function App() {
         {/* Voces públicas */}
         <Route path="/voces" element={<VocesList />} />
         <Route path="/voces/:slug" element={<VocesDetail />} />
+        <Route path="/voces" element={<VocesLista />} />
+        <Route path="/voces/:slug" element={<VocesDetalle />} />
+        <Route path="/panel-mediador/voces/nuevo" element={<VocesNuevo />} />
+
 
         {/* Suscripción */}
         <Route path="/suscripcion/ok" element={<Success />} />
