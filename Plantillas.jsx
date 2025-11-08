@@ -66,9 +66,7 @@ export default function Plantillas() {
         }}
       >
         <h1 className="sr-h1 mb-2">Recetas IA</h1>
-        <p className="sr-p mb-4">
-          Plantillas rápidas para redactar con IA de forma profesional.
-        </p>
+        <p className="sr-p mb-4">Plantillas rápidas para redactar con IA de forma profesional.</p>
 
         <section className="grid gap-4 md:grid-cols-2">
           {RECETAS.map((r) => (
