@@ -11,7 +11,6 @@ import { Link } from "react-router-dom";
  *  - onSubscribe: () => void
  *  - onLogout: () => void
  */
-
 export default function ProDashboard({ who, subStatus, trialLeft, onSubscribe, onLogout }) {
   const isPro = subStatus === "active" || subStatus === "trialing";
 
@@ -32,52 +31,37 @@ export default function ProDashboard({ who, subStatus, trialLeft, onSubscribe, o
       {/* Status Banner */}
       <div className="mt-4">
         {subStatus === "active" && (
-          <div className="rounded-2xl p-4 bg-emerald-50 border border-emerald-200">
-            <p className="sr-p">
-              <span className="inline-flex items-center gap-2 font-semibold text-emerald-700">
-                ✅ PRO Activo
-              </span>{" "}
-              — Tienes acceso completo a IA, plantillas, cobros y utilidades PRO.
-            </p>
-          </div>
+          <Banner color="emerald" icon="✅" title="PRO Activo">
+            Tienes acceso completo a IA, plantillas, cobros y utilidades PRO.
+          </Banner>
         )}
-
         {subStatus === "trialing" && (
-          <div className="rounded-2xl p-4 bg-sky-50 border border-sky-200">
-            <p className="sr-p">
-              <span className="inline-flex items-center gap-2 font-semibold text-sky-700">
-                ⭐ Prueba PRO 7 días
-              </span>
-              {trialLeft !== null ? ` — te quedan ${trialLeft} día(s).` : ""} Disfruta de todo y, si te encaja, actívalo.
-            </p>
+          <Banner color="sky" icon="⭐" title="Prueba PRO 7 días">
+            {trialLeft !== null ? `Te quedan ${trialLeft} día(s). ` : ""}Disfruta de todo y, si te encaja, actívalo.
             <div className="mt-3">
               <button className="sr-btn-primary" onClick={onSubscribe}>Activar suscripción definitiva</button>
             </div>
-          </div>
+          </Banner>
         )}
-
         {(subStatus === "none" || subStatus === "expired" || subStatus === "canceled") && (
-          <div className="rounded-2xl p-4 bg-amber-50 border border-amber-200">
-            <p className="sr-p">
-              <span className="inline-flex items-center gap-2 font-semibold text-amber-700">
-                ⚠️ Panel BÁSICO
-              </span>{" "}
-              — Activa tu <b>prueba PRO de 7 días</b> para acceder a IA, plantillas y cobros.
-            </p>
+          <Banner color="amber" icon="⚠️" title="Panel BÁSICO">
+            Activa tu <b>prueba PRO de 7 días</b> para acceder a IA, plantillas y cobros.
             <div className="mt-3">
               <button className="sr-btn-secondary" onClick={onSubscribe}>Probar PRO 7 días</button>
             </div>
-          </div>
+          </Banner>
         )}
       </div>
 
       {/* Quick Actions */}
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-        <QuickAction to="/panel-mediador/ai"       title="IA Profesional"     emoji="🤖"    disabled={!isPro} />
-        <QuickAction to="/panel-mediador/plantillas" title="Recetas IA"     emoji="📚"    disabled={!isPro} />
-        <QuickAction to="/panel-mediador/pagos"    title="Pagos Rápidos"     emoji="💳"    disabled={!isPro} />
-        <QuickAction to="/panel-mediador/casos"    title="Expedientes"       emoji="🗂️"    disabled={!isPro} />
-        <QuickAction to="/panel-mediador/agenda"   title="Agenda"            emoji="🗓️"    disabled={!isPro} />
+        <QuickAction to="/panel-mediador/ai"            title="IA Profesional"   emoji="🤖" disabled={!isPro} />
+        <QuickAction to="/panel-mediador/plantillas"    title="Recetas IA"      emoji="📚" disabled={!isPro} />
+        <QuickAction to="/panel-mediador/pagos"         title="Pagos Rápidos"   emoji="💳" disabled={!isPro} />
+        <QuickAction to="/panel-mediador/casos"         title="Expedientes"     emoji="🗂️" disabled={!isPro} />
+        <QuickAction to="/panel-mediador/agenda"        title="Agenda"          emoji="🗓️" disabled={!isPro} />
+        {/* NUEVA acción rápida: Actas */}
+        <QuickAction to="/panel-mediador/acta"          title="Actas"           emoji="📝" disabled={!isPro} />
       </div>
 
       {/* Feature Cards */}
@@ -90,13 +74,19 @@ export default function ProDashboard({ who, subStatus, trialLeft, onSubscribe, o
             ctaText="Abrir IA"
             to="/panel-mediador/ai"
           />
+
+          {/* Plantillas + botón extra “Nueva acta” */}
           <FeatureCard
             title="Plantillas & Documentos"
             desc="Recetas listas + variables. Exportación a PDF/DOCX (fase 2)."
             bullets={["Acta estándar", "Convocatoria", "Correo de seguimiento"]}
             ctaText="Ver recetas"
             to="/panel-mediador/plantillas"
+            extraLinks={[
+              { to: "/panel-mediador/acta", text: "Nueva acta" } // <-- AQUÍ ESTÁ TU BOTÓN
+            ]}
           />
+
           <FeatureCard
             title="Cobros & Operativa"
             desc="Cobra con tarjeta en segundos. Recibos automáticos y, en breve, cupones."
@@ -108,7 +98,7 @@ export default function ProDashboard({ who, subStatus, trialLeft, onSubscribe, o
       ) : (
         <div className="mt-6 sr-card">
           <h2 className="sr-h2">Ventajas del plan PRO</h2>
-          <ul className="sr-ul">
+        <ul className="sr-ul">
             <li>🤖 Asistente IA (texto + documentos)</li>
             <li>📚 Plantillas profesionales (actas, acuerdos, comunicaciones)</li>
             <li>💳 Cobros con tarjeta + recibos</li>
@@ -149,11 +139,66 @@ export default function ProDashboard({ who, subStatus, trialLeft, onSubscribe, o
 
 /* ---------- Subcomponentes UI ---------- */
 
+function Banner({ color, icon, title, children }) {
+  const palette = {
+    emerald: "bg-emerald-50 border-emerald-200 text-emerald-800",
+    sky:     "bg-sky-50 border-sky-200 text-sky-800",
+    amber:   "bg-amber-50 border-amber-200 text-amber-800"
+  };
+  const classes = palette[color] || "bg-zinc-50 border-zinc-200";
+  return (
+    <div className={`rounded-2xl p-4 border ${classes}`}>
+      <p className="sr-p">
+        <span className="inline-flex items-center gap-2 font-semibold">{icon} {title}</span> — {children}
+      </p>
+    </div>
+  );
+}
+
 function QuickAction({ to, title, emoji, disabled }) {
-  const cls = disabled
-    ? "opacity-50 pointer-events-none"
-    : "hover:shadow-md transition-shadow";
+  const cls = disabled ? "opacity-50 pointer-events-none" : "hover:shadow-md transition-shadow";
   return (
     <Link to={to} className={`rounded-2xl border p-4 bg-white ${cls}`}>
       <div className="flex items-center gap-3">
-        <div className="text-2xl">{emoji}</
+        <div className="text-2xl">{emoji}</div>
+        <div>
+          <div className="font-semibold">{title}</div>
+          <div className="sr-small text-zinc-600">Abrir</div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function FeatureCard({ title, desc, bullets = [], ctaText, to, extraLinks = [] }) {
+  return (
+    <article className="rounded-2xl border p-5 bg-white hover:shadow-sm transition-shadow">
+      <h3 className="sr-h3">{title}</h3>
+      <p className="sr-p mt-1">{desc}</p>
+      {bullets.length > 0 && (
+        <ul className="sr-ul mt-2">
+          {bullets.map((b, i) => <li key={i}>{b}</li>)}
+        </ul>
+      )}
+      <div className="mt-3 flex flex-wrap gap-8">
+        <Link className="sr-btn-secondary" to={to}>{ctaText}</Link>
+        {extraLinks.map((x, i) => (
+          <Link key={i} className="sr-btn-secondary" to={x.to}>{x.text}</Link>
+        ))}
+      </div>
+    </article>
+  );
+}
+
+function MiniCard({ title, desc, to, emoji }) {
+  return (
+    <article className="rounded-2xl border p-5 bg-white">
+      <div className="flex items-center gap-3">
+        <div className="text-2xl">{emoji}</div>
+        <h3 className="sr-h3 m-0">{title}</h3>
+      </div>
+      <p className="sr-p mt-2">{desc}</p>
+      <Link className "sr-btn-secondary mt-2 inline-block" to={to}>Abrir</Link>
+    </article>
+  );
+}
