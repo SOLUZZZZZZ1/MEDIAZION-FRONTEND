@@ -171,12 +171,14 @@ export default function PanelMediador() {
         </div>
 
         <div className="sr-card mt-4">
-          <h2 className="sr-h2">Plantillas y Documentos</h2>
-          <p className="sr-p">Actas, acuerdos y correos. Exporta a PDF/Word. (MVP: desde Recetas IA)</p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <Link className="sr-btn-secondary" to="/panel-mediador/plantillas">Ver plantillas</Link>
-          </div>
-        </div>
+  <h2 className="sr-h2">Plantillas y Documentos</h2>
+  <p className="sr-p">Actas, acuerdos y correos. Exporta a PDF/Word.</p>
+  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+    <Link className="sr-btn-secondary" to="/panel-mediador/plantillas">Ver plantillas</Link>
+    <Link className="sr-btn-secondary" to="/panel-mediador/acta">Nueva acta</Link>
+  </div>
+</div>
+
 
         <div className="sr-card mt-4">
           <h2 className="sr-h2">Cobros</h2>
