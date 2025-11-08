@@ -21,6 +21,7 @@ import VocesLista from "./pages/VocesLista.jsx";
 import VocesDetalle from "./pages/VocesDetalle.jsx";
 import VocesNuevo from "./pages/VocesNuevo.jsx";
 import AiPanel from "./pages/AiPanel.jsx";
+import PerfilMediador from "./pages/PerfilMediador.jsx";
 
 import AdminLogin from "./pages/admin/Login.jsx";
 import AdminDashboard from "./pages/admin/Dashboard.jsx";
@@ -64,6 +65,7 @@ export default function App() {
         <Route path="/mediadores/directorio" element={<MediadoresDirectorio />} />
         <Route path="/mediadores/alta" element={<MediadorAlta />} />
         <Route path="/panel-mediador" element={<PanelMediador />} />
+        <Route path="/panel-mediador/perfil" element={<PerfilMediador />} />
 
         {/* Detalle formativo */}
         <Route path="/servicios/curso/:slug" element={<CourseDetail />} />
