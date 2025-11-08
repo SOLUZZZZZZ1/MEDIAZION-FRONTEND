@@ -1,3 +1,4 @@
+// src/components/Navbar.jsx
 import { Link, NavLink } from "react-router-dom";
 
 export default function Navbar() {
@@ -9,6 +10,7 @@ export default function Navbar() {
         <Link to="/" aria-label="MEDIAZION" className="sr-brand">
           <span className="sr-brand-title">MEDIAZION</span>
         </Link>
+
         <nav className="sr-tabs" aria-label="Navegación principal">
           <NavLink to="/" end className={tab}>Inicio</NavLink>
           <NavLink to="/quienes-somos" className={tab}>Quiénes somos</NavLink>
@@ -18,9 +20,10 @@ export default function Navbar() {
           <NavLink to="/contacto" className={tab}>Contacto</NavLink>
           <NavLink to="/actualidad" className={tab}>Actualidad</NavLink>
           <NavLink to="/mediadores/directorio" className={tab}>Directorio</NavLink>
-          <NavLink to="/panel-mediador" className={tab}>Panel</NavLink>
-          <NavLink to="/voces" className={tab}>Voces</NavLink>
 
+          {/* NUEVAS PESTAÑAS */}
+          <NavLink to="/voces" className={tab}>Voces</NavLink>
+          <NavLink to="/panel-mediador" className={tab}>Panel</NavLink>
         </nav>
       </div>
       <div className="sr-navbar-underline" />
