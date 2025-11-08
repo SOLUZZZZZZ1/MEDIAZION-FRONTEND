@@ -1,7 +1,7 @@
 // src/pages/PerfilMediador.jsx — Perfil PRO: alias, bio, foto/CV, cambio de contraseña
 import React, { useEffect, useState } from "react";
 import Seo from "../components/Seo.jsx";
-import NavbarPanel from "../components/Navbar.jsx"; // <- si luego quieres usar el navbar público, cámbialo a "../components/Navbar.jsx"
+import NavbarPanel from "../components/NavbarPanel.jsx"; // <- si luego quieres usar el navbar público, cámbialo a "../components/Navbar.jsx"
 
 const LS_EMAIL = "mediador_email";
 
