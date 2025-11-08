@@ -1,11 +1,9 @@
-// src/App.jsx — solo rutas de páginas que existen ahora mismo
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 
-// Páginas públicas confirmadas
 import Inicio from "./pages/Inicio.jsx";
 import QuienesSomos from "./pages/QuienesSomos.jsx";
 import Servicios from "./pages/Servicios.jsx";
@@ -20,20 +18,9 @@ import Cancel from "./pages/Cancel.jsx";
 import CourseDetail from "./pages/CourseDetail.jsx";
 import WebinarDetail from "./pages/WebinarDetail.jsx";
 
-// Panel (existe)
 import PanelMediador from "./pages/PanelMediador.jsx";
-
-// (Cuando pegues las páginas PRO, activas sus imports y rutas)
-// import AiPanel from "./pages/AiPanel.jsx";
-// import ActaNueva from "./pages/ActaNueva.jsx";
-// import Plantillas from "./pages/Plantillas.jsx";
-// import PagosRapidos from "./pages/PagosRapidos.jsx";
-// import Casos from "./pages/Casos.jsx";
-// import Agenda from "./pages/Agenda.jsx";
-// import PerfilMediador from "./pages/PerfilMediador.jsx";
-// import VocesLista from "./pages/VocesLista.jsx";
-// import VocesDetalle from "./pages/VocesDetalle.jsx";
-// import VocesNuevo from "./pages/VocesNuevo.jsx";
+import AiPanel from "./pages/AiPanel.jsx";
+import Plantillas from "./pages/Plantillas.jsx";
 
 export default function App() {
   return (
@@ -68,8 +55,10 @@ export default function App() {
         <Route path="/suscripcion/ok" element={<Success />} />
         <Route path="/suscripcion/cancel" element={<Cancel />} />
 
-        {/* Panel */}
+        {/* Panel Mediador */}
         <Route path="/panel-mediador" element={<PanelMediador />} />
+        <Route path="/panel-mediador/ai" element={<AiPanel />} />
+        <Route path="/panel-mediador/plantillas" element={<Plantillas />} />
 
         {/* 404 */}
         <Route
