@@ -1,9 +1,13 @@
+// src/App.jsx — rutas estables + IA y Plantillas ACTIVAS (Plantillas.jsx en la RAÍZ del repo)
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
+// Si Navbar.jsx y Footer.jsx están en src/components, deja estas líneas.
+// Si también están en la raíz del repo, cambia a: "../Navbar.jsx" y "../Footer.jsx"
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 
+// Páginas públicas (si están en src/pages, deja ./pages/...; si están en raíz, cambia a ../Nombre.jsx)
 import Inicio from "./pages/Inicio.jsx";
 import QuienesSomos from "./pages/QuienesSomos.jsx";
 import Servicios from "./pages/Servicios.jsx";
@@ -18,10 +22,13 @@ import Cancel from "./pages/Cancel.jsx";
 import CourseDetail from "./pages/CourseDetail.jsx";
 import WebinarDetail from "./pages/WebinarDetail.jsx";
 
+// Panel (está en src/pages según tu listado)
 import PanelMediador from "./pages/PanelMediador.jsx";
 import AiPanel from "./pages/AiPanel.jsx";
-import plantillas from "./plantillas.jsx";
 
+// ⚠️ IMPORTANTE: Plantillas.jsx está en la RAÍZ del repo (no en src/pages)
+// Por eso importamos con "../Plantillas.jsx" desde "src/App.jsx"
+import Plantillas from "../Plantillas.jsx";
 
 export default function App() {
   return (
@@ -59,8 +66,9 @@ export default function App() {
         {/* Panel Mediador */}
         <Route path="/panel-mediador" element={<PanelMediador />} />
         <Route path="/panel-mediador/ai" element={<AiPanel />} />
-        <Route path="/panel-mediador/plantillas" element={<plantillas />} />
 
+        {/* 🔧 Corregido: la ruta debe ser MINÚSCULAS */}
+        <Route path="/panel-mediador/plantillas" element={<Plantillas />} />
 
         {/* 404 */}
         <Route
