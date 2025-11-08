@@ -58,7 +58,7 @@ export default function App() {
         {/* Panel Mediador */}
         <Route path="/panel-mediador" element={<PanelMediador />} />
         <Route path="/panel-mediador/ai" element={<AiPanel />} />
-        <Route path="/panel-mediador/plantillas" element={<Plantillas />} />
+        <Route path="/panel-mediador/Plantillas" element={<Plantillas />} />
 
         {/* 404 */}
         <Route
