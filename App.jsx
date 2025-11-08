@@ -20,17 +20,17 @@ import Cancel from "./pages/Cancel.jsx";
 import CourseDetail from "./pages/CourseDetail.jsx";
 import WebinarDetail from "./pages/WebinarDetail.jsx";
 
-// Panel (confirmado que existe)
+// Panel (existe)
 import PanelMediador from "./pages/PanelMediador.jsx";
 
-// Si más adelante pegas estas páginas, las iremos activando:
+// (Cuando pegues las páginas PRO, activas sus imports y rutas)
 // import AiPanel from "./pages/AiPanel.jsx";
+// import ActaNueva from "./pages/ActaNueva.jsx";
 // import Plantillas from "./pages/Plantillas.jsx";
 // import PagosRapidos from "./pages/PagosRapidos.jsx";
 // import Casos from "./pages/Casos.jsx";
 // import Agenda from "./pages/Agenda.jsx";
 // import PerfilMediador from "./pages/PerfilMediador.jsx";
-// import ActaNueva from "./pages/ActaNueva.jsx";
 // import VocesLista from "./pages/VocesLista.jsx";
 // import VocesDetalle from "./pages/VocesDetalle.jsx";
 // import VocesNuevo from "./pages/VocesNuevo.jsx";
@@ -48,9 +48,8 @@ export default function App() {
       }}
     >
       <Navbar />
-
       <Routes>
-        {/* Públicas (existentes) */}
+        {/* Públicas */}
         <Route path="/" element={<Inicio />} />
         <Route path="/quienes-somos" element={<QuienesSomos />} />
         <Route path="/servicios" element={<Servicios />} />
@@ -61,18 +60,18 @@ export default function App() {
         <Route path="/mediadores/alta" element={<MediadorAlta />} />
         <Route path="/mediadores/directorio" element={<MediadoresDirectorio />} />
 
-        {/* Formación (existentes) */}
+        {/* Formación */}
         <Route path="/servicios/curso/:slug" element={<CourseDetail />} />
         <Route path="/servicios/webinar/:slug" element={<WebinarDetail />} />
 
-        {/* Suscripción (existentes) */}
+        {/* Suscripción */}
         <Route path="/suscripcion/ok" element={<Success />} />
         <Route path="/suscripcion/cancel" element={<Cancel />} />
 
-        {/* Panel (existente) */}
+        {/* Panel */}
         <Route path="/panel-mediador" element={<PanelMediador />} />
 
-        {/* 404 básico */}
+        {/* 404 */}
         <Route
           path="*"
           element={
@@ -83,7 +82,6 @@ export default function App() {
           }
         />
       </Routes>
-
       <Footer />
     </div>
   );
