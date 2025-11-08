@@ -20,7 +20,7 @@ import WebinarDetail from "./pages/WebinarDetail.jsx";
 
 import PanelMediador from "./pages/PanelMediador.jsx";
 import AiPanel from "./pages/AiPanel.jsx";
-import Plantillas from "./Plantillas.jsx";
+import plantillas from "./plantillas.jsx";
 
 
 export default function App() {
@@ -59,7 +59,7 @@ export default function App() {
         {/* Panel Mediador */}
         <Route path="/panel-mediador" element={<PanelMediador />} />
         <Route path="/panel-mediador/ai" element={<AiPanel />} />
-        <Route path="/panel-mediador/plantillas" element={<Plantillas />} />
+        <Route path="/panel-mediador/plantillas" element={<plantillas />} />
 
 
         {/* 404 */}
