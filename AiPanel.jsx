@@ -1,13 +1,16 @@
-// src/pages/AiPanel.jsx — Asistente IA Profesional (UI premium + funcional)
+// src/pages/AiPanel.jsx — Asistente IA PRO (con documentos, guardar sesión y exportar DOCX)
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Seo from "../components/Seo.jsx";
 
 const PRESETS = [
   { tag: "Acta estándar", prompt: "Redacta un acta formal de mediación con fecha, asistentes, antecedentes, desarrollo, acuerdos y próximos pasos." },
   { tag: "Resumen ejecutivo", prompt: "Resume la sesión de mediación en 10-12 líneas, con objetivos, puntos clave, avances y tareas pendientes." },
-  { tag: "Correo de seguimiento", prompt: "Redacta un correo profesional de seguimiento tras una sesión de mediación, agradeciendo la asistencia y detallando próximos pasos." },
-  { tag: "Cláusula de confidencialidad", prompt: "Escribe una cláusula de confidencialidad para anexar a un acta de mediación, en tono jurídico claro y conciso." },
+  { tag: "Correo de seguimiento", prompt: "Redacta un correo profesional de seguimiento tras una sesión de mediación, con saludo, resumen de acuerdos y próximos pasos." },
+  { tag: "Cláusula confidencialidad", prompt: "Escribe una cláusula de confidencialidad para anexar a un acta de mediación, en tono jurídico claro y conciso." },
 ];
+
+const LOGO_URL_DEFAULT = "https://mediazion.eu/logo.png";
+const BEARER = "ok"; // gate mínimo del backend IA
 
 function MessageBubble({ role, content }) {
   const isUser = role === "user";
@@ -15,7 +18,7 @@ function MessageBubble({ role, content }) {
     <div className={`w-full flex ${isUser ? "justify-end" : "justify-start"} mb-3`}>
       <div
         className={[
-          "max-w-[90%] md:max-w-[70%] rounded-2xl px-4 py-3 shadow-sm",
+          "max-w-[92%] md:max-w-[72%] rounded-2xl px-4 py-3 shadow-sm",
           isUser
             ? "bg-sky-600 text-white rounded-br-sm"
             : "bg-white border border-zinc-200 text-zinc-800 rounded-bl-sm",
@@ -35,19 +38,37 @@ export default function AiPanel() {
     {
       role: "assistant",
       content:
-        "¡Hola! Soy tu asistente de mediación. Puedo redactar actas, resúmenes, comunicaciones y ayudarte a ordenar ideas. Cuéntame qué necesitas.",
+        "¡Hola! Soy tu asistente de mediación. Puedo redactar actas, resúmenes, comunicaciones y trabajar con documentos (PDF/DOCX/TXT/MD). Elige un preset o dime qué necesitas.",
     },
   ]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [copied, setCopied] = useState(false);
 
+  // Documento adjunto
+  const [docUrl, setDocUrl] = useState("");
+  const [useDoc, setUseDoc] = useState(false);
+  const fileRef = useRef(null);
+
+  // Exportar DOCX (campos mínimos)
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exportForm, setExportForm] = useState({
+    case_no: "",
+    date_iso: new Date().toISOString().slice(0, 10),
+    mediator_alias: "",
+    parties: "",
+    summary: "",
+    agreements: "",
+    confidentiality: true,
+    logo_url: LOGO_URL_DEFAULT,
+  });
+
   const listRef = useRef(null);
 
   // Autoscroll al final cuando hay nuevo mensaje
   useEffect(() => {
     if (listRef.current) {
-      listRef.current.scrollTop = listRef.current.scrollHeight + 160;
+      listRef.current.scrollTop = listRef.current.scrollHeight + 180;
     }
   }, [messages, loading]);
 
@@ -55,6 +76,10 @@ export default function AiPanel() {
     const last = [...messages].reverse().find((m) => m.role === "assistant");
     return last ? last.content : "";
   }, [messages]);
+
+  function applyPreset(p) {
+    setInput(p);
+  }
 
   async function handleSend(customPrompt) {
     const prompt = (customPrompt ?? input).trim();
@@ -64,47 +89,139 @@ export default function AiPanel() {
     setLoading(true);
     setCopied(false);
 
-    // Push mensaje del usuario
+    // push mensaje usuario
     setMessages((prev) => [...prev, { role: "user", content: prompt }]);
     setInput("");
 
     try {
-      const res = await fetch("/api/ai/assist", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // Gate mínimo del backend: cualquier Bearer no vacío. Usamos "ok".
-          Authorization: "Bearer ok",
-        },
-        body: JSON.stringify({ prompt }),
-      });
-
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data?.ok) {
-        throw new Error(data?.detail || data?.message || "No se pudo generar la respuesta");
+      let data;
+      if (useDoc && docUrl) {
+        // IA con documento
+        const res = await fetch("/api/ai/assist_with", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${BEARER}`,
+          },
+          body: JSON.stringify({ doc_url: docUrl, prompt }),
+        });
+        data = await res.json().catch(() => ({}));
+        if (!res.ok || !data?.ok) {
+          throw new Error(data?.detail || data?.message || "No se pudo procesar el documento");
+        }
+      } else {
+        // IA normal
+        const res = await fetch("/api/ai/assist", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${BEARER}`,
+          },
+          body: JSON.stringify({ prompt }),
+        });
+        data = await res.json().catch(() => ({}));
+        if (!res.ok || !data?.ok) {
+          throw new Error(data?.detail || data?.message || "No se pudo generar la respuesta");
+        }
       }
 
       setMessages((prev) => [...prev, { role: "assistant", content: data.text || "(respuesta vacía)" }]);
     } catch (e) {
-      setErrorMsg(e.message || "Error inesperado generando el texto");
+      setErrorMsg(e.message || "Error inesperado");
     } finally {
       setLoading(false);
     }
   }
 
-  function handlePreset(p) {
-    // Coloca el prompt en el input para que el usuario pueda ajustar, o envía directo.
-    setInput(p);
-  }
-
-  async function copyLast() {
+  async function handleCopyLast() {
     if (!lastAssistantText) return;
     try {
       await navigator.clipboard.writeText(lastAssistantText);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      setTimeout(() => setCopied(false), 1400);
     } catch {
-      // no-op
+      /* no-op */
+    }
+  }
+
+  function handleClearConversation() {
+    setMessages([
+      { role: "assistant", content: "Conversación vaciada. ¿Qué necesitas redactar ahora?" },
+    ]);
+    setErrorMsg("");
+    setCopied(false);
+  }
+
+  async function handleSaveSession() {
+    try {
+      const email = localStorage.getham || localStorage.getItem("mediador_email") || "anon@mediazion.eu";
+      const res = await fetch("/api/ai/session/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${BEARER}`,
+        },
+        body: JSON.stringify({
+          email,
+          title: "Sesión de mediación",
+          messages,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.ok) throw new Error(data?.detail || data?.message || "No se pudo guardar la sesión");
+      alert("Sesión guardada: " + data.url);
+    } catch (e) {
+      setErrorMsg(e.message || "Error guardando la sesión");
+    }
+  }
+
+  async function handleFilePick(e) {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    setErrorMsg("");
+    try {
+      const fd = new FormData();
+      fd.append("file", f);
+      const res = await fetch("/api/upload/file", {
+        method: "POST",
+        body: fd,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.ok || !data?.url) throw new Error(data?.detail || "No se pudo subir el archivo");
+      setDocUrl(data.url); // p.ej. /uploads/mi.pdf
+      setUseDoc(true);
+    } catch (e2) {
+      setErrorMsg(e2.message || "Error subiendo archivo");
+    } finally {
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
+  function openExport() {
+    setExportForm((s) => ({
+      ...s,
+      summary: lastAssistantText || s.summary,
+    }));
+    setExportOpen(true);
+  }
+
+  async function handleExport() {
+    try {
+      const body = { ...exportForm };
+      if (!body.case_no || !body.date_iso || !body.mediator_alias || !body.parties) {
+        throw new Error("Rellena expediente, fecha, mediador/a y partes.");
+      }
+      const res = await fetch("/api/actas/render_docx", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.ok || !data?.url) throw new Error(data?.detail || "No se pudo generar el DOCX");
+      window.open(data.url, "_blank");
+      setExportOpen(false);
+    } catch (e) {
+      setErrorMsg(e.message || "Error exportando DOCX");
     }
   }
 
@@ -112,7 +229,7 @@ export default function AiPanel() {
     <>
       <Seo
         title="IA Profesional · MEDIAZION"
-        description="Asistente de redacción de actas, resúmenes y comunicaciones para mediadores."
+        description="Asistente de redacción de actas, resúmenes y comunicaciones para mediadores. Soporte de documentos y exportación a DOCX."
         canonical="https://mediazion.vercel.app/#/panel-mediador/ai"
       />
 
@@ -120,7 +237,7 @@ export default function AiPanel() {
         className="sr-container py-8"
         style={{
           minHeight: "calc(100vh - 160px)",
-          background: "linear-gradient(180deg, rgba(240,246,255,0.8), rgba(248,250,252,0.85))",
+          background: "linear-gradient(180deg, rgba(237,246,255,0.85), rgba(248,250,252,0.92))",
           borderRadius: 16,
           marginTop: 24,
           marginBottom: 24,
@@ -128,11 +245,20 @@ export default function AiPanel() {
         }}
       >
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-4">
           <h1 className="sr-h1 m-0">Asistente IA Profesional</h1>
           <div className="flex gap-2 flex-wrap">
-            <button className="sr-btn-secondary" onClick={copyLast} disabled={!lastAssistantText}>
-              {copied ? "¡Copiado!" : "Copiar último resultado"}
+            <button className="sr-btn-secondary" onClick={() => (window.location.hash = "#/panel-mediador/perfil#seguridad")}>
+              Cambiar contraseña
+            </button>
+            <button className="sr-btn-secondary" onClick={handleCopyLast} disabled={!lastAssistantText}>
+              {copied ? "¡Copiado!" : "Copiar último"}
+            </button>
+            <button className="sr-btn-secondary" onClick={handleSaveSession} disabled={messages.length <= 1}>
+              Guardar sesión
+            </button>
+            <button className="sr-btn-secondary" onClick={handleClearConversation}>
+              Borrar conversación
             </button>
             <a className="sr-btn-secondary" href="#/panel-mediador" onClick={(e)=>{e.preventDefault(); window.location.hash = "#/panel-mediador";}}>
               Volver al panel
@@ -147,7 +273,7 @@ export default function AiPanel() {
               <button
                 key={i}
                 className="px-3 py-1.5 rounded-full bg-sky-50 text-sky-800 border border-sky-200 hover:bg-sky-100 transition"
-                onClick={() => handlePreset(p.prompt)}
+                onClick={() => applyPreset(p.prompt)}
                 title={p.prompt}
               >
                 {p.tag}
@@ -156,10 +282,10 @@ export default function AiPanel() {
           </div>
         </div>
 
-        {/* Chat + Editor */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        {/* Contenido principal */}
+        <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
           {/* Conversación */}
-          <section className="lg:col-span-3">
+          <section className="xl:col-span-3">
             <div
               ref={listRef}
               className="sr-card h-[54vh] overflow-auto pr-1"
@@ -174,8 +300,8 @@ export default function AiPanel() {
                   <div className="bg-white border border-zinc-200 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm">
                     <div className="flex items-center gap-2 text-zinc-500">
                       <span className="w-2 h-2 bg-zinc-400 rounded-full animate-pulse"></span>
-                      <span className="w-2 h-2 bg-zinc-400 rounded-full animate-pulse [animation-delay:120ms]"></span>
-                      <span className="w-2 h-2 bg-zinc-400 rounded-full animate-pulse [animation-delay:240ms]"></span>
+                      <span className="w-2 h-2 bg-zinc-400 rounded-full [animation-delay:120ms] animate-pulse"></span>
+                      <span className="w-2 h-2 bg-zinc-400 rounded-full [animation-delay:240ms] animate-pulse"></span>
                       <span className="sr-small ml-2">Generando…</span>
                     </div>
                   </div>
@@ -185,8 +311,32 @@ export default function AiPanel() {
           </section>
 
           {/* Editor / Envío */}
-          <section className="lg:col-span-2">
+          <section className="xl:col-span-2">
             <div className="sr-card h-[54vh] flex flex-col">
+              {/* Documento */}
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <label className="sr-label m-0">Documento (opcional)</label>
+                <div className="flex items-center gap-2">
+                  <input id="useDoc" type="checkbox" checked={useDoc} onChange={(e) => setUseDoc(e.target.checked)} />
+                  <label htmlFor="useDoc" className="sr-small m-0">Usar en la generación</label>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 mb-2">
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx,.txt,.md,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown"
+                  onChange={handleFilePick}
+                  className="sr-input"
+                />
+                {docUrl ? (
+                  <a className="sr-btn-secondary" href={docUrl} target="_blank" rel="noopener noreferrer">Ver</a>
+                ) : (
+                  <button className="sr-btn-secondary" onClick={() => fileRef.current?.click()}>Adjuntar</button>
+                )}
+              </div>
+
+              {/* Prompt */}
               <label className="sr-label mb-2">Describe lo que necesitas redactar</label>
               <textarea
                 className="sr-input flex-1 resize-none"
@@ -194,44 +344,144 @@ export default function AiPanel() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
               />
+
               {errorMsg && (
                 <p className="sr-small mt-2" style={{ color: "#991b1b" }}>
                   ❌ {errorMsg}
                 </p>
               )}
+
+              {/* Acciones */}
               <div className="mt-3 flex flex-wrap gap-2">
                 <button className="sr-btn-primary" onClick={() => handleSend()} disabled={loading || !input.trim()}>
-                  {loading ? "Generando…" : "Generar con IA"}
+                  {loading ? "Generando…" : (useDoc && docUrl ? "Generar con documento" : "Generar con IA")}
                 </button>
-                <button
-                  className="sr-btn-secondary"
-                  onClick={() => setInput("")}
-                  disabled={loading || !input}
-                >
-                  Limpiar
+                <button className="sr-btn-secondary" onClick={() => setInput("")} disabled={loading || !input}>
+                  Limpiar texto
+                </button>
+                <button className="sr-btn-secondary" onClick={openExport} disabled={!lastAssistantText || loading}>
+                  Exportar DOCX
                 </button>
               </div>
+
               <div className="sr-small text-zinc-500 mt-3">
-                Consejo: puedes elegir un preset, ajustar el texto y pulsar “Generar”. El último resultado se copia con un clic.
+                Consejo: el último resultado se usa por defecto al exportar acta. Puedes editar los campos antes de generar el DOCX.
               </div>
             </div>
           </section>
         </div>
 
-        {/* Sugerencias rápidas */}
+        {/* Modal exportación DOCX */}
+        {exportOpen && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/30">
+            <div className="bg-white rounded-2xl shadow-xl p-6 w-[95%] max-w-2xl">
+              <h3 className="sr-h3 m-0">Exportar a DOCX (Acta)</h3>
+              <p className="sr-small text-zinc-600 mt-1">Se utilizará el logo de Mediazion en cabecera.</p>
+
+              <div className="grid gap-3 mt-4">
+                <div className="grid md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="sr-label">Expediente</label>
+                    <input
+                      className="sr-input"
+                      value={exportForm.case_no}
+                      onChange={(e) => setExportForm((s) => ({ ...s, case_no: e.target.value }))}
+                      placeholder="MED-2025-001"
+                    />
+                  </div>
+                  <div>
+                    <label className="sr-label">Fecha</label>
+                    <input
+                      className="sr-input"
+                      type="date"
+                      value={exportForm.date_iso}
+                      onChange={(e) => setExportForm((s) => ({ ...s, date_iso: e.target.value }))}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="sr-label">Mediador/a (alias)</label>
+                    <input
+                      className="sr-input"
+                      value={exportForm.mediator_alias}
+                      onChange={(e) => setExportForm((s) => ({ ...s, mediator_alias: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <label className="sr-label">Partes</label>
+                    <input
+                      className="sr-input"
+                      value={exportForm.parties}
+                      onChange={(e) => setExportForm((s) => ({ ...s, parties: e.target.value }))}
+                      placeholder="Parte A; Parte B"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="sr-label">Resumen / Desarrollo</label>
+                  <textarea
+                    className="sr-input min-h-[120px]"
+                    value={exportForm.summary}
+                    onChange={(e) => setExportForm((s) => ({ ...s, summary: e.target.value }))}
+                    placeholder="Se transcribirá el último resultado de IA si lo dejas en blanco."
+                  />
+                </div>
+
+                <div>
+                  <label className="sr-label">Acuerdos alcanzados</label>
+                  <textarea
+                    className="sr-input min-h-[100px]"
+                    value={exportForm.agreements}
+                    onChange={(e) => setExportForm((s) => ({ ...s, agreements: e.target.value }))}
+                  />
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <input
+                    id="confid"
+                    type="checkbox"
+                    checked={exportForm.confidentiality}
+                    onChange={(e) => setExportForm((s) => ({ ...s, confidentiality: e.target.checked }))}
+                  />
+                  <label htmlFor="confid" className="sr-label m-0">Incluir cláusula de confidencialidad</label>
+                </div>
+
+                <div>
+                  <label className="sr-label">Logo (URL)</label>
+                  <input
+                    className="sr-input"
+                    value={exportForm.logo_url}
+                    onChange={(e) => setExportForm((s) => ({ ...s, logo_url: e.target.value }))}
+                    placeholder={LOGO_URL_DEFAULT}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button className="sr-btn-primary" onClick={handleExport}>Generar DOCX</button>
+                <button className="sr-btn-secondary" onClick={() => setExportOpen(false)}>Cancelar</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Sugerencias */}
         <div className="sr-card mt-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <Hint
               title="Actas impecables"
-              text="Incluye: fecha/lugar, partes, antecedentes, desarrollo, acuerdos y próximos pasos. Pide un tono claro y objetivo."
+              text="Incluye fecha/lugar, partes, antecedentes, desarrollo, acuerdos y próximos pasos. Pide un tono claro y objetivo."
             />
             <Hint
               title="Resúmenes eficaces"
-              text="Resume en 8–12 líneas, con objetivos, puntos de acuerdo, disenso y tareas. Solicita un cierre con próximos pasos."
+              text="Resume en 8–12 líneas, con objetivos, puntos de acuerdo, disenso y tareas. Cierra con próximos pasos."
             />
             <Hint
               title="Correos profesionales"
-              text="Usa saludo cordial, cuerpo con puntos acordados y CTA concreto (fecha/hora, documento, confirmación)."
+              text="Saludo cordial, cuerpo con acuerdos y CTA (fecha/hora, documento, confirmación). Usa el botón Copiar."
             />
           </div>
         </div>
