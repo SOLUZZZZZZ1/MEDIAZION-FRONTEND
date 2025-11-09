@@ -1,25 +1,28 @@
-// src/pages/Plantillas.jsx — Recetas IA
+// Plantillas.jsx — ubicado en la RAÍZ del repo
 import React, { useState } from "react";
-import Seo from "../components/Seo.jsx";
+import Seo from "./src/components/Seo.jsx";
 
 const RECETAS = [
   {
     id: 1,
     title: "Acta estándar",
     desc: "Redacta un acta básica de mediación con fecha, asistentes y acuerdos.",
-    prompt: "Redacta un acta estándar de mediación con estructura formal, asistentes, resumen y acuerdos alcanzados.",
+    prompt:
+      "Redacta un acta estándar de mediación con estructura formal, asistentes, resumen y acuerdos alcanzados.",
   },
   {
     id: 2,
     title: "Correo de seguimiento",
     desc: "Mensaje profesional de cierre o seguimiento post-sesión.",
-    prompt: "Escribe un correo formal de seguimiento posterior a una sesión de mediación, agradeciendo la participación y recordando próximos pasos.",
+    prompt:
+      "Escribe un correo formal de seguimiento posterior a una sesión de mediación, agradeciendo la participación y recordando próximos pasos.",
   },
   {
     id: 3,
     title: "Resumen ejecutivo",
     desc: "Síntesis objetiva de lo tratado y los avances logrados.",
-    prompt: "Redacta un resumen ejecutivo claro y conciso de la sesión de mediación, destacando avances, acuerdos y temas pendientes.",
+    prompt:
+      "Redacta un resumen ejecutivo claro y conciso de la sesión de mediación, destacando avances, acuerdos y temas pendientes.",
   },
 ];
 
@@ -54,7 +57,7 @@ export default function Plantillas() {
       <Seo
         title="Recetas IA · MEDIAZION"
         description="Plantillas rápidas para redactar actas, correos y resúmenes con IA."
-        canonical="https://mediazion.eu/#/panel-mediador/Plantillas"
+        canonical="https://mediazion.eu/#/panel-mediador/plantillas"
       />
       <main
         className="sr-container py-8"
@@ -66,7 +69,9 @@ export default function Plantillas() {
         }}
       >
         <h1 className="sr-h1 mb-2">Recetas IA</h1>
-        <p className="sr-p mb-4">Plantillas rápidas para redactar con IA de forma profesional.</p>
+        <p className="sr-p mb-4">
+          Plantillas rápidas para redactar con IA de forma profesional.
+        </p>
 
         <section className="grid gap-4 md:grid-cols-2">
           {RECETAS.map((r) => (
