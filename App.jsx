@@ -21,6 +21,9 @@ import Success from "./pages/Success.jsx";
 import Cancel from "./pages/Cancel.jsx";
 import CourseDetail from "./pages/CourseDetail.jsx";
 import WebinarDetail from "./pages/WebinarDetail.jsx";
+import VocesPublic from "./pages/VocesPublic.jsx";
+import VocesDetalle from "./pages/VocesDetalle.jsx";
+import VocesEditor from "./pages/VocesEditor.jsx";
 
 // Panel (está en src/pages según tu listado)
 import PanelMediador from "./pages/PanelMediador.jsx";
@@ -54,6 +57,8 @@ export default function App() {
         <Route path="/mediadores" element={<Mediadores />} />
         <Route path="/mediadores/alta" element={<MediadorAlta />} />
         <Route path="/mediadores/directorio" element={<MediadoresDirectorio />} />
+        <Route path="/voces" element={<VocesPublic />} />
+        <Route path="/voces/:slug" element={<VocesDetalle />} />
 
         {/* Formación */}
         <Route path="/servicios/curso/:slug" element={<CourseDetail />} />
@@ -66,6 +71,7 @@ export default function App() {
         {/* Panel Mediador */}
         <Route path="/panel-mediador" element={<PanelMediador />} />
         <Route path="/panel-mediador/ai" element={<AiPanel />} />
+        <Route path="/panel-mediador/voces" element={<VocesEditor />} />
 
         {/* 🔧 Corregido: la ruta debe ser MINÚSCULAS */}
         <Route path="/panel-mediador/plantillas" element={<Plantillas />} />
