@@ -1,180 +1,69 @@
-// src/pages/PerfilMediador.jsx — Perfil PRO: alias, bio, web, foto/CV, cambio de contraseña
-import React, { useEffect, useState } from "react";
+// src/pages/PerfilMediador.jsx — Parche: ?tab=seguridad con scroll
+import React, { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import Seo from "../components/Seo.jsx";
 
-const LS_EMAIL = "mediador_email";
-
 export default function PerfilMediador() {
-  const [email] = useState(localStorage.getItem(LS_EMAIL) || "");
-  const [alias, setAlias] = useState("");
-  const [bio, setBio] = useState("");
-  const [website, setWebsite] = useState("");
-  const [photoUrl, setPhotoUrl] = useState("");
-  const [cvUrl, setCvUrl] = useState("");
+  const location = useLocation();
+  const segRef = useRef(null);
+
+  const [oldPwd, setOldPwd] = useState("");
+  const [newPwd, setNewPwd] = useState("");
   const [msg, setMsg] = useState("");
-  const [pwd, setPwd] = useState({ old_password: "", new_password: "" });
 
-  // Carga inicial
   useEffect(() => {
-    if (!email) return;
-    (async () => {
-      try {
-        const r = await fetch(`/api/perfil?email=${encodeURIComponent(email)}`);
-        const data = await r.json();
-        if (r.ok && data?.perfil) {
-          setAlias(data.perfil.public_slug || "");
-          setBio(data.perfil.bio || "");
-          setWebsite(data.perfil.website || "");
-          setPhotoUrl(data.perfil.photo_url || "");
-          setCvUrl(data.perfil.cv_url || "");
-        }
-      } catch {
-        /* no-op */
-      }
-    })();
-  }, [email]);
-
-  async function saveProfile(e) {
-    e?.preventDefault?.();
-    setMsg("");
-    try {
-      const r = await fetch("/api/perfil", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          public_slug: alias || null,
-          bio,
-          website,
-          photo_url: photoUrl || null,
-          cv_url: cvUrl || null,
-        }),
-      });
-      const data = await r.json();
-      if (!r.ok || !data?.ok) throw new Error(data?.detail || "No se pudo guardar");
-      setMsg("✅ Perfil guardado.");
-    } catch (e) {
-      setMsg("❌ " + (e.message || "Error guardando perfil"));
+    const params = new URLSearchParams(location.search);
+    if (params.get("tab") === "seguridad" && segRef.current) {
+      segRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-  }
+  }, [location]);
 
-  async function uploadFile(kind, file) {
-    if (!file) return;
+  async function cambiar() {
     setMsg("");
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const r = await fetch("/api/upload/file", { method: "POST", body: fd });
-      const data = await r.json();
-      if (!r.ok || !data?.ok) throw new Error(data?.detail || "No se pudo subir el archivo");
-      if (kind === "photo") setPhotoUrl(data.url);
-      if (kind === "cv") setCvUrl(data.url);
-      setMsg("✅ Archivo subido.");
-    } catch (e) {
-      setMsg("❌ " + (e.message || "Error subiendo archivo"));
-    }
-  }
-
-  async function changePassword(e) {
-    e?.preventDefault?.();
-    setMsg("");
-    try {
-      if (!pwd.old_password || !pwd.new_password) throw new Error("Rellena ambas contraseñas");
+      const email = localStorage.getItem("mediador_email");
+      if (!email) throw new Error("No hay sesión activa.");
       const r = await fetch("/api/auth/change_password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, old_password: pwd.old_password, new_password: pwd.new_password }),
+        body: JSON.stringify({ email, old_password: oldPwd, new_password: newPwd }),
       });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok || !data?.ok) throw new Error(data?.message || data?.detail || "No se pudo cambiar");
-      setPwd({ old_password: "", new_password: "" });
-      setMsg("✅ Contraseña cambiada.");
+      const data = await r.json();
+      if (!r.ok || !data?.ok) throw new Error(data?.detail || data?.message || "Error cambiando contraseña");
+      setMsg("✅ Contraseña actualizada correctamente.");
+      setOldPwd(""); setNewPwd("");
     } catch (e) {
-      setMsg("❌ " + (e.message || "Error cambiando contraseña"));
+      setMsg("❌ " + (e.message || "Error cambiando contraseña."));
     }
   }
 
   return (
     <>
-      <Seo title="Mi perfil · MEDIAZION" description="Gestiona tu perfil de mediador PRO: alias, bio, documentos y contraseña." />
-      <main
-        className="sr-container py-8"
-        style={{ minHeight: "calc(100vh - 160px)", background: "rgba(255,255,255,0.95)", borderRadius: 16, margin: "24px 0" }}
-      >
-        <h1 className="sr-h1">Mi perfil</h1>
-        <p className="sr-p">
-          Completa tu perfil. <b>No se mostrarán datos de contacto</b>; usa un <b>alias</b> público.
-        </p>
+      <Seo title="Perfil · Mediador" description="Gestión del perfil del mediador/a" />
+      <main className="sr-container py-8" style={{minHeight:"calc(100vh - 160px)"}}>
+        <h1 className="sr-h1">Mi Perfil</h1>
 
-        <form onSubmit={saveProfile} className="sr-card" style={{ maxWidth: 900, margin: "16px auto", display: "grid", gap: 12 }}>
-          <label className="sr-label">Alias público (aparece en Directorio)</label>
-          <input className="sr-input" value={alias} onChange={(e) => setAlias(e.target.value)} placeholder="p. ej. ramon-berengueras" />
-
-          <label className="sr-label">Biografía / presentación (sin e-mail/teléfono)</label>
-          <textarea
-            className="sr-input"
-            rows={5}
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            placeholder="Experiencia, áreas de especialidad, enfoque de trabajo…"
-          />
-
-          <label className="sr-label">Web o portafolio (opcional)</label>
-          <input className="sr-input" value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://…" />
-
-          <div className="sr-card">
-            <h3 className="sr-h3">Documentos</h3>
-            <div style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
-              <div>
-                <label className="sr-label">Foto / Avatar</label>
-                <input type="file" accept="image/*" onChange={(e) => uploadFile("photo", e.target.files?.[0])} />
-                {photoUrl && (
-                  <div className="mt-2">
-                    <img src={photoUrl} alt="Avatar" style={{ height: 80, borderRadius: 8 }} />
-                  </div>
-                )}
-              </div>
-              <div>
-                <label className="sr-label">Currículum (PDF / DOCX)</label>
-                <input type="file" accept=".pdf,.doc,.docx" onChange={(e) => uploadFile("cv", e.target.files?.[0])} />
-                {cvUrl && (
-                  <div className="mt-2">
-                    <a className="sr-btn-secondary" href={cvUrl} target="_blank" rel="noopener noreferrer">
-                      Ver CV
-                    </a>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <button className="sr-btn-primary" type="submit">
-            Guardar perfil
-          </button>
-          {msg && <p className="sr-p" style={{ color: msg.startsWith("✅") ? "#166534" : "#991b1b" }}>{msg}</p>}
-        </form>
-
-        <section className="sr-card" style={{ maxWidth: 900, margin: "16px auto" }}>
+        {/* Bloque de seguridad con ref para foco */}
+        <section ref={segRef} className="sr-card" style={{ maxWidth:900, margin:"16px auto" }}>
           <h3 className="sr-h3">Seguridad · Cambiar contraseña</h3>
-          <form onSubmit={changePassword} style={{ display: "grid", gap: 12, maxWidth: 520 }}>
+          <div className="grid gap-3 mt-3" style={{maxWidth:520}}>
             <input
               className="sr-input"
               type="password"
               placeholder="Contraseña actual"
-              value={pwd.old_password}
-              onChange={(e) => setPwd((p) => ({ ...p, old_password: e.target.value }))}
+              value={oldPwd}
+              onChange={(e)=>setOldPwd(e.target.value)}
             />
             <input
               className="sr-input"
               type="password"
               placeholder="Nueva contraseña"
-              value={pwd.new_password}
-              onChange={(e) => setPwd((p) => ({ ...p, new_password: e.target.value }))}
+              value={newPwd}
+              onChange={(e)=>setNewPwd(e.target.value)}
             />
-            <button className="sr-btn-secondary" type="submit">
-              Actualizar contraseña
-            </button>
-          </form>
+            <button className="sr-btn-primary" onClick={cambiar}>Cambiar contraseña</button>
+            {msg && <p className="sr-small mt-1">{msg}</p>}
+          </div>
         </section>
       </main>
     </>
