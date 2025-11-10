@@ -43,24 +43,11 @@ export default function PerfilMediador() {
       <main className="sr-container py-8" style={{minHeight:"calc(100vh - 160px)"}}>
         <h1 className="sr-h1">Mi Perfil</h1>
 
-        {/* Bloque de seguridad con ref para foco */}
         <section ref={segRef} className="sr-card" style={{ maxWidth:900, margin:"16px auto" }}>
           <h3 className="sr-h3">Seguridad · Cambiar contraseña</h3>
           <div className="grid gap-3 mt-3" style={{maxWidth:520}}>
-            <input
-              className="sr-input"
-              type="password"
-              placeholder="Contraseña actual"
-              value={oldPwd}
-              onChange={(e)=>setOldPwd(e.target.value)}
-            />
-            <input
-              className="sr-input"
-              type="password"
-              placeholder="Nueva contraseña"
-              value={newPwd}
-              onChange={(e)=>setNewPwd(e.target.value)}
-            />
+            <input className="sr-input" type="password" placeholder="Contraseña actual" value={oldPwd} onChange={(e)=>setOldPwd(e.target.value)} />
+            <input className="sr-input" type="password" placeholder="Nueva contraseña" value={newPwd} onChange={(e)=>setNewPwd(e.target.value)} />
             <button className="sr-btn-primary" onClick={cambiar}>Cambiar contraseña</button>
             {msg && <p className="sr-small mt-1">{msg}</p>}
           </div>
