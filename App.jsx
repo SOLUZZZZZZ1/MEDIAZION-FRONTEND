@@ -24,6 +24,9 @@ import WebinarDetail from "./pages/WebinarDetail.jsx";
 import VocesPublic from "./pages/VocesPublic.jsx";
 import VocesDetalle from "./pages/VocesDetalle.jsx";
 import VocesEditor from "./pages/VocesEditor.jsx";
+import PerfilMediador from "./pages/PerfilMediador.jsx";
+import Login from "./pages/admin/Login.jsx";
+import Dashboard from "./pages/admin/Dashboard.jsx";
 
 // Panel (está en src/pages según tu listado)
 import PanelMediador from "./pages/PanelMediador.jsx";
@@ -59,6 +62,9 @@ export default function App() {
         <Route path="/mediadores/directorio" element={<MediadoresDirectorio />} />
         <Route path="/voces" element={<VocesPublic />} />
         <Route path="/voces/:slug" element={<VocesDetalle />} />
+        <Route path="/panel-mediador/perfil" element={<PerfilMediador />} />
+        <Route path="/admin" element={<Login />} />
+        <Route path="/admin/dashboard" element={<Dashboard />} />
 
         {/* Formación */}
         <Route path="/servicios/curso/:slug" element={<CourseDetail />} />
