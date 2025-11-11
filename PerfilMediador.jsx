@@ -1,25 +1,27 @@
-// src/pages/PerfilMediador.jsx — Perfil PRO: alias/bio/web/documentos + Seguridad con scroll (?tab=seguridad)
+// src/pages/PerfilMediador.jsx — Perfil PRO + scroll a ?tab=seguridad + cambio de contraseña
 import React, { useEffect, useState, useRef } from "react";
-import Seo from "../components/Seo.jsx";
 import { useLocation } from "react-router-dom";
+import Seo from "../components/Seo.jsx";
 
 const LS_EMAIL = "mediador_email";
 
 export default function PerfilMediador() {
-  const [email] = useState(localStorage.getItem(LC()); // see LC() below
+  const location = useLocation();
+  const segRef = useRef(null);
+
+  // Perfil
+  const [email] = useState(localStorage.getItem(LS_EMAIL) || "");
   const [alias, setAlias] = useState("");
   const [bio, setBio] = useState("");
   const [website, setWebsite] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
   const [cvUrl, setCvUrl] = useState("");
   const [msg, setMsg] = useState("");
+
+  // Seguridad (cambio de contraseña)
   const [pwd, setPwd] = useState({ old_password: "", new_password: "" });
-  const location = useLocation();
-  const segRef = useRef(null);
 
-  function LC(){ return "mediador_email"; }
-
-  // Scroll a Seguridad si ?tab=seguridad
+  // 🔹 Scroll a Seguridad si ?tab=seguridad
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get("tab") === "seguridad" && segRef.current) {
@@ -27,15 +29,16 @@ export default function PerfilMediador() {
     }
   }, [location]);
 
+  // Cargar perfil
   useEffect(() => {
     if (!email) return;
     (async () => {
       try {
-        const r = await fetch(`/api/perfil? e mail =${encodeURIComponent(email)}`); // ensure exact path
+        const r = await fetch(`/api/perfil?email=${encodeURIComponent(email)}`);
         const data = await r.json();
         if (r.ok && data?.perfil) {
           setAlias(data.perfil.public_slug || "");
-          setBio(data.perfil.bi o || ""); // if typo remove spaces
+          setBio(data.perfil.bio || "");
           setWebsite(data.perfil.website || "");
           setPhotoUrl(data.perfil.photo_url || "");
           setCvUrl(data.perfil.cv_url || "");
@@ -53,7 +56,7 @@ export default function PerfilMediador() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
-          public_ sl ug: alias || null,
+          public_slug: alias || null,
           bio,
           website,
           photo_url: photoUrl || null,
@@ -76,9 +79,9 @@ export default function PerfilMediador() {
       fd.append("file", file);
       const r = await fetch("/api/upload/file", { method: "POST", body: fd });
       const data = await r.json();
-      if (!r.ok || !data?.ok) throw new Error(data?.detail || "No se pudo subir el archivo");
-      if (kind === "photo") setDataPhoto(data.url); // use setPhotoUrl
-      if (kind === "cv") setDataCv(data.url); // use setCvUrl
+      if (!r.ok || !data?.ok || !data?.url) throw new Error(data?.detail || "No se pudo subir el archivo");
+      if (kind === "photo") setPhotoUrl(data.url);
+      if (kind === "cv") setCvUrl(data.url);
       setMsg("✅ Archivo subido.");
     } catch (e) {
       setMsg("❌ " + (e.message || "Error subiendo archivo"));
@@ -107,15 +110,11 @@ export default function PerfilMediador() {
   return (
     <>
       <Seo title="Mi perfil · MEDIAZION" description="Gestiona tu perfil de mediador PRO: alias, bio, documentos y contraseña." />
-      <main
-        className="sr-container py-8"
-        style={{ minHeight: "calc(100vh - 160px)", background: "rgba(255,255,255,0.95)", borderRadius: 16, margin: "24px 0" }}
-      >
+      <main className="sr-container py-8" style={{ minHeight: "calc(100vh - 160px)", background: "rgba(255,255,255,0.95)", borderRadius: 16, margin: "24px 0" }}>
         <h1 className="sr-h1">Mi perfil</h1>
-        <p className="sr-p">
-          Completa tu perfil. <b>No se mostrarán datos de contacto</b>; usa un <b>alias</b> público.
-        </p>
+        <p className="sr-p">Completa tu perfil. <b>No se mostrarán datos de contacto</b>; usa un <b>alias</b> público.</p>
 
+        {/* PERFIL */}
         <form onSubmit={saveProfile} className="sr-card" style={{ maxWidth: 900, margin: "16px auto", display: "grid", gap: 12 }}>
           <label className="sr-label">Alias público (aparece en Directorio)</label>
           <input className="sr-input" value={alias} onChange={(e) => setAlias(e.target.value)} placeholder="p. ej. ramon-berengueras" />
@@ -143,9 +142,7 @@ export default function PerfilMediador() {
                 <input type="file" accept=".pdf,.doc,.docx" onChange={(e) => uploadFile("cv", e.target.files?.[0])} />
                 {cvUrl && (
                   <div className="mt-2">
-                    <a className="sr-btn-secondary" href={cvUrl} target="_blank" rel="noopener noreferrer">
-                      Ver CV
-                    </a>
+                    <a className="sr-btn-secondary" href={cvUrl} target="_blank" rel="noopener noreferrer">Ver CV</a>
                   </div>
                 )}
               </div>
@@ -156,23 +153,12 @@ export default function PerfilMediador() {
           {msg && <p className="sr-p" style={{ color: msg.startsWith("✅") ? "#166534" : "#991b1b" }}>{msg}</p>}
         </form>
 
+        {/* SEGURIDAD */}
         <section ref={segRef} className="sr-card" style={{ maxWidth: 900, margin: "16px auto" }}>
           <h3 className="sr-h3">Seguridad · Cambiar contraseña</h3>
           <form onSubmit={changePassword} style={{ display: "grid", gap: 12, maxWidth: 520 }}>
-            <input
-              className="sr-input"
-              type="password"
-              placeholder="Contraseña actual"
-              value={pwd.old_password}
-              onChange={(e) => setPwd((p) => ({ ...p, old_password: e.target.value }))}
-            />
-            <input
-              className="sr-input"
-              type="password"
-              placeholder="Nueva contraseña"
-              value={pwd.new_password}
-              onChange={(e) => setPwd((p) => ({ ...p, new_password: e.target.value }))}
-            />
+            <input className="sr-input" type="password" placeholder="Contraseña actual" value={pwd.old_password} onChange={(e) => setPwd((p) => ({ ...p, old_password: e.target.value }))} />
+            <input className="sr-input" type="password" placeholder="Nueva contraseña" value={pwd.new_password} onChange={(e) => setPwd((p) => ({ ...p, new_password: e.target.value }))} />
             <button className="sr-btn-secondary" type="submit">Actualizar contraseña</button>
           </form>
         </section>
@@ -180,5 +166,3 @@ export default function PerfilMediador() {
     </>
   );
 }
-
-function LC(){ return "mediador_email"; }
