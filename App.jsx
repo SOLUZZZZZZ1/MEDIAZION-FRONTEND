@@ -31,6 +31,7 @@ import Dashboard from "./pages/admin/Dashboard.jsx";
 // Panel (está en src/pages según tu listado)
 import PanelMediador from "./pages/PanelMediador.jsx";
 import AiPanel from "./pages/AiPanel.jsx";
+import AiPanelLegal from "./pages/AiPanelLegal.jsx";
 
 // ⚠️ IMPORTANTE: Plantillas.jsx está en la RAÍZ del repo (no en src/pages)
 // Por eso importamos con "../Plantillas.jsx" desde "src/App.jsx"
@@ -78,6 +79,7 @@ export default function App() {
         <Route path="/panel-mediador" element={<PanelMediador />} />
         <Route path="/panel-mediador/ai" element={<AiPanel />} />
         <Route path="/panel-mediador/voces" element={<VocesEditor />} />
+        <Route path="/panel-mediador/ai-legal" element={<AiPanelLegal />} />
 
         {/* 🔧 Corregido: la ruta debe ser MINÚSCULAS */}
         <Route path="/panel-mediador/plantillas" element={<Plantillas />} />

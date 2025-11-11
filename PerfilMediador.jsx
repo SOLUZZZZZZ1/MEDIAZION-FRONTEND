@@ -10,7 +10,7 @@ export default function PerfilMediador() {
   const segRef = useRef(null);
 
   // Perfil
-  const [email] = useState(localStorage.getItem(LS_EMAIL) || "");
+  const [email] = useState(localStorage.getItem("mediador_email") || "");
   const [alias, setAlias] = useState("");
   const [bio, setBio] = useState("");
   const [website, setWebsite] = useState("");
