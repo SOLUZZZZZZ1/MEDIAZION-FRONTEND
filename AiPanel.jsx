@@ -69,7 +69,7 @@ export default function AiPanel() {
 
   const lastAssistantText = useMemo(() => {
     const last = [...messages].reverse().find((m) => m.role === "assistant");
-    return last ? last content : "";
+    return last ? last.content : "";
   }, [messages]);
 
   async function handleSend(customPrompt) {
