@@ -1,106 +1,60 @@
+// src/pages/VocesEditor.jsx
 import React, { useEffect, useState } from "react";
 import Seo from "../components/Seo.jsx";
 
-const LS_EMAIL = "mediador_email";
-
 export default function VocesEditor() {
-  const [email] = useState(localStorage.getItem(LS_EMAIL) || "");
-  const [pro, setPro] = useState(false);
-  const [post, setPost] = useState({ title: "", summary: "", content: "", accept_terms: false });
+  const [email, setEmail] = useState("");
+  const [title, setTitle] = useState("");
+  const [summary, setSummary] = useState("");
+  const [content, setContent] = useState("");
+  const [accept, setAccept] = useState(false);
   const [msg, setMsg] = useState("");
-  const [busy, setBusy] = useState(false);
 
-  // Comprobar PRO
   useEffect(() => {
-    (async () => {
-      if (!email) return;
-      try {
-        const r = await fetch(`/api/mediadores/status?email=${encodeURIComponent(email)}`);
-        const data = await r.json();
-        setPro(r.ok && ["trialing", "active"].includes(data?.subscription_status));
-      } catch {
-        setPro(false);
-      }
-    })();
-  }, [email]);
+    const e = localStorage.getItem("mediador_email") || "";
+    setEmail(e);
+  }, []);
 
   async function publicar() {
-    setBusy(true); setMsg("");
+    setMsg("");
     try {
-      if (!post.title || !post.summary || !post.content) throw new Error("Rellena título, resumen y contenido.");
-      if (!post.accept_terms) throw new Error("Debes aceptar las condiciones.");
-      const r = await fetch("/api/voces/post", {
+      if (!email) throw new Error("No hay sesión activa");
+      if (!title || !summary || !content) throw new Error("Rellena título, resumen y contenido");
+      if (!accept) throw new Error("Debes aceptar las condiciones de publicación");
+      const res = await fetch("/api/voces/post", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...post, email, status: "published" }),
+        body: JSON.stringify({ email, title, summary, content, accept_terms: accept }),
       });
-      const data = await r.json();
-      if (!r.ok || !data?.ok) throw new Error(data?.detail || data?.message || "No se pudo publicar el artículo");
-      setMsg(`✅ Publicado correctamente. URL: /#/voces/${data.slug}`);
+      const data = await res.json();
+      if (!res.ok || !data?.ok) throw new Error(data?.detail || "No se pudo publicar");
+      setMsg(`✅ Publicado. Ver: /#/voces/${data.slug}`);
+      setTitle(""); setSummary(""); setContent(""); setAccept(false);
     } catch (e) {
-      setMsg("❌ " + (e.message || "Error publicando"));
-    } finally {
-      setBusy(false);
+      setMsg("❌ " + e.message);
     }
-  }
-
-  if (!email) {
-    return (
-      <main className="sr-container py-8" style={{minHeight:"calc(100vh - 160px)"}}>
-        <p className="sr-p">Inicia sesión en el panel para publicar.</p>
-      </main>
-    );
-  }
-
-  if (!pro) {
-    return (
-      <main className="sr-container py-8" style={{minHeight:"calc(100vh - 160px)"}}>
-        <h1 className="sr-h1">Voces · Publicar</h1>
-        <p className="sr-p">Esta sección es exclusiva para mediadores/as <b>PRO</b>.</p>
-        <p className="sr-p">Activa PRO desde el panel para publicar tus artículos.</p>
-      </main>
-    );
   }
 
   return (
     <>
-      <Seo title="Publicar artículo · Voces" description="Escribe y publica artículos como mediador PRO." />
-      <main className="sr-container py-8" style={{minHeight:"calc(100vh - 160px)", background:"rgba(255,255,255,0.95)", borderRadius:16, margin:"24px 0"}}>
-        <h1 className="sr-h1 m-0">Voces · Publicar</h1>
-        <form className="sr-card mt-4" style={{display:"grid", gap:12, maxWidth:900}}>
-          <div>
-            <label className="sr-label">Título</label>
-            <input className="sr-input" value={post.title} onChange={(e)=>setPost(s=>({...s, title:e.target.value}))} />
-          </div>
-          <div>
-            <label className="sr-label">Resumen (2–3 líneas)</label>
-            <textarea className="sr-input" rows={3} value={post.summary} onChange={(e)=>setPost(s=>({...s, summary:e.target.value}))} />
-          </div>
-          <div>
-            <label className="sr-label">Contenido</label>
-            <textarea className="sr-input" rows={12} value={post.content} onChange={(e)=>setPost(s=>({...s, content:e.target.value}))} />
-          </div>
-          <div className="rounded-2xl border p-4 bg-white">
-            <h3 className="sr-h3 m-0">Condiciones de publicación</h3>
-            <ul className="sr-ul mt-2">
-              <li>No se permiten contenidos políticos ni proselitistas.</li>
-              <li>Sin ataques personales ni contenido ofensivo.</li>
-              <li>El autor declara que el texto es propio o cuenta con permiso.</li>
-              <li>Mediazion no comparte necesariamente las publicaciones ni se hace responsable.</li>
-            </ul>
-            <div className="flex items-center gap-2 mt-2">
-              <input id="terms" type="checkbox" checked={post.accept_terms} onChange={(e)=>setPost(s=>({...s, accept_terms:e.target.checked}))} />
-              <label htmlFor="terms" className="sr-label m-0">Acepto las condiciones</label>
+      <Seo title="Voces · Publicar" />
+      <main className="sr-container py-8" style={{ minHeight: "calc(100vh - 160px)" }}>
+        <h1 className="sr-h1">Publicar en Voces</h1>
+        <div className="sr-card" style={{ maxWidth: 900, margin: "16px auto" }}>
+          <div className="grid gap-3">
+            <input className="sx-input" placeholder="Tu email (PRO)" value={email} onChange={e=>setEmail(e.target.value)} />
+            <input className="sr-input" placeholder="Título del artículo" value={title} onChange={e=>setTitle(e.target.value)} />
+            <textarea className="sr-input" rows={3} placeholder="Resumen breve" value={summary} onChange={e=>setSummary(e.target.value)} />
+            <textarea className="sr-input" rows={12} placeholder="Contenido (Markdown o texto plano)" value={content} onChange={e=>setContent(e.target.value)} />
+            <label className="sr-small">
+              <input type="checkbox" checked={accept} onChange={e=>setAccept(e.target.checked)} /> Acepto las condiciones de publicación (no contenido político/ofensivo; soy autor del texto).
+            </label>
+            <div className="flex gap-2">
+              <button className="sr-btn-primary" onClick={publicar}>Publicar ahora</button>
+              {msg && <span className="sr-small">{msg}</span>}
             </div>
           </div>
-
-          <div className="flex gap-2">
-            <button type="button" className="sr-btn-primary" onClick={publicar} disabled={busy}>
-              {busy ? "Publicando…" : "Publicar"}
-            </button>
-          </div>
-          {msg && <p className="sr-p" style={{color: msg.startsWith("✅") ? "#166534" : "#991b1b"}}>{msg}</p>}
-        </form>
+        </div>
       </main>
     </>
   );
