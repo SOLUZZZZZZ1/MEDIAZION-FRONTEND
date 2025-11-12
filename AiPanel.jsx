@@ -95,8 +95,14 @@ export default function AiPanel() {
           body: JSON.stringify({ doc_url: docUrl, prompt }),
         });
         data = await r.json().catch(() => ({}));
-        if (!r.ok || !data?.ok) throw new Error(data?.detail || data?.message || "No se pudo procesar el documento");
-      } else {
+        console.log("Upload response:", data); // 👈 línea de debug opcional
+     if (data && (data.ok === true || data.success === true) && data.url) {
+        setDocUrl(data.url);
+        setUseDoc(true);
+     } else {
+        throw new Error(data?.detail || data?.message || "No se pudo subir el archivo");
+}
+
         const r = await fetch("/api/ai/assist", {
           method: "POST",
           headers: {
