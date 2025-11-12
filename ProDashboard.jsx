@@ -46,6 +46,8 @@ export default class ProDashboard extends React.Component {
           <Quick to="/panel-mediador/pagos"      label="Pagos Rápidos"   emoji="💳" disabled={!isPro} />
           <Quick to="/panel-mediador/casos"      label="Expedientes"     emoji="🗂️" disabled={!isPro} />
           <Quick to="/panel-mediador/agenda"     label="Agenda"          emoji="🗓️" disabled={!isPro} />
+    <QuickAction to="/panel-mediador/ai-legal"   title="IA (Experto)"    emoji="⚖️" disabled={!isPro} />
+
         </div>
 
         <div className="mt-8 text-center sr-small text-zinc-500">
