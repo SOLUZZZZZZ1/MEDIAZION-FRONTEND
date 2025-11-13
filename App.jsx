@@ -1,3 +1,60 @@
+// App.jsx — Enrutador completo Mediazion PRO
+
+import React from "react";
+import { HashRouter, Routes, Route } from "react-router-dom";
+
+import Home from "./pages/Home.jsx";
+import Login from "./pages/Login.jsx";
+import ProDashboard from "./components/ProDashboard.jsx";
+import PerfilMediador from "./pages/PerfilMediador.jsx";
+import AiPanel from "./pages/AiPanel.jsx";
+import AiPanelLegal from "./pages/AiPanelLegal.jsx";
+
+// Voces
+import VocesPublic from "./pages/VocesPublic.jsx";
+import VocesDetalle from "./pages/VocesDetalle.jsx";
+import VocesEditor from "./pages/VocesEditor.jsx";
+
+// Actualidad
+import Actualidad from "./pages/Actualidad.jsx";
+
+// Plantillas / Acta / Casos / Agenda mínimas
+import Plantillas from "./pages/Plantillas.jsx";
+import ActaNueva from "./pages/ActaNueva.jsx";
+import Casos from "./pages/Casos.jsx";
+import Agenda from "./pages/Agenda.jsx";
+import Pagos from "./pages/Pagos.jsx";
+
+export default function App() {
+  return (
+    <HashRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+
+        <Route path="/login" element={<Login />} />
+
+        <Route path="/panel-mediador" element={<ProDashboard />} />
+        <Route path="/panel-mediador/perfil" element={<PerfilMediador />} />
+        <Route path="/panel-mediador/ai" element={<AiPanel />} />
+        <Route path="/panel-mediador/ai-legal" element={<AiPanelLegal />} />
+
+        <Route path="/panel-mediador/voces" element={<VocesPublic />} />
+        <Route path="/panel-mediador/voces/nuevo" element={<VocesEditor />} />
+        <Route path="/panel-mediador/voces/:slug" element={<VocesDetalle />} />
+
+        <Route path="/panel-mediador/actualidad" element={<Actualidad />} />
+        <Route path="/actualidad" element={<Actualidad />} />
+
+        <Route path="/panel-mediador/plantillas" element={<Plantillas />} />
+        <Route path="/panel-mediador/acta" element={<ActaNueva />} />
+        <Route path="/panel-mediador/casos" element={<Casos />} />
+        <Route path="/panel-mediador/agenda" element={<Agenda />} />
+        <Route path="/panel-mediador/pagos" element={<Pagos />} />
+
+      </Routes>
+    </HashRouter>
+  );
+}
 // src/App.jsx — rutas estables + IA y Plantillas ACTIVAS (Plantillas.jsx en la RAÍZ del repo)
 import React from "react";
 import { Routes, Route } from "react-router-dom";
