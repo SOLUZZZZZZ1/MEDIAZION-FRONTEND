@@ -1,55 +1,49 @@
-// App.jsx — Mediazion 2025 (Web pública + Panel Mediador PRO en una sola app)
+// App.jsx — Mediazion 2025 (Web pública + Panel Mediador PRO integrados)
 
 import React from "react";
 import { HashRouter, Routes, Route } from "react-router-dom";
 
-// ---- COMPONENTES GLOBALES ----
+// --- COMPONENTES GLOBALES ---
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 
-// ---- PÁGINAS PÚBLICAS ----
+// --- PÁGINAS PÚBLICAS ---
 import Inicio from "./pages/Inicio.jsx";
 import QuienesSomos from "./pages/QuienesSomos.jsx";
 import Servicios from "./pages/Servicios.jsx";
 import Tarifas from "./pages/Tarifas.jsx";
 import Contacto from "./pages/Contacto.jsx";
 import Actualidad from "./pages/Actualidad.jsx";
+import CourseDetail from "./pages/CourseDetail.jsx";
+import WebinarDetail from "./pages/WebinarDetail.jsx";
 import Mediadores from "./pages/Mediadores.jsx";
 import MediadorAlta from "./pages/MediadorAlta.jsx";
 import MediadoresDirectorio from "./pages/MediadoresDirectorio.jsx";
 import Success from "./pages/Success.jsx";
 import Cancel from "./pages/Cancel.jsx";
-import CourseDetail from "./pages/CourseDetail.jsx";
-import WebinarDetail from "./pages/WebinarDetail.jsx";
 
-// ---- VOCES (PÚBLICO Y PRO) ----
+// --- VOCES ---
 import VocesPublic from "./pages/VocesPublic.jsx";
 import VocesDetalle from "./pages/VocesDetalle.jsx";
 import VocesEditor from "./pages/VocesEditor.jsx";
 
-// ---- PANEL MEDIADOR PRO ----
+// --- PANEL MEDIADOR PRO ---
 import PanelMediador from "./pages/PanelMediador.jsx";
 import PerfilMediador from "./pages/PerfilMediador.jsx";
 import AiPanel from "./pages/AiPanel.jsx";
 import AiPanelLegal from "./pages/AiPanelLegal.jsx";
 
-// ---- PLANTILLAS / ACTAS ----
+// --- PLANTILLAS / ACTAS ---
 import Plantillas from "../Plantillas.jsx";
 import ActaNueva from "./pages/ActaNueva.jsx";
 
-// ---- ADMIN ----
-import LoginAdmin from "./pages/admin/Login.jsx";
-import DashboardAdmin from "./pages/admin/Dashboard.jsx";
-
-// ---- EXTRAS ----
+// --- EXTRAS ---
 import Casos from "./pages/Casos.jsx";
 import Agenda from "./pages/Agenda.jsx";
-import Pagos from "./pages/Pagos.jsx";
 
-
-// -------------------------------------------
-//     ⛔ SOLO UNA APLICACIÓN — NO DUPLICAR
-// -------------------------------------------
+// --- ADMIN ---
+import LoginAdmin from "./pages/admin/Login.jsx";
+import DashboardAdmin from "./pages/admin/Dashboard.jsx";
 
 export default function App() {
   return (
@@ -67,20 +61,20 @@ export default function App() {
         <Navbar />
 
         <Routes>
-
-          {/* ---------------- PÚBLICA ---------------- */}
-
+          {/* ------- WEB PÚBLICA -------- */}
           <Route path="/" element={<Inicio />} />
           <Route path="/quienes-somos" element={<QuienesSomos />} />
           <Route path="/servicios" element={<Servicios />} />
           <Route path="/tarifas" element={<Tarifas />} />
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/actualidad" element={<Actualidad />} />
+          <Route path="/voces" element={<VocesPublic />} />
+          <Route path="/voces/:slug" element={<VocesDetalle />} />
           <Route path="/mediadores" element={<Mediadores />} />
           <Route path="/mediadores/alta" element={<MediadorAlta />} />
           <Route path="/mediadores/directorio" element={<MediadoresDirectorio />} />
 
-          {/* Formación */}
+          {/* Cursos / Webinars */}
           <Route path="/servicios/curso/:slug" element={<CourseDetail />} />
           <Route path="/servicios/webinar/:slug" element={<WebinarDetail />} />
 
@@ -88,13 +82,7 @@ export default function App() {
           <Route path="/suscripcion/ok" element={<Success />} />
           <Route path="/suscripcion/cancel" element={<Cancel />} />
 
-          {/* Voces público */}
-          <Route path="/voces" element={<VocesPublic />} />
-          <Route path="/voces/:slug" element={<VocesDetalle />} />
-
-
-          {/* ---------------- PANEL MEDIADOR PRO ---------------- */}
-
+          {/* ------- PANEL PRO ------- */}
           <Route path="/panel-mediador" element={<PanelMediador />} />
           <Route path="/panel-mediador/perfil" element={<PerfilMediador />} />
           <Route path="/panel-mediador/ai" element={<AiPanel />} />
@@ -108,10 +96,8 @@ export default function App() {
           <Route path="/panel-mediador/acta" element={<ActaNueva />} />
           <Route path="/panel-mediador/casos" element={<Casos />} />
           <Route path="/panel-mediador/agenda" element={<Agenda />} />
-          <Route path="/panel-mediador/pagos" element={<Pagos />} />
 
-          {/* ---------------- ADMIN ---------------- */}
-
+          {/* ------- ADMIN ------- */}
           <Route path="/admin" element={<LoginAdmin />} />
           <Route path="/admin/dashboard" element={<DashboardAdmin />} />
 
@@ -125,7 +111,6 @@ export default function App() {
               </div>
             }
           />
-
         </Routes>
 
         <Footer />
