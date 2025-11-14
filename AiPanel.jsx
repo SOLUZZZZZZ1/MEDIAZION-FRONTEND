@@ -124,32 +124,35 @@ export default function AiPanel() {
   }
 
   async function handleFilePick(e) {
-    const f = e.target.files && e.target.files[0];
-    if (!f) return;
-    setErrorMsg("");
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  setErrorMsg("");
 
-    try {
-      const fd = new FormData();
-      fd.append("file", f);
-      const respUp = await fetch("/api/upload/file", {
-        method: "POST",
-        body: fd,
-      });
-      const data = await respUp.json().catch(() => ({}));
-      if (respUp.ok && data?.ok && data?.url) {
-        setDocUrl(data.url);
-        setUseDoc(true);
-      } else {
-        throw new Error(data?.detail || data?.message || "No se pudo subir el archivo");
-      }
-    } catch (e2) {
-      setErrorMsg(e2.message || "Error subiendo archivo");
-    } finally {
-      if (fileRef.current) {
-        fileRef.current.value = "";
-      }
+  try {
+    const fd = new FormData();
+    fd.append("file", f);
+
+    const respUp = await fetch("/api/upload/file", {
+      method: "POST",
+      body: fd,
+    });
+
+    const data = await respUp.json().catch(() => ({}));
+
+    if (respUp.ok && data?.ok && data?.url) {
+      console.log("Archivo subido:", data.url);
+      setDocUrl(data.url);
+      setUseDoc(true);  // <-- hace que IA use el documento
+    } else {
+      throw new Error(data?.detail || data?.message || "No se pudo subir el archivo");
     }
+  } catch (e2) {
+    setErrorMsg(e2.message || "Error subiendo archivo");
+  } finally {
+    if (fileRef.current) fileRef.current.value = "";
   }
+}
+
 
   return (
     <>
