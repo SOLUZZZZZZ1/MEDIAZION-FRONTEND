@@ -1,78 +1,120 @@
-// src/pages/MediadoresDirectorio.jsx
-import React, { useEffect, useState } from "react";
-import Seo from "../components/Seo.jsx";
-import { getApiBase } from "../lib/api.js";
+// src/pages/MediadoresDirectorio.jsx — Directorio funcional y profesional
 
-const API = getApiBase();
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import Seo from "../components/Seo.jsx";
 
 export default function MediadoresDirectorio() {
   const [items, setItems] = useState([]);
-  const [q, setQ] = useState(""); const [prov, setProv] = useState(""); const [esp, setEsp] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [q, setQ] = useState("");
+  const [msg, setMsg] = useState("");
 
-  async function load() {
+  async function cargarListado(busqueda = "") {
+    setLoading(true);
+    setMsg("");
+
     try {
-      const params = new URLSearchParams();
-      if (prov) params.set("provincia", prov);
-      if (esp)  params.set("especialidad", esp);
-      if (q)    params.set("q", q);
-      const url = params.toString()
-        ? `${API}/mediadores/public?${params.toString()}`
-        : `${API}/mediadores/public`;
+      const url = busqueda.trim()
+        ? `/api/mediadores/public?q=${encodeURIComponent(busqueda)}`
+        : `/api/mediadores/public`;
+
       const r = await fetch(url);
       const data = await r.json();
-      setItems(Array.isArray(data) ? data : []);
-    } catch {
+
+      if (!r.ok || !data?.ok) {
+        throw new Error(data?.detail || "No se pudo cargar el directorio");
+      }
+
+      setItems(data.items || []);
+    } catch (e) {
+      setMsg("❌ " + (e.message || "Error cargando el directorio"));
       setItems([]);
+    } finally {
+      setLoading(false);
     }
   }
-  useEffect(() => { load(); /* init */ }, []);
+
+  useEffect(() => {
+    cargarListado();
+  }, []);
+
+  function buscar(e) {
+    e.preventDefault();
+    cargarListado(q);
+  }
 
   return (
     <>
       <Seo
-        title="Directorio de mediadores · MEDIAZION"
-        description="Mediadores aprobados por MEDIAZION en toda España."
-        canonical="https://mediazion.eu/mediadores/directorio"
+        title="Directorio de Mediadores · Mediazion"
+        description="Encuentra mediadores activos según su alias, especialidad y provincia."
       />
-      <main className="sr-container py-12" style={{backgroundImage:"url('/marmol.jpg')", backgroundSize:"cover", backgroundPosition:"center"}}>
-        <h1 className="sr-h1 mb-2">Directorio de mediadores</h1>
-        <p className="sr-p mb-4">Profesionales aprobados por <strong>MEDIAZION</strong>.</p>
 
-        <section className="sr-card" style={{ marginBottom: 16 }}>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(1,minmax(0,1fr))", gap:12 }}>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,minmax(0,1fr))", gap:12 }}>
-              <input className="border rounded-md px-3 py-2" value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar nombre o bio..." />
-              <input className="border rounded-md px-3 py-2" value={prov} onChange={e=>setProv(e.target.value)} placeholder="Provincia" />
-              <select className="border rounded-md px-3 py-2" value={esp} onChange={e=>setEsp(e.target.value)}>
-                <option value="">Especialidad (todas)</option>
-                <option value="civil">Civil</option>
-                <option value="mercantil">Mercantil</option>
-                <option value="familiar">Familiar</option>
-                <option value="comunitaria">Comunitaria</option>
-                <option value="laboral">Laboral</option>
-              </select>
-            </div>
-            <div><button className="sr-btn-primary" onClick={load}>Aplicar filtros</button></div>
-          </div>
-        </section>
+      <main className="sr-container py-10">
+        <h1 className="sr-h1">Directorio de Mediadores</h1>
+        <p className="sr-p">
+          Consulta mediadores activos en Mediazion. Solo se muestran perfiles completados.
+        </p>
 
-        <section className="sr-grid-3">
-          {items.length === 0 && <div className="sr-card">No hay mediadores que coincidan con el filtro.</div>}
-          {items.map((m) => (
-            <article key={m.id} className="sr-card" style={{ background:"rgba(255,255,255,0.96)" }}>
-              <div style={{display:"flex", gap:12}}>
-                <img src={m.photo_url || "/logo.png"} alt={m.name} style={{width:72, height:72, borderRadius:12, objectFit:"cover", border:"1px solid #e5e7eb"}} />
-                <div>
-                  <h3 className="sr-h3" style={{margin:0}}>{m.name}</h3>
-                  <p className="sr-p" style={{margin:0}}>{m.especialidad || ""}</p>
-                  <p className="sr-p" style={{margin:0}}>{m.provincia || "—"}</p>
-                </div>
-              </div>
-              {m.bio && <p className="sr-p" style={{marginTop:12}}>{m.bio}</p>}
-              {m.cv_url && <a className="sr-btn-secondary" href={m.cv_url} target="_blank" rel="noopener noreferrer" style={{marginTop:8}}>Ver currículum</a>}
-            </article>
-          ))}
-        </section>
+        {/* BUSCADOR */}
+        <form onSubmit={buscar} className="sr-card mt-4" style={{ maxWidth: 600 }}>
+          <input
+            type="text"
+            className="sr-input w-full"
+            placeholder="Buscar por nombre, alias o bio…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+          <button className="sr-btn-primary mt-3">Buscar</button>
+        </form>
+
+        {msg && (
+          <p className="sr-small mt-4" style={{ color: "#991B1B" }}>
+            {msg}
+          </p>
+        )}
+
+        {/* LISTADO */}
+        {loading ? (
+          <p className="sr-p mt-6">Cargando mediadores…</p>
+        ) : items.length === 0 ? (
+          <p className="sr-p mt-6">No hay mediadores disponibles.</p>
+        ) : (
+          <section className="grid gap-4 mt-6 md:grid-cols-2 lg:grid-cols-3">
+            {items.map((m) => (
+              <article key={m.id} className="sr-card">
+                <h3 className="sr-h3 mb-0">{m.name}</h3>
+                <p className="sr-small text-zinc-600 mb-2">
+                  {m.provincia} · {m.especialidad}
+                </p>
+
+                {m.photo_url && (
+                  <img
+                    src={m.photo_url}
+                    alt="Avatar"
+                    style={{
+                      width: 90,
+                      height: 90,
+                      objectFit: "cover",
+                      borderRadius: "50%",
+                      marginBottom: 10,
+                    }}
+                  />
+                )}
+
+                <p className="sr-p whitespace-pre-wrap">{m.bio}</p>
+
+                {/* Enlace a perfil público (cuando se active) */}
+                {m.public_slug && (
+                  <Link className="sr-btn-secondary mt-3 inline-block" to="#">
+                    Ver perfil público (pronto)
+                  </Link>
+                )}
+              </article>
+            ))}
+          </section>
+        )}
       </main>
     </>
   );
