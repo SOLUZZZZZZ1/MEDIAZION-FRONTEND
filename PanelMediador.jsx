@@ -1,8 +1,9 @@
-// src/pages/PanelMediador.jsx — VERSIÓN COMPLETA Y FINAL
+// src/pages/PanelMediador.jsx — versión completa con Stripe PRO + trial + downgrade
 
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Seo from "../components/Seo.jsx";
+import StripeButton from "../components/StripeButton.jsx";
 
 export default function PanelMediador() {
   const nav = useNavigate();
@@ -12,66 +13,65 @@ export default function PanelMediador() {
   const [isPro, setIsPro] = useState(false);
   const [statusText, setStatusText] = useState("");
 
-  // 🔐 1. Si no hay sesión → redirigir a login
   useEffect(() => {
-    if (!email) {
-      nav("/acceso");
-    }
+    if (!email) nav("/acceso");
   }, [email, nav]);
 
-  // 🔥 2. Comprobar estado del mediador
   useEffect(() => {
     if (!email) return;
 
-    async function checkStatus() {
+    async function check() {
       try {
-        const r = await fetch(
-          `/api/mediadores/status?email=${encodeURIComponent(email)}`
-        );
+        // Comprobar estado actual
+        const r = await fetch(`/api/mediadores/status?email=${encodeURIComponent(email)}`);
         const data = await r.json();
 
-        // Si no existe → logout y pedir acceso
         if (!r.ok || data.status === "missing") {
           localStorage.removeItem("mediador_email");
           nav("/acceso");
           return;
         }
 
-        // Si está en trial o activo → PRO
-        if (data.subscription_status === "trialing" || data.subscription_status === "active") {
+        // Si ha expirado trial → basic
+        if (data.subscription_status === "expired") {
+          setIsPro(false);
+          setStatusText("Plan Básico (prueba expirada)");
+        }
+
+        // Si está activo o trial
+        if (data.subscription_status === "active" || data.subscription_status === "trialing") {
           setIsPro(true);
           setStatusText(
             data.subscription_status === "trialing"
               ? "PRO (Periodo de prueba)"
               : "PRO Activo"
           );
-        } else {
-          // Si está en "none" → activar trial automáticamente
-          const t = await fetch(
-            `/api/mediadores/set_trial?email=${encodeURIComponent(email)}`,
-            { method: "POST" }
-          );
-          const td = await t.json();
+        }
 
+        // Si está en none → activar trial automáticamente
+        if (data.subscription_status === "none") {
+          const t = await fetch(`/api/mediadores/set_trial?email=${encodeURIComponent(email)}`, {
+            method: "POST",
+          });
+          const td = await t.json();
           if (t.ok && td.ok) {
             setIsPro(true);
-            setStatusText("PRO (Periodo de prueba activado)");
+            setStatusText("PRO (Trial Activado)");
           } else {
             setIsPro(false);
             setStatusText("Plan Básico");
           }
         }
       } catch {
-        setIsPro(false);
+        setStatusText("Error verificando estado");
       } finally {
         setLoading(false);
       }
     }
 
-    checkStatus();
+    check();
   }, [email, nav]);
 
-  // 🔐 logout
   function logout() {
     localStorage.removeItem("mediador_email");
     nav("/acceso");
@@ -81,31 +81,38 @@ export default function PanelMediador() {
 
   return (
     <>
-      <Seo title="Panel del Mediador · MEDIAZION" />
+      <Seo title="Panel del Mediador · Mediazion" />
+      <main className="sr-container py-8">
 
-      <main className="sr-container py-8" style={{ minHeight: "calc(100vh - 160px)" }}>
         <h1 className="sr-h1">Panel del Mediador</h1>
-        <p className="sr-p">
-          Sesión: <b>{email}</b>
-        </p>
+        <p className="sr-p">Sesión: <b>{email}</b></p>
 
-        {loading && <p className="sr-p mt-4">Cargando estado...</p>}
+        {loading && <p className="sr-p">Cargando…</p>}
 
         {!loading && (
           <>
             <section className="sr-card mt-4">
-              <p className="sr-p">
-                Estado actual: <b>{statusText}</b>
-              </p>
-              <button className="sr-btn-secondary mt-2" onClick={logout}>
+              <p className="sr-p">Estado actual: <b>{statusText}</b></p>
+
+              {!isPro && (
+                <>
+                  <p className="sr-p mt-2">
+                    Tu plan actual es <b>BASIC</b>. Puedes suscribirte para obtener acceso PRO.
+                  </p>
+                  <StripeButton />
+                </>
+              )}
+
+              <button className="sr-btn-secondary mt-4" onClick={logout}>
                 Cerrar sesión
               </button>
             </section>
 
             {isPro && (
-              <section className="sr-card mt-4">
+              <section className="sr-card mt-6">
                 <h2 className="sr-h2 mb-2">Herramientas PRO</h2>
-                <div className="mt-3 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+
                   <Link className="sr-btn-secondary" to="/panel-mediador/ai">🤖 IA Profesional</Link>
                   <Link className="sr-btn-secondary" to="/panel-mediador/ai-legal">⚖️ IA Legal</Link>
                   <Link className="sr-btn-secondary" to="/panel-mediador/acta">📝 Actas</Link>
@@ -113,8 +120,9 @@ export default function PanelMediador() {
                   <Link className="sr-btn-secondary" to="/panel-mediador/agenda">🗓️ Agenda</Link>
                   <Link className="sr-btn-secondary" to="/panel-mediador/pagos">💳 Pagos</Link>
                   <Link className="sr-btn-secondary" to="/panel-mediador/perfil">👤 Perfil</Link>
-                  <Link className="sr-btn-secondary" to="/panel-mediador/voces">🖊️ Voces (publicar)</Link>
-                  <Link className="sr-btn-secondary" to="/voces">📰 Voces (público)</Link>
+                  <Link className="sr-btn-secondary" to="/panel-mediador/voces">🖊️ Voces (Publicar)</Link>
+                  <Link className="sr-btn-secondary" to="/voces">📰 Voces Públicas</Link>
+
                 </div>
               </section>
             )}
