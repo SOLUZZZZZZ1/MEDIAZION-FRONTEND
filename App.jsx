@@ -25,6 +25,20 @@ import PanelMediador from "./pages/PanelMediador.jsx";
 import CourseDetail from "./pages/CourseDetail.jsx";
 import WebinarDetail from "./pages/WebinarDetail.jsx";
 
+// 🔹 Panel PRO / IA / Agenda / Pagos / Casos / Perfil
+import AiPanel from "./pages/AiPanel.jsx";
+import AiPanelLegal from "./pages/AiPanelLegal.jsx";
+import Casos from "./pages/Casos.jsx";
+import Pagos from "./pages/Pagos.jsx";
+import Agenda from "./pages/Agenda.jsx";
+import PerfilMediador from "./pages/PerfilMediador.jsx";
+import ActaNueva from "./pages/ActaNueva.jsx";
+
+// 🔹 Voces (blog público + PRO)
+import VocesPublic from "./pages/VocesPublic.jsx";
+import VocesDetalle from "./pages/VocesDetalle.jsx";
+import VocesEditor from "./pages/VocesEditor.jsx";
+
 export default function App() {
   return (
     <div
@@ -51,7 +65,23 @@ export default function App() {
         <Route path="/mediadores" element={<Mediadores />} />
         <Route path="/mediadores/directorio" element={<MediadoresDirectorio />} />
         <Route path="/mediadores/alta" element={<MediadorAlta />} />
+
+        {/* Panel mediador (home) */}
         <Route path="/panel-mediador" element={<PanelMediador />} />
+
+        {/* Panel mediador · herramientas PRO */}
+        <Route path="/panel-mediador/ai" element={<AiPanel />} />
+        <Route path="/panel-mediador/ai-legal" element={<AiPanelLegal />} />
+        <Route path="/panel-mediador/acta" element={<ActaNueva />} />
+        <Route path="/panel-mediador/casos" element={<Casos />} />
+        <Route path="/panel-mediador/pagos" element={<Pagos />} />
+        <Route path="/panel-mediador/agenda" element={<Agenda />} />
+        <Route path="/panel-mediador/perfil" element={<PerfilMediador />} />
+        <Route path="/panel-mediador/voces" element={<VocesEditor />} />
+
+        {/* Voces (público) */}
+        <Route path="/voces" element={<VocesPublic />} />
+        <Route path="/voces/:slug" element={<VocesDetalle />} />
 
         {/* Detalle formativo */}
         <Route path="/servicios/curso/:slug" element={<CourseDetail />} />
