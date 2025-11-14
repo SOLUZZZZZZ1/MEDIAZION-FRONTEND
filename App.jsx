@@ -1,49 +1,29 @@
-// App.jsx — Mediazion 2025 (Web pública + Panel Mediador PRO integrados)
-
+// src/App.jsx
 import React from "react";
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
-// --- COMPONENTES GLOBALES ---
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 
-// --- PÁGINAS PÚBLICAS ---
 import Inicio from "./pages/Inicio.jsx";
 import QuienesSomos from "./pages/QuienesSomos.jsx";
 import Servicios from "./pages/Servicios.jsx";
+import Mediadores from "./pages/Mediadores.jsx";
 import Tarifas from "./pages/Tarifas.jsx";
 import Contacto from "./pages/Contacto.jsx";
 import Actualidad from "./pages/Actualidad.jsx";
-import CourseDetail from "./pages/CourseDetail.jsx";
-import WebinarDetail from "./pages/WebinarDetail.jsx";
-import Mediadores from "./pages/Mediadores.jsx";
 import MediadorAlta from "./pages/MediadorAlta.jsx";
-import MediadoresDirectorio from "./pages/MediadoresDirectorio.jsx";
 import Success from "./pages/Success.jsx";
 import Cancel from "./pages/Cancel.jsx";
 
-// --- VOCES ---
-import VocesPublic from "./pages/VocesPublic.jsx";
-import VocesDetalle from "./pages/VocesDetalle.jsx";
-import VocesEditor from "./pages/VocesEditor.jsx";
+import AdminLogin from "./pages/admin/Login.jsx";
+import AdminDashboard from "./pages/admin/Dashboard.jsx";
 
-// --- PANEL MEDIADOR PRO ---
+import MediadoresDirectorio from "./pages/MediadoresDirectorio.jsx";
 import PanelMediador from "./pages/PanelMediador.jsx";
-import PerfilMediador from "./pages/PerfilMediador.jsx";
-import AiPanel from "./pages/AiPanel.jsx";
-import AiPanelLegal from "./pages/AiPanelLegal.jsx";
 
-// --- PLANTILLAS / ACTAS ---
-import Plantillas from "../Plantillas.jsx";
-import ActaNueva from "./pages/ActaNueva.jsx";
-
-// --- EXTRAS ---
-import Casos from "./pages/Casos.jsx";
-import Agenda from "./pages/Agenda.jsx";
-
-// --- ADMIN ---
-import LoginAdmin from "./pages/admin/Login.jsx";
-import DashboardAdmin from "./pages/admin/Dashboard.jsx";
+import CourseDetail from "./pages/CourseDetail.jsx";
+import WebinarDetail from "./pages/WebinarDetail.jsx";
 
 export default function App() {
   return (
@@ -57,64 +37,35 @@ export default function App() {
         backgroundPosition: "center center",
       }}
     >
-      <HashRouter>
-        <Navbar />
+      <Navbar />
+      <Routes>
+        {/* Básicas */}
+        <Route path="/" element={<Inicio />} />
+        <Route path="/quienes-somos" element={<QuienesSomos />} />
+        <Route path="/servicios" element={<Servicios />} />
+        <Route path="/tarifas" element={<Tarifas />} />
+        <Route path="/contacto" element={<Contacto />} />
+        <Route path="/actualidad" element={<Actualidad />} />
 
-        <Routes>
-          {/* ------- WEB PÚBLICA -------- */}
-          <Route path="/" element={<Inicio />} />
-          <Route path="/quienes-somos" element={<QuienesSomos />} />
-          <Route path="/servicios" element={<Servicios />} />
-          <Route path="/tarifas" element={<Tarifas />} />
-          <Route path="/contacto" element={<Contacto />} />
-          <Route path="/actualidad" element={<Actualidad />} />
-          <Route path="/voces" element={<VocesPublic />} />
-          <Route path="/voces/:slug" element={<VocesDetalle />} />
-          <Route path="/mediadores" element={<Mediadores />} />
-          <Route path="/mediadores/alta" element={<MediadorAlta />} />
-          <Route path="/mediadores/directorio" element={<MediadoresDirectorio />} />
+        {/* Mediadores */}
+        <Route path="/mediadores" element={<Mediadores />} />
+        <Route path="/mediadores/directorio" element={<MediadoresDirectorio />} />
+        <Route path="/mediadores/alta" element={<MediadorAlta />} />
+        <Route path="/panel-mediador" element={<PanelMediador />} />
 
-          {/* Cursos / Webinars */}
-          <Route path="/servicios/curso/:slug" element={<CourseDetail />} />
-          <Route path="/servicios/webinar/:slug" element={<WebinarDetail />} />
+        {/* Detalle formativo */}
+        <Route path="/servicios/curso/:slug" element={<CourseDetail />} />
+        <Route path="/servicios/webinar/:slug" element={<WebinarDetail />} />
 
-          {/* Suscripción */}
-          <Route path="/suscripcion/ok" element={<Success />} />
-          <Route path="/suscripcion/cancel" element={<Cancel />} />
+        {/* Suscripción */}
+        <Route path="/suscripcion/ok" element={<Success />} />
+        <Route path="/suscripcion/cancel" element={<Cancel />} />
 
-          {/* ------- PANEL PRO ------- */}
-          <Route path="/panel-mediador" element={<PanelMediador />} />
-          <Route path="/panel-mediador/perfil" element={<PerfilMediador />} />
-          <Route path="/panel-mediador/ai" element={<AiPanel />} />
-          <Route path="/panel-mediador/ai-legal" element={<AiPanelLegal />} />
-
-          <Route path="/panel-mediador/voces" element={<VocesPublic />} />
-          <Route path="/panel-mediador/voces/nuevo" element={<VocesEditor />} />
-          <Route path="/panel-mediador/voces/:slug" element={<VocesDetalle />} />
-
-          <Route path="/panel-mediador/plantillas" element={<Plantillas />} />
-          <Route path="/panel-mediador/acta" element={<ActaNueva />} />
-          <Route path="/panel-mediador/casos" element={<Casos />} />
-          <Route path="/panel-mediador/agenda" element={<Agenda />} />
-
-          {/* ------- ADMIN ------- */}
-          <Route path="/admin" element={<LoginAdmin />} />
-          <Route path="/admin/dashboard" element={<DashboardAdmin />} />
-
-          {/* 404 */}
-          <Route
-            path="*"
-            element={
-              <div className="sr-container py-16">
-                <h1 className="sr-h1">Página no encontrada</h1>
-                <p className="sr-p">Comprueba la URL o regresa al inicio.</p>
-              </div>
-            }
-          />
-        </Routes>
-
-        <Footer />
-      </HashRouter>
+        {/* Admin */}
+        <Route path="/admin" element={<AdminLogin />} />
+        <Route path="/admin/panel" element={<AdminDashboard />} />
+      </Routes>
+      <Footer />
     </div>
   );
 }
