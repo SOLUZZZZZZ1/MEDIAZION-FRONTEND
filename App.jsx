@@ -25,7 +25,10 @@ import PanelMediador from "./pages/PanelMediador.jsx";
 import CourseDetail from "./pages/CourseDetail.jsx";
 import WebinarDetail from "./pages/WebinarDetail.jsx";
 
-// 🔹 Panel PRO / IA / Agenda / Pagos / Casos / Perfil
+// 🔹 NUEVO: login de mediadores
+import LoginMediador from "./pages/LoginMediador.jsx";
+
+// 🔹 Panel PRO / IA / Agenda / Pagos / Casos / Perfil / Actas
 import AiPanel from "./pages/AiPanel.jsx";
 import AiPanelLegal from "./pages/AiPanelLegal.jsx";
 import Casos from "./pages/Casos.jsx";
@@ -34,7 +37,7 @@ import Agenda from "./pages/Agenda.jsx";
 import PerfilMediador from "./pages/PerfilMediador.jsx";
 import ActaNueva from "./pages/ActaNueva.jsx";
 
-// 🔹 Voces (blog público + PRO)
+// 🔹 Voces (blog público + editor PRO)
 import VocesPublic from "./pages/VocesPublic.jsx";
 import VocesDetalle from "./pages/VocesDetalle.jsx";
 import VocesEditor from "./pages/VocesEditor.jsx";
@@ -66,7 +69,10 @@ export default function App() {
         <Route path="/mediadores/directorio" element={<MediadoresDirectorio />} />
         <Route path="/mediadores/alta" element={<MediadorAlta />} />
 
-        {/* Panel mediador (home) */}
+        {/* Acceso mediadores (login) */}
+        <Route path="/acceso" element={<LoginMediador />} />
+
+        {/* Panel mediador (inicio) */}
         <Route path="/panel-mediador" element={<PanelMediador />} />
 
         {/* Panel mediador · herramientas PRO */}
@@ -79,7 +85,7 @@ export default function App() {
         <Route path="/panel-mediador/perfil" element={<PerfilMediador />} />
         <Route path="/panel-mediador/voces" element={<VocesEditor />} />
 
-        {/* Voces (público) */}
+        {/* Voces público */}
         <Route path="/voces" element={<VocesPublic />} />
         <Route path="/voces/:slug" element={<VocesDetalle />} />
 
