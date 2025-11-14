@@ -1,4 +1,4 @@
-// src/pages/AiPanel.jsx — Asistente IA Profesional (versión estable con token)
+// src/pages/AiPanel.jsx — Asistente IA Profesional (siempre envía mensaje, con token por defecto)
 import React, { useEffect, useRef, useState } from "react";
 import Seo from "../components/Seo.jsx";
 
@@ -62,9 +62,6 @@ export default function AiPanel() {
   const fileRef = useRef(null);
   const listRef = useRef(null);
 
-  const token = localStorage.getItem("jwt_token") || "";
-  const email = localStorage.getItem("mediador_email") || "";
-
   useEffect(() => {
     if (listRef.current) {
       listRef.current.scrollTop = listRef.current.scrollHeight + 200;
@@ -75,15 +72,15 @@ export default function AiPanel() {
     const prompt = (customPrompt ?? input).trim();
     if (!prompt) return;
 
-    if (!token) {
-      setErrorMsg("No hay sesión activa. Entra por el acceso de mediadores.");
-      return;
-    }
-
+    // Siempre añadimos el mensaje al chat
     setMessages((prev) => [...prev, { role: "user", content: prompt }]);
     if (!customPrompt) setInput("");
     setErrorMsg("");
     setLoading(true);
+
+    // Token: usa el de localStorage si existe, si no, "ok"
+    const stored = localStorage.getItem("jwt_token");
+    const token = stored && stored.trim() ? stored : "ok";
 
     try {
       const headers = {
@@ -158,7 +155,7 @@ export default function AiPanel() {
     <>
       <Seo
         title="IA Profesional · MEDIAZION"
-        description="Asistente IA para redactar actas, resúmenes y comunicaciones de mediación."
+        description="Asistente IA para redactar actas, resúmenes y comunicaciones."
         canonical="https://mediazion.eu/panel-mediador/ai"
       />
       <main
