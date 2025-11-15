@@ -118,7 +118,7 @@ export default function PanelMediador() {
                   <Link className="sr-btn-secondary" to="/panel-mediador/acta">📝 Actas</Link>
                   <Link className="sr-btn-secondary" to="/panel-mediador/casos">🗂️ Casos</Link>
                   <Link className="sr-btn-secondary" to="/panel-mediador/agenda">🗓️ Agenda</Link>
-                  <Link className="sr-btn-secondary" to="/panel-mediador/pagos">💳 Pagos</Link>
+                  <Link className="sr-btn-secondary" to="/panel-mediador/plantillas">📄 Plantillas</Link>
                   <Link className="sr-btn-secondary" to="/panel-mediador/perfil">👤 Perfil</Link>
                   <Link className="sr-btn-secondary" to="/panel-mediador/voces">🖊️ Voces (Publicar)</Link>
                   <Link className="sr-btn-secondary" to="/voces">📰 Voces Públicas</Link>
