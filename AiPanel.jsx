@@ -1,4 +1,4 @@
-// src/pages/AiPanel.jsx — Asistente IA Profesional con documento opcional (simple y fiable)
+// src/pages/AiPanel.jsx — Asistente IA Profesional (chat + documento opcional)
 import React, { useEffect, useRef, useState } from "react";
 import Seo from "../components/Seo.jsx";
 
@@ -71,13 +71,14 @@ export default function AiPanel() {
     const prompt = (customPrompt ?? input).trim();
     if (!prompt) return;
 
-    const storedToken = localStorage.getItem("jwt_token");
-    const token = storedToken && storedToken.trim() ? storedToken : "ok";
-
+    // Siempre mostramos tu mensaje en el chat
     setMessages((prev) => [...prev, { role: "user", content: prompt }]);
     if (!customPrompt) setInput("");
     setErrorMsg("");
     setLoading(true);
+
+    const stored = localStorage.getItem("jwt_token");
+    const token = stored && stored.trim() ? stored : "ok";
 
     try {
       const headers = {
@@ -85,21 +86,19 @@ export default function AiPanel() {
         Authorization: "Bearer " + token,
       };
 
-      let resp;
+      let url = "/api/ai/assist";
+      let body = { prompt };
+
       if (docUrl) {
-        // 👉 Si hay documento, SIEMPRE lo usamos
-        resp = await fetch("/api/ai/assist_with", {
-          method: "POST",
-          headers,
-          body: JSON.stringify({ doc_url: docUrl, prompt }),
-        });
-      } else {
-        resp = await fetch("/api/ai/assist", {
-          method: "POST",
-          headers,
-          body: JSON.stringify({ prompt }),
-        });
+        url = "/api/ai/assist_with";
+        body = { doc_url: docUrl, prompt };
       }
+
+      const resp = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      });
 
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok || !data?.ok) {
@@ -107,7 +106,7 @@ export default function AiPanel() {
           data?.detail ||
             data?.message ||
             (docUrl
-              ? "No se pudo generar la respuesta con el documento."
+              ? "No se pudo generar la respuesta usando el documento."
               : "No se pudo generar la respuesta.")
         );
       }
@@ -140,7 +139,7 @@ export default function AiPanel() {
 
       if (respUp.ok && data?.ok && data?.url) {
         console.log("Archivo subido:", data.url);
-        setDocUrl(data.url); // 👈 Guardamos la URL para la IA
+        setDocUrl(data.url); // ✅ Guardamos la URL para usarla en la próxima llamada
       } else {
         throw new Error(data?.detail || data?.message || "No se pudo subir el archivo");
       }
@@ -161,7 +160,7 @@ export default function AiPanel() {
     <>
       <Seo
         title="IA Profesional · MEDIAZION"
-        description="Asistente IA para redactar actas, resúmenes y comunicaciones."
+        description="Asistente IA para redactar actas, resúmenes y comunicaciones de mediación."
         canonical="https://mediazion.eu/panel-mediador/ai"
       />
       <main
@@ -175,12 +174,15 @@ export default function AiPanel() {
           marginBottom: 24,
         }}
       >
+        {/* Cabecera */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-4">
           <h1 className="sr-h1 m-0">Asistente IA Profesional</h1>
           <div className="flex gap-2 flex-wrap">
             <button
               className="sr-btn-secondary"
-              onClick={() => (window.location.href = "/panel-mediador/perfil?tab=seguridad")}
+              onClick={() =>
+                (window.location.href = "/panel-mediador/perfil?tab=seguridad")
+              }
             >
               Cambiar contraseña
             </button>
@@ -238,7 +240,7 @@ export default function AiPanel() {
 
           {/* Editor + documento */}
           <section>
-            <div className "sr-card h-[54vh] flex flex-col">
+            <div className="sr-card h-[54vh] flex flex-col">
               <label className="sr-label mb-2">Documento (opcional)</label>
               <div className="flex items-center gap-2 mb-2">
                 <input
@@ -248,34 +250,34 @@ export default function AiPanel() {
                   onChange={handleFilePick}
                   className="sr-input"
                 />
-
-                {docUrl ? (
-                  <div className="flex items-center gap-2">
-                    <span className="sr-small text-emerald-700">
-                      ✅ Documento cargado
-                    </span>
-                    <a
-                      className="sr-btn-secondary"
-                      href={docUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Ver
-                    </a>
-                    <button
-                      type="button"
-                      className="sr-btn-secondary"
-                      onClick={clearDoc}
-                    >
-                      Quitar
-                    </button>
-                  </div>
-                ) : (
-                  <span className="sr-small text-zinc-500">
-                    Ningún documento cargado.
-                  </span>
-                )}
               </div>
+              {docUrl ? (
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="sr-small text-emerald-700">
+                    ✅ Documento cargado. Se usará en la próxima respuesta.
+                  </span>
+                  <a
+                    className="sr-btn-secondary"
+                    href={docUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Ver
+                  </a>
+                  <button
+                    type="button"
+                    className "sr-btn-secondary"
+                    onClick={clearDoc}
+                  >
+                    Quitar
+                  </button>
+                </div>
+              ) : (
+                <p className="sr-small text-zinc-500 mb-3">
+                  No hay ningún documento cargado. Puedes escribir solo texto o adjuntar
+                  un PDF/DOCX.
+                </p>
+              )}
 
               <label className="sr-label mb-2">Escribe al asistente</label>
               <textarea
