@@ -6,23 +6,23 @@ const PRESETS = [
   {
     tag: "Acta estándar",
     prompt:
-      "Redacta un acta formal de mediación con fecha, asistentes, antecedentes, desarrollo, acuerdos y próximos pasos.",
+      "Redacta un acta formal de mediación con fecha, asistentes, antecedentes, desarrollo, acuerdos y próximos pasos."
   },
   {
     tag: "Resumen ejecutivo",
     prompt:
-      "Resume la sesión de mediación en 10-12 líneas, con objetivos, puntos clave, avances y tareas pendientes.",
+      "Resume la sesión de mediación en 10-12 líneas, con objetivos, puntos clave, avances y tareas pendientes."
   },
   {
     tag: "Correo de seguimiento",
     prompt:
-      "Redacta un correo profesional de seguimiento tras una sesión de mediación, con saludo, resumen de acuerdos y próximos pasos.",
+      "Redacta un correo profesional de seguimiento tras una sesión de mediación, con saludo, resumen de acuerdos y próximos pasos."
   },
   {
     tag: "Cláusula confidencialidad",
     prompt:
-      "Escribe una cláusula de confidencialidad para anexar a un acta de mediación, en tono jurídico claro y conciso.",
-  },
+      "Escribe una cláusula de confidencialidad para anexar a un acta de mediación, en tono jurídico claro y conciso."
+  }
 ];
 
 function MessageBubble({ role, content }) {
@@ -51,8 +51,8 @@ export default function AiPanel() {
     {
       role: "assistant",
       content:
-        "¡Hola! Soy tu asistente de mediación. Escribe tu encargo o pulsa un preset para empezar.",
-    },
+        "¡Hola! Soy tu asistente de mediación. Escribe tu encargo o pulsa un preset para empezar."
+    }
   ]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -67,12 +67,18 @@ export default function AiPanel() {
     }
   }, [messages, loading]);
 
+  const scrollToBottom = () => {
+    if (listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight + 200;
+    }
+  };
+
   async function handleSend(customPrompt) {
     const prompt = (customPrompt ?? input).trim();
     if (!prompt) return;
 
-    // Siempre mostramos tu mensaje en el chat
-    setMessages((prev) => [...prev, { role: "user", content: prompt }]);
+    // Añadimos tu mensaje al chat
+    setMessages(prev => [...prev, { role: "user", content: prompt }]);
     if (!customPrompt) setInput("");
     setErrorMsg("");
     setLoading(true);
@@ -83,7 +89,7 @@ export default function AiPanel() {
     try {
       const headers = {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
+        Authorization: "Bearer " + token
       };
 
       let url = "/api/ai/assist";
@@ -97,10 +103,10 @@ export default function AiPanel() {
       const resp = await fetch(url, {
         method: "POST",
         headers,
-        body: JSON.stringify(body),
+        body: JSON.stringify(body)
       });
-
       const data = await resp.json().catch(() => ({}));
+
       if (!resp.ok || !data?.ok) {
         throw new Error(
           data?.detail ||
@@ -111,10 +117,11 @@ export default function AiPanel() {
         );
       }
 
-      setMessages((prev) => [
+      setMessages(prev => [
         ...prev,
-        { role: "assistant", content: data.text || "(respuesta vacía)" },
+        { role: "assistant", content: data.text || "(respuesta vacía)" }
       ]);
+      scrollToBottom();
     } catch (e) {
       setErrorMsg(e.message || "Error inesperado llamando a la IA");
     } finally {
@@ -133,13 +140,13 @@ export default function AiPanel() {
 
       const respUp = await fetch("/api/upload/file", {
         method: "POST",
-        body: fd,
+        body: fd
       });
       const data = await respUp.json().catch(() => ({}));
 
       if (respUp.ok && data?.ok && data?.url) {
         console.log("Archivo subido:", data.url);
-        setDocUrl(data.url); // ✅ Guardamos la URL para usarla en la próxima llamada
+        setDocUrl(data.url); // guardamos la URL del doc
       } else {
         throw new Error(data?.detail || data?.message || "No se pudo subir el archivo");
       }
@@ -154,6 +161,9 @@ export default function AiPanel() {
 
   function clearDoc() {
     setDocUrl("");
+    if (fileRef.current) {
+      fileRef.current.value = "";
+    }
   }
 
   return (
@@ -171,7 +181,7 @@ export default function AiPanel() {
             "linear-gradient(180deg, rgba(237,246,255,0.85), rgba(248,250,252,0.92))",
           borderRadius: 16,
           marginTop: 24,
-          marginBottom: 24,
+          marginBottom: 24
         }}
       >
         {/* Cabecera */}
@@ -198,7 +208,7 @@ export default function AiPanel() {
         {/* Presets */}
         <div className="sr-card mb-4">
           <div className="flex flex-wrap gap-2">
-            {PRESETS.map((p) => (
+            {PRESETS.map(p => (
               <button
                 key={p.tag}
                 className="px-3 py-1.5 rounded-full bg-sky-50 text-sky-800 border border-sky-200 hover:bg-sky-100 transition"
@@ -240,7 +250,7 @@ export default function AiPanel() {
 
           {/* Editor + documento */}
           <section>
-            <div className="sr-card h-[54vh] flex flex-col">
+            <div className="sr-card h-[54vh] flex flex-direction-column flex-col">
               <label className="sr-label mb-2">Documento (opcional)</label>
               <div className="flex items-center gap-2 mb-2">
                 <input
@@ -251,6 +261,7 @@ export default function AiPanel() {
                   className="sr-input"
                 />
               </div>
+
               {docUrl ? (
                 <div className="flex items-center gap-3 mb-3">
                   <span className="sr-small text-emerald-700">
@@ -266,7 +277,7 @@ export default function AiPanel() {
                   </a>
                   <button
                     type="button"
-                    className "sr-btn-secondary"
+                    className="sr-btn-secondary"
                     onClick={clearDoc}
                   >
                     Quitar
@@ -274,8 +285,7 @@ export default function AiPanel() {
                 </div>
               ) : (
                 <p className="sr-small text-zinc-500 mb-3">
-                  No hay ningún documento cargado. Puedes escribir solo texto o adjuntar
-                  un PDF/DOCX.
+                  No hay ningún documento cargado. Puedes escribir solo texto o adjuntar un PDF/DOCX.
                 </p>
               )}
 
@@ -284,7 +294,7 @@ export default function AiPanel() {
                 className="sr-input flex-1 resize-none"
                 placeholder="Ej.: Redacta un acta de mediación sobre..."
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={e => setInput(e.target.value)}
               />
 
               {errorMsg && (
