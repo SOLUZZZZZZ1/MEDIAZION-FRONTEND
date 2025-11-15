@@ -1,4 +1,4 @@
-// src/pages/AiPanel.jsx — Asistente IA Profesional (siempre envía mensaje, con token por defecto)
+// src/pages/AiPanel.jsx — Asistente IA Profesional con documento opcional (simple y fiable)
 import React, { useEffect, useRef, useState } from "react";
 import Seo from "../components/Seo.jsx";
 
@@ -58,7 +58,6 @@ export default function AiPanel() {
   const [errorMsg, setErrorMsg] = useState("");
 
   const [docUrl, setDocUrl] = useState("");
-  const [useDoc, setUseDoc] = useState(false);
   const fileRef = useRef(null);
   const listRef = useRef(null);
 
@@ -72,15 +71,13 @@ export default function AiPanel() {
     const prompt = (customPrompt ?? input).trim();
     if (!prompt) return;
 
-    // Siempre añadimos el mensaje al chat
+    const storedToken = localStorage.getItem("jwt_token");
+    const token = storedToken && storedToken.trim() ? storedToken : "ok";
+
     setMessages((prev) => [...prev, { role: "user", content: prompt }]);
     if (!customPrompt) setInput("");
     setErrorMsg("");
     setLoading(true);
-
-    // Token: usa el de localStorage si existe, si no, "ok"
-    const stored = localStorage.getItem("jwt_token");
-    const token = stored && stored.trim() ? stored : "ok";
 
     try {
       const headers = {
@@ -89,7 +86,8 @@ export default function AiPanel() {
       };
 
       let resp;
-      if (useDoc && docUrl) {
+      if (docUrl) {
+        // 👉 Si hay documento, SIEMPRE lo usamos
         resp = await fetch("/api/ai/assist_with", {
           method: "POST",
           headers,
@@ -108,7 +106,9 @@ export default function AiPanel() {
         throw new Error(
           data?.detail ||
             data?.message ||
-            "No se pudo generar la respuesta. Revisa IA en el backend."
+            (docUrl
+              ? "No se pudo generar la respuesta con el documento."
+              : "No se pudo generar la respuesta.")
         );
       }
 
@@ -124,35 +124,38 @@ export default function AiPanel() {
   }
 
   async function handleFilePick(e) {
-  const f = e.target.files && e.target.files[0];
-  if (!f) return;
-  setErrorMsg("");
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    setErrorMsg("");
 
-  try {
-    const fd = new FormData();
-    fd.append("file", f);
+    try {
+      const fd = new FormData();
+      fd.append("file", f);
 
-    const respUp = await fetch("/api/upload/file", {
-      method: "POST",
-      body: fd,
-    });
+      const respUp = await fetch("/api/upload/file", {
+        method: "POST",
+        body: fd,
+      });
+      const data = await respUp.json().catch(() => ({}));
 
-    const data = await respUp.json().catch(() => ({}));
-
-    if (respUp.ok && data?.ok && data?.url) {
-      console.log("Archivo subido:", data.url);
-      setDocUrl(data.url);
-      setUseDoc(true);  // <-- hace que IA use el documento
-    } else {
-      throw new Error(data?.detail || data?.message || "No se pudo subir el archivo");
+      if (respUp.ok && data?.ok && data?.url) {
+        console.log("Archivo subido:", data.url);
+        setDocUrl(data.url); // 👈 Guardamos la URL para la IA
+      } else {
+        throw new Error(data?.detail || data?.message || "No se pudo subir el archivo");
+      }
+    } catch (e2) {
+      setErrorMsg(e2.message || "Error subiendo archivo");
+    } finally {
+      if (fileRef.current) {
+        fileRef.current.value = "";
+      }
     }
-  } catch (e2) {
-    setErrorMsg(e2.message || "Error subiendo archivo");
-  } finally {
-    if (fileRef.current) fileRef.current.value = "";
   }
-}
 
+  function clearDoc() {
+    setDocUrl("");
+  }
 
   return (
     <>
@@ -208,6 +211,7 @@ export default function AiPanel() {
 
         {/* Chat + editor */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Conversación */}
           <section>
             <div
               ref={listRef}
@@ -232,28 +236,24 @@ export default function AiPanel() {
             </div>
           </section>
 
+          {/* Editor + documento */}
           <section>
-            <div className="sr-card h-[54vh] flex flex-col">
+            <div className "sr-card h-[54vh] flex flex-col">
               <label className="sr-label mb-2">Documento (opcional)</label>
               <div className="flex items-center gap-2 mb-2">
                 <input
                   ref={fileRef}
                   type="file"
-                  accept=".pdf,.doc,.docx,.txt,.md,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown"
+                  accept=".pdf,.doc,.docx,.txt,.md,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown,image/*"
                   onChange={handleFilePick}
                   className="sr-input"
                 />
-                <div className="flex items-center gap-2">
-                  <input
-                    id="useDoc"
-                    type="checkbox"
-                    checked={useDoc}
-                    onChange={(e) => setUseDoc(e.target.checked)}
-                  />
-                  <label htmlFor="useDoc" className="sr-small m-0">
-                    Usar en la generación
-                  </label>
-                  {docUrl && (
+
+                {docUrl ? (
+                  <div className="flex items-center gap-2">
+                    <span className="sr-small text-emerald-700">
+                      ✅ Documento cargado
+                    </span>
                     <a
                       className="sr-btn-secondary"
                       href={docUrl}
@@ -262,8 +262,19 @@ export default function AiPanel() {
                     >
                       Ver
                     </a>
-                  )}
-                </div>
+                    <button
+                      type="button"
+                      className="sr-btn-secondary"
+                      onClick={clearDoc}
+                    >
+                      Quitar
+                    </button>
+                  </div>
+                ) : (
+                  <span className="sr-small text-zinc-500">
+                    Ningún documento cargado.
+                  </span>
+                )}
               </div>
 
               <label className="sr-label mb-2">Escribe al asistente</label>
@@ -288,7 +299,7 @@ export default function AiPanel() {
                 >
                   {loading
                     ? "Generando…"
-                    : useDoc && docUrl
+                    : docUrl
                     ? "Generar con documento"
                     : "Generar con IA"}
                 </button>
