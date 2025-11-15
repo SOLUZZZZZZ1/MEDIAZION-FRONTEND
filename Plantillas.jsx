@@ -2,29 +2,10 @@
 import React, { useState } from "react";
 import Seo from "../components/Seo.jsx";
 
-// Recetas / plantillas predefinidas
 const RECETAS = [
-  {
-    id: 1,
-    title: "Acta estándar",
-    desc: "Redacta un acta básica de mediación con fecha, asistentes y acuerdos.",
-    prompt:
-      "Redacta un acta estándar de mediación con estructura formal, asistentes, resumen y acuerdos alcanzados.",
-  },
-  {
-    id: 2,
-    title: "Correo de seguimiento",
-    desc: "Mensaje profesional de cierre o seguimiento tras una sesión.",
-    prompt:
-      "Escribe un correo formal de seguimiento posterior a una sesión de mediación, agradeciendo la participación y recordando próximos pasos.",
-  },
-  {
-    id: 3,
-    title: "Resumen ejecutivo",
-    desc: "Síntesis objetiva de lo tratado y los avances logrados.",
-    prompt:
-      "Redacta un resumen ejecutivo claro y conciso de la sesión de mediación, destacando avances, acuerdos y temas pendientes.",
-  },
+  { id: 1, title: "Acta estándar", desc: "…", prompt: "…" },
+  { id: 2, title: "Correo de seguimiento", desc: "…", prompt: "…" },
+  { id: 3, title: "Resumen ejecutivo", desc: "…", prompt: "…" },
 ];
 
 export default function Plantillas() {
@@ -36,7 +17,6 @@ export default function Plantillas() {
     setAnswer("");
     try {
       const token = localStorage.getItem("jwt_token") || "ok";
-
       const res = await fetch("/api/ai/assist", {
         method: "POST",
         headers: {
@@ -45,7 +25,6 @@ export default function Plantillas() {
         },
         body: JSON.stringify({ prompt }),
       });
-
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data?.ok) {
         throw new Error(data?.detail || data?.message || "Error de IA");
@@ -60,28 +39,13 @@ export default function Plantillas() {
 
   return (
     <>
-      <Seo
-        title="Plantillas IA · MEDIAZION"
-        description="Plantillas rápidas para redactar actas, correos y resúmenes con IA."
-        canonical="https://mediazion.eu/panel-mediador/plantillas"
-      />
-      <main
-        className="sr-container py-8"
-        style={{
-          minHeight: "calc(100vh - 160px)",
-          background: "rgba(255,255,255,0.9)",
-          borderRadius: 16,
-          marginTop: 24,
-          marginBottom: 24,
-        }}
-      >
+      <Seo title="Plantillas IA · MEDIAZION" />
+      <main className="sr-container py-8">
         <h1 className="sr-h1 mb-2">Plantillas IA</h1>
         <p className="sr-p mb-4">
-          Usa estas plantillas rápidas para redactar al instante actas, correos de
-          seguimiento o resúmenes con la IA profesional.
+          Usa estas plantillas rápidas para generar textos habituales de mediación.
         </p>
 
-        {/* Tarjetas de recetas */}
         <section className="grid gap-4 md:grid-cols-2">
           {RECETAS.map((r) => (
             <article key={r.id} className="sr-card">
@@ -98,7 +62,6 @@ export default function Plantillas() {
           ))}
         </section>
 
-        {/* Resultado */}
         {answer && (
           <section className="sr-card mt-6">
             <h2 className="sr-h2 mb-2">Resultado</h2>
