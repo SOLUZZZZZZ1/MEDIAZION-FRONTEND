@@ -1,5 +1,6 @@
-// src/pages/AiPanel.jsx — IA Profesional estable (chat + docs + limpiar, sin cortar textarea)
+// src/pages/AiPanel.jsx — IA Profesional estable (chat + docs + limpiar)
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Seo from "../components/Seo.jsx";
 
 const INITIAL_MESSAGES = [
@@ -54,6 +55,7 @@ function MessageBubble({ role, content }) {
 }
 
 export default function AiPanel() {
+  const nav = useNavigate();
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -109,7 +111,9 @@ export default function AiPanel() {
 
       if (!resp.ok || !data?.ok) {
         throw new Error(
-          data?.detail || data?.message || "No se pudo obtener respuesta de la IA"
+          data?.detail ||
+            data?.message ||
+            "No se pudo generar la respuesta de la IA."
         );
       }
 
@@ -140,7 +144,7 @@ export default function AiPanel() {
     if (!f) return;
     setErrorMsg("");
     setDocName(f.name || "");
-    setUseDoc(false); // el usuario decidirá luego
+    setUseDoc(false); // el usuario decide luego si usarlo
 
     try {
       const fd = new FormData();
@@ -151,8 +155,11 @@ export default function AiPanel() {
         body: fd,
       });
       const data = await r.json().catch(() => ({}));
+
       if (!r.ok || !data?.ok || !data?.url) {
-        throw new Error(data?.detail || data?.message || "No se pudo subir el archivo");
+        throw new Error(
+          data?.detail || data?.message || "No se pudo subir el archivo"
+        );
       }
 
       setDocUrl(data.url);
@@ -162,7 +169,9 @@ export default function AiPanel() {
       setDocName("");
       setUseDoc(false);
     } finally {
-      if (fileRef.current) fileRef.current.value = "";
+      if (fileRef.current) {
+        fileRef.current.value = "";
+      }
     }
   }
 
@@ -210,9 +219,7 @@ export default function AiPanel() {
             <button
               type="button"
               className="sr-btn-secondary"
-              onClick={() =>
-                (window.location.href = "/panel-mediador/perfil?tab=seguridad")
-              }
+              onClick={() => nav("/panel-mediador/perfil?tab=seguridad")}
             >
               Cambiar contraseña
             </button>
@@ -227,7 +234,7 @@ export default function AiPanel() {
             <button
               type="button"
               className="sr-btn-secondary"
-              onClick={() => (window.location.href = "/panel-mediador")}
+              onClick={() => nav("/panel-mediador")}
             >
               Volver al panel
             </button>
@@ -262,7 +269,9 @@ export default function AiPanel() {
                 <MessageBubble key={idx} role={m.role} content={m.content} />
               ))}
               {loading && (
-                <p className="sr-small text-zinc-500 mt-2">La IA está pensando…</p>
+                <p className="sr-small text-zinc-500 mt-2">
+                  La IA está pensando…
+                </p>
               )}
             </div>
           </section>
