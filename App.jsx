@@ -13,7 +13,7 @@ import Tarifas from "./pages/Tarifas.jsx";
 import Contacto from "./pages/Contacto.jsx";
 import Actualidad from "./pages/Actualidad.jsx";
 import MediadorAlta from "./pages/MediadorAlta.jsx";
-import Plantillas from "./pages/Plantillas.jsx";
+import Plantillas from "../Plantillas.jsx";
 import Success from "./pages/Success.jsx";
 import Cancel from "./pages/Cancel.jsx";
 import Ayuda from "./pages/Ayuda.jsx";
