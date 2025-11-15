@@ -1,4 +1,5 @@
-// src/pages/AiPanel.jsx — IA Profesional con texto + documentos + imágenes y botón de limpieza
+// src/pages/AiPanel.jsx — IA Profesional con chat, documentos y botón Limpiar
+
 import React, { useEffect, useRef, useState } from "react";
 import Seo from "../components/Seo.jsx";
 
@@ -13,19 +14,23 @@ const INITIAL_MESSAGES = [
 const PRESETS = [
   {
     tag: "Acta estándar",
-    text: "Redacta un acta formal de mediación con fecha, asistentes, antecedentes, desarrollo, acuerdos y próximos pasos.",
+    text:
+      "Redacta un acta formal de mediación con fecha, asistentes, antecedentes, desarrollo, acuerdos y próximos pasos.",
   },
   {
     tag: "Resumen ejecutivo",
-    text: "Resume la sesión de mediación en 10-12 líneas, con objetivos, puntos clave, avances y tareas pendientes.",
+    text:
+      "Resume la sesión de mediación en 10-12 líneas, con objetivos, puntos clave, avances y tareas pendientes.",
   },
   {
     tag: "Correo de seguimiento",
-    text: "Redacta un correo profesional de seguimiento tras una sesión de mediación, con saludo, resumen de acuerdos y próximos pasos.",
+    text:
+      "Redacta un correo profesional de seguimiento tras una sesión de mediación, con saludo, resumen de acuerdos y próximos pasos.",
   },
   {
     tag: "Cláusula de confidencialidad",
-    text: "Escribe una cláusula de confidencialidad para anexar a un acta de mediación, en tono jurídico claro y conciso.",
+    text:
+      "Escribe una cláusula de confidencialidad para anexar a un acta de mediación, en tono jurídico claro y conciso.",
   },
 ];
 
@@ -62,6 +67,7 @@ export default function AiPanel() {
   const listRef = useRef(null);
   const fileRef = useRef(null);
 
+  // Auto-scroll al final del chat cuando hay mensajes nuevos
   useEffect(() => {
     if (listRef.current) {
       listRef.current.scrollTop = listRef.current.scrollHeight + 200;
@@ -73,12 +79,10 @@ export default function AiPanel() {
     return stored && stored.trim() ? stored : "ok";
   }
 
-  async function handleSend(customText) {
-    const text = (customText ?? input).trim();
+  async function sendMessage(text) {
     if (!text) return;
 
     setMessages((prev) => [...prev, { role: "user", content: text }]);
-    if (!customText) setInput("");
     setErrorMsg("");
     setLoading(true);
 
@@ -90,16 +94,8 @@ export default function AiPanel() {
         Authorization: "Bearer " + token,
       };
 
-      let body;
-      let endpoint;
-
-      if (useDoc && docUrl) {
-        endpoint = "/api/ai/assist_with";
-        body = { pr ompt: text, doc_url: docUrl };
-      } else {
-        endpoint = "/api/ai/assist";
-        body = { prompt: text };
-      }
+      const body = useDoc && docUrl ? { prompt: text, doc_url: docUrl } : { prompt: text };
+      const endpoint = useDoc && docUrl ? "/api/ai/assist_with" : "/api/ai/assist";
 
       const resp = await fetch(endpoint, {
         method: "POST",
@@ -110,7 +106,7 @@ export default function AiPanel() {
       const data = await resp.json().catch(() => ({}));
 
       if (!resp.ok || !data?.ok) {
-        throw new Error(data?.detail || data?.message || "No se pudo obtener respuesta");
+        throw new Error(data?.detail || data?.message || "No se pudo obtener respuesta de la IA");
       }
 
       setMessages((prev) => [
@@ -124,12 +120,24 @@ export default function AiPanel() {
     }
   }
 
+  function handleSend() {
+    const text = input.trim();
+    if (!text) return;
+    setInput("");
+    sendMessage(text);
+  }
+
+  function handlePreset(text) {
+    sendMessage(text);
+  }
+
   async function handleFilePick(e) {
     const f = e.target.files && e.target.files[0];
     if (!f) return;
 
     setErrorMsg("");
     setDocName(f.name || "");
+    setUseDoc(false); // el usuario tendrá que marcar "usar documento" a mano
 
     try {
       const fd = new FormData();
@@ -139,17 +147,18 @@ export default function AiPanel() {
         method: "POST",
         body: fd,
       });
-
       const data = await r.json().catch(() => ({}));
+
       if (!r.ok || !data?.ok || !data?.url) {
         throw new Error(data?.detail || data?.message || "No se pudo subir el archivo");
       }
 
       setDocUrl(data.url);
-      setUseDoc(true);
+      // No activamos useDoc automáticamente: dejamos que el usuario marque el checkbox
     } catch (e) {
       setErrorMsg(e.message || "Error subiendo archivo");
       setDocUrl("");
+      setDocName("");
       setUseDoc(false);
     } finally {
       if (fileRef.current) {
@@ -168,7 +177,7 @@ export default function AiPanel() {
     <>
       <Seo
         title="IA Profesional · MEDIAZION"
-        description="Asistente IA para mediadores: redacta actas, resúmenes, acuerdos y analiza documentos."
+        description="Asistente IA para mediadores: redacta actas, resúmenes y analiza documentos."
         canonical="https://mediazion.eu/panel-mediador/ai"
       />
 
@@ -188,8 +197,8 @@ export default function AiPanel() {
           <div>
             <h1 className="sr-h1 m-0">Asistente IA Profesional</h1>
             <p className="sr-small text-zinc-600">
-              Escribe tu consulta, sube documentos o imágenes y obtén propuestas listas
-              para usar en tu trabajo como mediador.
+              Escribe tu consulta o utiliza un documento para generar actas, resúmenes y
+              comunicaciones profesionales.
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -218,7 +227,8 @@ export default function AiPanel() {
               <button
                 key={p.tag}
                 className="px-3 py-1.5 rounded-full bg-sky-50 text-sky-800 border border-sky-200 hover:bg-sky-100 transition"
-                onClick={() => handleSend(p.text)}
+                onClick={() => handlePreset(p.text)}
+                title={p.text}
               >
                 {p.tag}
               </button>
@@ -228,7 +238,7 @@ export default function AiPanel() {
 
         {/* Chat + Editor */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Conversación */}
+          {/* Chat */}
           <section>
             <div
               ref={listRef}
@@ -238,7 +248,7 @@ export default function AiPanel() {
               {messages.map((m, idx) => (
                 <MessageBubble key={idx} role={m.role} content={m.content} />
               ))}
-              {chatLoading && (
+              {loading && (
                 <div className="w-full flex justify-start mb-3">
                   <div className="bg-white border border-zinc-200 rounded-2xl px-4 py-3 shadow-sm">
                     <div className="flex items-center gap-2 text-zinc-500">
@@ -253,7 +263,7 @@ export default function AiPanel() {
             </div>
           </section>
 
-          {/* Editor / Documento */}
+          {/* Editor */}
           <section>
             <div className="sr-card h-[54vh] flex flex-col">
               {/* Documento */}
@@ -267,43 +277,28 @@ export default function AiPanel() {
                   className="sr-input"
                 />
               </div>
-              <div className="mb-3">
-                {docUrl && useDoc ? (
-                  <p className="sr-small text-emerald-700">
-                    ✅ Usando: <b>{docName || "Documento adjunto"}</b>. Se tendrá en
-                    cuenta en la próxima respuesta.{" "}
-                    <button
-                      type="button"
-                      className="sr-btn-link"
-                      onClick={() => {
-                        setUseDoc(false);
-                      }}
-                    >
-                      Dejar de usar
-                    </button>
-                  </p>
-                ) : docUrl ? (
-                  <p className="sr-small text-zinc-600">
-                    Archivo cargado (<b>{docName}</b>). Marca la casilla para usarlo en
-                    la generación.
-                  </p>
-                ) : (
-                  <p className="sr-small text-zinc-500">
-                    Puedes subir documentos (PDF, DOCX, TXT, MD) o imágenes (JPG, PNG,
-                    etc.) para que la IA los analice.
-                  </p>
-                )}
-              </div>
-              {docUrl && (
-                <div className="flex items-center gap-2 mb-3">
-                  <label className="flex items-center gap-2 sr-small">
+
+              {docUrl ? (
+                <p className="sr-small text-zinc-700 mb-2">
+                  Archivo cargado: <b>{docName || "Documento adjunto"}</b>.{" "}
+                  <label className="ml-2 inline-flex items-center gap-2">
                     <input
                       type="checkbox"
                       checked={useDoc}
-                      onChange={(e) => setUseDoc( e.target.checked)}
+                      onChange={(e) => setUseDoc(e.target.checked)}
                     />
-                    Usar este documento / imagen en la respuesta
+                    <span>Usar este documento/imagen en la respuesta</span>
                   </label>
+                </p>
+              ) : (
+                <p className="sr-small text-zinc-500 mb-2">
+                  Puedes subir un PDF, DOCX, TXT o imagen. La IA lo tendrá en cuenta
+                  si marcas la casilla “usar este documento”.
+                </p>
+              )}
+
+              {docUrl && (
+                <div className="mb-3">
                   <a
                     href={docUrl}
                     target="_blank"
@@ -315,11 +310,11 @@ export default function AiPanel() {
                 </div>
               )}
 
-              {/* Texto libre */}
+              {/* Texto */}
               <label className="sr-label mb-2">Tu mensaje</label>
               <textarea
                 className="sr-input flex-1 resize-none"
-                placeholder="Ej.: Resume el documento adjunto y prepara una propuesta de acuerdo para las partes..."
+                placeholder="Escribe aquí tu consulta o instrucciones para la IA..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
               />
@@ -330,10 +325,10 @@ export default function AiPanel() {
                 </p>
               )}
 
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-3 flex gap-2">
                 <button
                   className="sr-btn-primary"
-                  onClick={() => handleSend()}
+                  onClick={handleSend}
                   disabled={loading || !input.trim()}
                 >
                   {loading
@@ -341,6 +336,13 @@ export default function AiPanel() {
                     : useDoc && docUrl
                     ? "Generar con documento/imagen"
                     : "Generar con IA"}
+                </button>
+                <button
+                  className="sr-btn-secondary"
+                  onClick={() => setInput("")}
+                  disabled={loading || !input}
+                >
+                  Limpiar texto
                 </button>
               </div>
             </div>
