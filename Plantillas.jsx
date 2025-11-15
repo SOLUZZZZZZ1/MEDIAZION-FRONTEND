@@ -1,6 +1,6 @@
 // src/pages/Plantillas.jsx — Plantillas IA (Recetas rápidas) · MEDIAZION
 import React, { useState } from "react";
-import Seo from "../components/Seo.jsx";
+import Seo from "./src/components/Seo.jsx";
 
 const RECETAS = [
   { id: 1, title: "Acta estándar", desc: "…", prompt: "…" },
