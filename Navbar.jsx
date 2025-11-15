@@ -23,7 +23,9 @@ export default function Navbar() {
 
           {/* NUEVAS PESTAÑAS */}
           <NavLink to="/voces" className={tab}>Voces</NavLink>
+          <NavLink to="/ayuda" className={tab}>Ayuda</NavLink>
           <NavLink to="/panel-mediador" className={tab}>Panel</NavLink>
+
         </nav>
       </div>
       <div className="sr-navbar-underline" />
