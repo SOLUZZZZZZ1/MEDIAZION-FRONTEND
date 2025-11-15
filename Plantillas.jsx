@@ -1,7 +1,8 @@
-// Plantillas.jsx — ubicado en la RAÍZ del repo
+// src/pages/Plantillas.jsx — Plantillas IA (Recetas rápidas) · MEDIAZION
 import React, { useState } from "react";
-import Seo from "./src/components/Seo.jsx";
+import Seo from "../components/Seo.jsx";
 
+// Recetas / plantillas predefinidas
 const RECETAS = [
   {
     id: 1,
@@ -13,7 +14,7 @@ const RECETAS = [
   {
     id: 2,
     title: "Correo de seguimiento",
-    desc: "Mensaje profesional de cierre o seguimiento post-sesión.",
+    desc: "Mensaje profesional de cierre o seguimiento tras una sesión.",
     prompt:
       "Escribe un correo formal de seguimiento posterior a una sesión de mediación, agradeciendo la participación y recordando próximos pasos.",
   },
@@ -30,23 +31,28 @@ export default function Plantillas() {
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function generar(p) {
+  async function generar(prompt) {
     setLoading(true);
     setAnswer("");
     try {
+      const token = localStorage.getItem("jwt_token") || "ok";
+
       const res = await fetch("/api/ai/assist", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer ok",
+          Authorization: "Bearer " + token,
         },
-        body: JSON.stringify({ prompt: p }),
+        body: JSON.stringify({ prompt }),
       });
-      const data = await res.json();
-      if (!res.ok || !data?.ok) throw new Error(data?.detail || "Error de IA");
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.ok) {
+        throw new Error(data?.detail || data?.message || "Error de IA");
+      }
       setAnswer(data.text || "");
     } catch (e) {
-      setAnswer("❌ " + (e.message || "Error generando receta"));
+      setAnswer("❌ " + (e.message || "Error generando plantilla"));
     } finally {
       setLoading(false);
     }
@@ -55,27 +61,30 @@ export default function Plantillas() {
   return (
     <>
       <Seo
-        title="Recetas IA · MEDIAZION"
+        title="Plantillas IA · MEDIAZION"
         description="Plantillas rápidas para redactar actas, correos y resúmenes con IA."
-        canonical="https://mediazion.eu/#/panel-mediador/plantillas"
+        canonical="https://mediazion.eu/panel-mediador/plantillas"
       />
       <main
         className="sr-container py-8"
         style={{
           minHeight: "calc(100vh - 160px)",
           background: "rgba(255,255,255,0.9)",
-          borderRadius: "16px",
-          marginTop: "24px",
+          borderRadius: 16,
+          marginTop: 24,
+          marginBottom: 24,
         }}
       >
-        <h1 className="sr-h1 mb-2">Recetas IA</h1>
+        <h1 className="sr-h1 mb-2">Plantillas IA</h1>
         <p className="sr-p mb-4">
-          Plantillas rápidas para redactar con IA de forma profesional.
+          Usa estas plantillas rápidas para redactar al instante actas, correos de
+          seguimiento o resúmenes con la IA profesional.
         </p>
 
+        {/* Tarjetas de recetas */}
         <section className="grid gap-4 md:grid-cols-2">
           {RECETAS.map((r) => (
-            <div key={r.id} className="sr-card">
+            <article key={r.id} className="sr-card">
               <h3 className="sr-h3 mb-1">{r.title}</h3>
               <p className="sr-p mb-3">{r.desc}</p>
               <button
@@ -83,18 +92,17 @@ export default function Plantillas() {
                 disabled={loading}
                 onClick={() => generar(r.prompt)}
               >
-                {loading ? "Generando…" : "Usar receta"}
+                {loading ? "Generando…" : "Usar plantilla"}
               </button>
-            </div>
+            </article>
           ))}
         </section>
 
+        {/* Resultado */}
         {answer && (
           <section className="sr-card mt-6">
-            <h2 className="sr-h2">Resultado</h2>
-            <pre className="sr-p" style={{ whiteSpace: "pre-wrap" }}>
-              {answer}
-            </pre>
+            <h2 className="sr-h2 mb-2">Resultado</h2>
+            <pre className="sr-p whitespace-pre-wrap">{answer}</pre>
           </section>
         )}
       </main>
