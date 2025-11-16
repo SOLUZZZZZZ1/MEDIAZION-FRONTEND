@@ -1,39 +1,42 @@
-// src/pages/AiPanelLegal.jsx — IA Experta Jurídica (chat + buscador de noticias)
+// src/pages/AiPanelLegal.jsx — IA Legal (chat jurídico + buscador jurídico)
 import React, { useEffect, useRef, useState } from "react";
 import Seo from "../components/Seo.jsx";
 
 function ChatBubble({ role, content }) {
   const isUser = role === "user";
   return (
-    <div className={`mb-3 flex ${isUser ? "justify-end" : "justify-start"}`}>
+    <div className={`w-full flex ${isUser ? "justify-end" : "justify-start"} mb-3`}>
       <div
         className={
-          "max-w-[90%] px-4 py-3 rounded-2xl shadow-sm " +
+          "max-w-[92%] md:max-w-[72%] px-4 py-3 rounded-2xl shadow-sm " +
           (isUser
-            ? "bg-sky-600 text-white rounded-br-xl"
-            : "bg-white border border-zinc-200 text-zinc-800 rounded-bl-xl")
+            ? "bg-sky-600 text-white rounded-br-sm"
+            : "bg-white border border-zinc-200 text-zinc-800 rounded-bl-sm")
         }
       >
-        <pre className="whitespace-pre-wrap m-0">{content}</pre>
+        <pre className="whitespace-pre-wrap m-0 font-sans text-[15px] leading-relaxed">
+          {content}
+        </pre>
       </div>
     </div>
   );
 }
 
 export default function AiPanelLegal() {
-  const [question, setQuestion] = useState("");
-  const [chat, setChat] = useState([
+  const [chatMessages, setChatMessages] = useState([
     {
       role: "assistant",
       content:
-        "Soy la IA Experta Jurídica de MEDIAZION. Puedo orientarte sobre mediación civil, mercantil, familiar y resolución de conflictos. ¿Cuál es tu consulta?"
-    }
+        "Soy la IA Jurídica de MEDIAZION. Puedo orientarte sobre mediación civil, mercantil, familiar y normativa relacionada. ¿Cuál es tu consulta?",
+    },
   ]);
+  const [question, setQuestion] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const [chatError, setChatError] = useState("");
+
   const chatRef = useRef(null);
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [searchItems, setSearchItems] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState("");
@@ -42,34 +45,44 @@ export default function AiPanelLegal() {
     if (chatRef.current) {
       chatRef.current.scrollTop = chatRef.current.scrollHeight + 200;
     }
-  }, [chat, chatLoading]);
+  }, [chatMessages, chatLoading]);
 
-  async function sendQuestion(e) {
+  function getToken() {
+    const stored = localStorage.getItem("jwt_token");
+    return stored && stored.trim() ? stored : "ok";
+  }
+
+  async function sendLegalQuestion(e) {
     if (e) e.preventDefault();
     const q = question.trim();
     if (!q) return;
 
-    const token = localStorage.getItem("jwt_token") || "ok";
-
-    setChat(prev => [...prev, { role: "user", content: q }]);
+    setChatMessages((prev) => [...prev, { role: "user", content: q }]);
     setQuestion("");
     setChatError("");
     setChatLoading(true);
 
     try {
+      const token = getToken();
       const r = await fetch("/api/ai/legal/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + token
+          Authorization: "Bearer " + token,
         },
-        body: JSON.stringify({ question: q })
+        body: JSON.stringify({ prompt: q }),
       });
+
       const data = await r.json().catch(() => ({}));
-      if (!r.ok || !data?.answer) {
+
+      if (!r.ok || !data?.ok) {
         throw new Error(data?.detail || data?.message || "No se pudo obtener respuesta");
       }
-      setChat(prev => [...prev, { role: "assistant", content: data.answer }]);
+
+      setChatMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: data.text || "(respuesta vacía)" },
+      ]);
     } catch (err) {
       setChatError(err.message || "Error en IA Legal");
     } finally {
@@ -77,23 +90,39 @@ export default function AiPanelLegal() {
     }
   }
 
+  function clearChat() {
+    setChatMessages([
+      {
+        role: "assistant",
+        content:
+          "Soy la IA Jurídica de MEDIAZION. Puedo orientarte sobre mediación civil, mercantil, familiar y normativa relacionada. ¿Cuál es tu consulta?",
+      },
+    ]);
+    setChatError("");
+  }
+
   async function doSearch(e) {
     if (e) e.preventDefault();
-    const q = searchQuery.trim();
-    if (!q) return;
-    setSearchLoading(true);
+    const term = searchTerm.trim();
+    if (!term) return;
+
     setSearchError("");
+    setSearchLoading(true);
     setSearchItems([]);
 
     try {
-      const r = await fetch(`/api/ai/legal/search?q=${encodeURIComponent(q)}`);
+      const r = await fetch(
+        `/api/ai/legal/search?q=${encodeURIComponent(term)}`
+      );
       const data = await r.json().catch(() => ({}));
+
       if (!r.ok || !data?.ok) {
-        throw new Error(data?.detail || "No se pudieron cargar las noticias");
+        throw new Error(data?.detail || "No se pudieron cargar noticias");
       }
+
       setSearchItems(data.items || []);
     } catch (err) {
-      setSearchError(err.message || "Error al buscar noticias");
+      setSearchError(err.message || "Error al buscar noticias jurídicas");
     } finally {
       setSearchLoading(false);
     }
@@ -102,25 +131,27 @@ export default function AiPanelLegal() {
   return (
     <>
       <Seo
-        title="IA Experta Jurídica · MEDIAZION"
-        description="Consulta jurídica sobre mediación civil, mercantil y familiar con la IA Legal de MEDIAZION."
+        title="IA Legal · MEDIAZION"
+        description="IA Jurídica experta en mediación: consulta dudas legales y explora noticias de mediación."
+        canonical="https://mediazion.eu/panel-mediador/ia-legal"
       />
       <main className="sr-container py-8">
-        <h1 className="sr-h1">IA Experta Jurídica ⚖️</h1>
-        <p className="sr-p mb-4">
-          Pregunta sobre mediación y resolución de conflictos. La IA te orientará con
-          criterios jurídicos, sin sustituir el asesoramiento profesional presencial.
+        <h1 className="sr-h1 mb-2">IA Legal · Mediación</h1>
+        <p className="sr-p mb-6">
+          Consulta dudas jurídicas sobre mediación y explora noticias recientes
+          relacionadas con normativa, reformas y casos relevantes.
         </p>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* Chat Jurídico */}
-          <section className="sr-card flex flex-col h-[60vh]">
+          {/* Chat jurídico */}
+          <section className="sr-card p-4 flex flex-col">
             <h2 className="sr-h2 mb-2">Chat jurídico</h2>
             <div
               ref={chatRef}
-              className="flex-1 overflow-auto border border-zinc-200 rounded-lg p-3 mb-3"
+              className="flex-1 border border-zinc-200 rounded-lg p-3 overflow-auto"
+              style={{ maxHeight: "50vh" }}
             >
-              {chat.map((m, idx) => (
+              {chatMessages.map((m, idx) => (
                 <ChatBubble key={idx} role={m.role} content={m.content} />
               ))}
               {chatLoading && (
@@ -128,38 +159,58 @@ export default function AiPanelLegal() {
               )}
             </div>
 
-            <form onSubmit={sendQuestion} className="flex flex-col gap-2">
+            {chatError && (
+              <p className="sr-small text-red-700 mt-2">{chatError}</p>
+            )}
+
+            <form onSubmit={sendLegalQuestion} className="mt-3 flex flex-col gap-2">
               <textarea
                 className="sr-input resize-none"
                 rows={3}
-                placeholder="Ej.: ¿Se puede utilizar la mediación para un conflicto entre socios de una empresa?"
+                placeholder="Ej.: ¿Qué ley regula la mediación civil y mercantil en España?"
                 value={question}
-                onChange={e => setQuestion(e.target.value)}
+                onChange={(e) => setQuestion(e.target.value)}
               />
-              {chatError && (
-                <p className="sr-small text-red-700">{chatError}</p>
-              )}
-              <button
-                className="sr-btn-primary self-start"
-                type="submit"
-                disabled={!question.trim() || chatLoading}
-              >
-                {chatLoading ? "Consultando…" : "Preguntar a la IA Legal"}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  className="sr-btn-primary"
+                  type="submit"
+                  disabled={chatLoading || !question.trim()}
+                >
+                  {chatLoading ? "Consultando…" : "Preguntar a la IA Legal"}
+                </button>
+                <button
+                  className="sr-btn-secondary"
+                  type="button"
+                  onClick={clearChat}
+                  disabled={chatLoading}
+                >
+                  Limpiar conversación
+                </button>
+              </div>
             </form>
           </section>
 
-          {/* Buscador de noticias jurídicas */}
-          <section className="sr-card flex flex-col h-[60vh]">
-            <h2 className="sr-h2 mb-2">Actualidad jurídica (BOE, Confilegal…)</h2>
-            <form onSubmit={doSearch} className="mb-3 flex gap-2">
+          {/* Buscador jurídico */}
+          <section className="sr-card p-4 flex flex-col">
+            <h2 className="sr-h2 mb-2">Actualidad jurídica</h2>
+            <p className="sr-small text-zinc-600 mb-2">
+              Busca noticias en BOE, Confilegal, LegalToday y CGPJ relacionadas con
+              mediación u otros términos jurídicos.
+            </p>
+
+            <form onSubmit={doSearch} className="flex gap-2 mb-3">
               <input
                 className="sr-input flex-1"
-                placeholder="Buscar en BOE / Confilegal / CGPJ… (ej.: 'mediación familiar')"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Ej.: mediación familiar"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <button className="sr-btn-secondary" type="submit" disabled={!searchQuery.trim() || searchLoading}>
+              <button
+                className="sr-btn-secondary"
+                type="submit"
+                disabled={searchLoading || !searchTerm.trim()}
+              >
                 {searchLoading ? "Buscando…" : "Buscar"}
               </button>
             </form>
@@ -168,25 +219,27 @@ export default function AiPanelLegal() {
               <p className="sr-small text-red-700 mb-2">{searchError}</p>
             )}
 
-            <div className="flex-1 overflow-auto space-y-3">
-              {searchLoading && <p className="sr-small">Cargando noticias…</p>}
+            <div className="flex-1 overflow-auto space-y-3" style={{ maxHeight: "50vh" }}>
+              {searchLoading && (
+                <p className="sr-small text-zinc-500">Cargando noticias…</p>
+              )}
               {!searchLoading && searchItems.length === 0 && (
                 <p className="sr-small text-zinc-500">
                   Introduce un término para buscar noticias relacionadas.
                 </p>
               )}
-              {searchItems.map((it, i) => (
-                <article key={i} className="sr-card">
-                  <h3 className="sr-h3">{it.title}</h3>
+              {searchItems.map((it, idx) => (
+                <article key={idx} className="sr-card">
+                  <h3 className="sr-h3 mb-1">{it.title}</h3>
                   <p className="sr-small text-zinc-600 mb-1">
                     {it.source} · {it.date}
                   </p>
-                  <p className="sr-p">{it.summary}</p>
+                  <p className="sr-p mb-2">{it.summary}</p>
                   <a
-                    className="sr-btn-secondary mt-2 inline-block"
                     href={it.url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    className="sr-btn-secondary"
                   >
                     Ver fuente
                   </a>
