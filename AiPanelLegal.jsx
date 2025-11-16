@@ -23,6 +23,7 @@ function ChatBubble({ role, content }) {
 }
 
 export default function AiPanelLegal() {
+  // CHAT
   const [chatMessages, setChatMessages] = useState([
     {
       role: "assistant",
@@ -36,6 +37,7 @@ export default function AiPanelLegal() {
 
   const chatRef = useRef(null);
 
+  // BUSCADOR
   const [searchTerm, setSearchTerm] = useState("");
   const [searchItems, setSearchItems] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -52,6 +54,7 @@ export default function AiPanelLegal() {
     return stored && stored.trim() ? stored : "ok";
   }
 
+  // ---- CHAT: enviar pregunta ----
   async function sendLegalQuestion(e) {
     if (e) e.preventDefault();
     const q = question.trim();
@@ -79,9 +82,11 @@ export default function AiPanelLegal() {
         throw new Error(data?.detail || data?.message || "No se pudo obtener respuesta");
       }
 
+      // 👇 AQUÍ nos aseguramos de usar SOLO data.text (string)
+      const text = data.text || "(respuesta vacía)";
       setChatMessages((prev) => [
         ...prev,
-        { role: "assistant", content: data.text || "(respuesta vacía)" },
+        { role: "assistant", content: text },
       ]);
     } catch (err) {
       setChatError(err.message || "Error en IA Legal");
@@ -101,6 +106,7 @@ export default function AiPanelLegal() {
     setChatError("");
   }
 
+  // ---- BUSCADOR: noticias jurídicas ----
   async function doSearch(e) {
     if (e) e.preventDefault();
     const term = searchTerm.trim();
@@ -132,7 +138,7 @@ export default function AiPanelLegal() {
     <>
       <Seo
         title="IA Legal · MEDIAZION"
-        description="IA Jurídica experta en mediación: consulta dudas legales y explora noticias de mediación."
+        description="IA Jurídica experta en mediación: consulta dudas legales y explora noticias relevantes."
         canonical="https://mediazion.eu/panel-mediador/ia-legal"
       />
       <main className="sr-container py-8">
@@ -143,7 +149,7 @@ export default function AiPanelLegal() {
         </p>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* Chat jurídico */}
+          {/* CHAT JURÍDICO */}
           <section className="sr-card p-4 flex flex-col">
             <h2 className="sr-h2 mb-2">Chat jurídico</h2>
             <div
@@ -163,7 +169,10 @@ export default function AiPanelLegal() {
               <p className="sr-small text-red-700 mt-2">{chatError}</p>
             )}
 
-            <form onSubmit={sendLegalQuestion} className="mt-3 flex flex-col gap-2">
+            <form
+              onSubmit={sendLegalQuestion}
+              className="mt-3 flex flex-col gap-2"
+            >
               <textarea
                 className="sr-input resize-none"
                 rows={3}
@@ -191,7 +200,7 @@ export default function AiPanelLegal() {
             </form>
           </section>
 
-          {/* Buscador jurídico */}
+          {/* BUSCADOR JURÍDICO */}
           <section className="sr-card p-4 flex flex-col">
             <h2 className="sr-h2 mb-2">Actualidad jurídica</h2>
             <p className="sr-small text-zinc-600 mb-2">
@@ -219,7 +228,10 @@ export default function AiPanelLegal() {
               <p className="sr-small text-red-700 mb-2">{searchError}</p>
             )}
 
-            <div className="flex-1 overflow-auto space-y-3" style={{ maxHeight: "50vh" }}>
+            <div
+              className="flex-1 overflow-auto space-y-3"
+              style={{ maxHeight: "50vh" }}
+            >
               {searchLoading && (
                 <p className="sr-small text-zinc-500">Cargando noticias…</p>
               )}
