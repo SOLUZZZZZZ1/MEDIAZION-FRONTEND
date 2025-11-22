@@ -53,9 +53,9 @@ export default function Navbar() {
             Admin
           </NavLink>
 
-          {/* Aquí antes ponía “Ayuntamientos” → ahora “Instituciones”, mismo sitio pero un poco destacada */}
+          {/* Antes era “Ayuntamientos” → ahora “Instituciones”, en el mismo sitio pero destacada */}
           <NavLink
-            to="/ayuntamientos"
+            to="/instituciones"
             className={tab}
             style={{ marginLeft: "1.5rem", fontWeight: 700 }}
           >
